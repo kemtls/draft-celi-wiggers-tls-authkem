@@ -355,20 +355,23 @@ of more algorithms to the "supported_groups" and "signature_algorithms".
 
 KEMTLS uses the `ClientHello` message as described for TLS 1.3. When used
 in a pre-distributed mode, however, two extensions are mandatory: "cached_information"
-and `kem_ciphertext` for server authentication. This extensions are
+and "kem_ciphertext" for server authentication. This extensions are
 described later in the document.
+
+Note that in KEMTLS with pre-distributed information, the client's `Certificate`
+message gets send alongside the `ClientHello` one for mutual authentication.
 
 ### Server Hello
 
 KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, one extensions is mandatory: "cached_information"
+in a pre-distributed mode, however, one extension is mandatory: "cached_information"
 for server authentication. This extension is described later in the document.
 
 ### Hello Retry Request
 
 KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, a Hello Retry Request message
-should not be sent.
+in a pre-distributed mode for mutual authentication, a `HelloRetryRequest`
+message, but the client's `Certificate` message is ignored.
 
 ### Extensions
 
