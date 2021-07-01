@@ -922,10 +922,22 @@ We separate them by individual labels and the transcript.
     finished_client <- HKDF.Expand(MS, "c finished", transcript_up_to_CF)
     finished_server <- HKDF.Expand(MS, "s finished", transcript_up_to_SF)
 
+# Record Protocol
 
-# Protocol Mechanics
+KEMTLS uses the same TLS 1.3 Record Protocol.
 
-TODO
+# Alert Protocol
+
+KEMTLS uses the same TLS 1.3 Alert Protocol.
+
+# Cryptographic Computations
+
+The KEMTLS handshake establishes three input secrets which are
+combined to create the actual working keying material, as detailed below. The
+key derivation process incorporates both the input secrets and the handshake
+transcript.  Note that because the handshake transcript includes the random
+values from the Hello messages, any given handshake will have different traffic
+secrets, even if the same input secrets are used.
 
 # (Middlebox) Compatibility Considerations
 
