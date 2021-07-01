@@ -33,6 +33,12 @@ author:
     email: douglas_stebila@stebila.ca
 
  -
+    ins: N. Sullivan
+    name: Nick Sullivan
+    org: Cloudflare
+    email: nick@cloudflare.com
+
+ -
     ins: T. Wiggers
     name: Thom Wiggers
     org: Radboud University
@@ -395,7 +401,7 @@ appear:
 
 ~~~
    +--------------------------------------------------+-------------+
-   | Extension                                        |     TLS 1.3 |
+   | Extension                                        |     KEM TLS |
    +--------------------------------------------------+-------------+
    | cached_info [RFCTBD]                             |      CH, SH |
    |                                                  |             |
@@ -423,29 +429,35 @@ are added to the `SignatureScheme` list:
 
       /* Post-quantum KEM authentication algorithms */
       kyber512(TBD),
+      kyber768(TBD),
+      kyber1024(TBD),
       ntru2048509(TBD),
+      ntru2048677(TBD),
+      ntru4096821(TBD),
       light_saber(TBD),
+      saber(TBD),
+      fira_saber(TBD),
 
       /* Hybrid authentication algorithms */
       kyber512_secp256r1(TBD),
       ntru2048509_secp256r1(TBD),
       light_saber_secp256r1(TBD),
 
-      kyber512_secp384r1(TBD),
-      ntru2048509_secp384r1(TBD),
-      light_saber_secp384r1(TBD),
+      kyber768_secp384r1(TBD),
+      ntru2048677_secp384r1(TBD),
+      saber_secp384r1(TBD),
 
-      kyber512_secp521r1(TBD),
-      ntru2048509_secp521r1(TBD),
-      light_saber_secp521r1(TBD),
+      kyber1024_secp521r1(TBD),
+      ntru4096821_secp521r1(TBD),
+      fira_saber_secp521r1(TBD),
 
       kyber512_x25519(TBD),
       ntru2048509_x25519(TBD),
       light_saber_x25519(TBD),
 
-      kyber512_x448(TBD),
-      ntru2048509_x448(TBD),
-      light_saber_x448(TBD),
+      kyber768_x448(TBD),
+      ntru2048677_x448(TBD),
+      saber_x448(TBD),
 
       /* Legacy algorithms */
       rsa_pkcs1_sha1(0x0201),
@@ -477,23 +489,25 @@ are added to the `NamedGroup` list:
       ffdhe6144(0x0103), ffdhe8192(0x0104),
 
       /* Post-Quantum KEMs (PQKEM) */
-      Kyber512(TBD), ntru2048509(TBD), light_saber(TBD)
+      kyber512(TBD), kyber768(TBD), kyber1024(TBD),
+      ntru2048509(TBD), ntru2048677(TBD), ntru4096821(TBD),
+      light_saber(TBD), saber(TBD), fira_saber(TBD),
 
       /* Hybrid KEMs (HKEM) */
       kyber512_secp256r1(TBD), ntru2048509_secp256r1(TBD),
       light_saber_secp256r1(TBD),
 
-      kyber512_secp384r1(TBD), ntru2048509_secp384r1(TBD),
-      light_saber_secp384r1(TBD),
+      kyber768_secp384r1(TBD), ntru2048677_secp384r1(TBD),
+      saber_secp384r1(TBD),
 
-      kyber512_secp521r1(TBD), ntru2048509_secp521r1(TBD),
-      light_saber_secp521r1(TBD),
+      kyber1024_secp521r1(TBD), ntru4096821_secp521r1(TBD),
+      fira_saber_secp521r1(TBD),
 
       kyber512_x25519(TBD), ntru2048509_x25519(TBD),
-      light_saber_ed25519(TBD),
+      light_saber_x25519(TBD),
 
-      kyber512_x448(TBD), ntru2048509_ed448(TBD),
-      light_saber_ed448(TBD),
+      kyber768_x448(TBD), ntru2048677_x448(TBD),
+      saber_x448(TBD),
 
       /* Reserved Code Points */
       ecdhe_private_use(0xFE01..0xFEFF),
