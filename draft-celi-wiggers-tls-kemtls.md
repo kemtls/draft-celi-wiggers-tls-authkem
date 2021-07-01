@@ -704,7 +704,7 @@ operations to the Shared Secret Keys and the handshake context to derive:
   `CAHTS` and `SAHTS` which are used to encrypt subsequent flows
   in the handshake
 - updated secret state `dAHS` of the key schedule.
-- a master key.
+- a Master Key.
 
 ### Certificate
 
@@ -840,88 +840,6 @@ appropriate application traffic key as described in TLS 1.3.  In
 particular, this includes any alerts sent by the server in response
 to client Certificate and KEMCiphertext messages.
 
-# Key schedule
-
-## Negotiation
-
-1. Add KEMs to ``supported_groups`` and KEM public key to ``key_shares``.
-1. Add ``KEMTLSwithSomeKEM`` to ``signature_algorithms``.
-  1. Alternatively, use DC draft and add it to ``signature_algorithms_dc``.
-1. Server replies with KEM ciphertext encapsulated to KEM public key (or HRR).
-1. Server replies with CA-signed KEM public-key X.509 certificate.
-  1. Alternatively, use DC draft and reply with KEM delegated credential.
-1. Server MUST NOT submit ``CertificateVerify`` message.
-1. Client detects that KEMTLS is being used via the "signature algorithm", ie. the type of credential provided by the server.
-1. Client encapsulates ciphertext to server and transmits it as ``ClientKEMCiphertext`` (or piggy-back on ``ClientKeyExchange``?).
-1. Client submits ``ClientFinished``.
-1. Client completed handshake.
-1. Server submits ``ServerFinished``.
-1. Server completes handshake.
-
-
-TODO probably split off DC into separate paragraph.
-
-## Handshake Secret
-
-The Handshake secret ``HS`` is derived from the ephemeral key exchange
-shared secret.
-
-    ...
-                         v
-    ephemeral_kem_shared -> HKDF-Extract = Handshake Secret
-                         v
-    ...
-
-## Authenticated Handshake Secret
-
-After deriving ``HS``, the Handshake Secret, from the ephemeral keys, we
-need an additional handshake secret in KEMTLS.
-We require this additional handshake secret as we need an (implicitly)
-authenticated handshake secret to encrypt any client credentials under.
-Otherwise we do not have confidentiality for the client certificate.
-
-``AHS`` is derived from the hanshake secret and the static shared key.
-We change the derivation of the main secret accordingly.
-
-                      Handshake Secret
-                         |
-                         v
-                        Derive-Secret(., "derived", "")
-                         |
-                         v
-    static_server_shared -> HKDF.Extract = Authenticated Handshake Secret
-                         |
-                         +-----> Derive-Secret(., "c ahs traffic",
-                         |                     ClientHello...ClientKemCiphertext)
-                         |                     = client_authenticated_handshake_traffic_secret
-                         |
-                         +-----> Derive-Secret(., "s ahs traffic",
-                         |                     ClientHello...ClientKemCiphertext)
-                         |                     = server_authenticated_handshake_traffic_secret
-                         |
-                         v
-                        Derive-Secret(., "derived", "")
-                         |
-                         v
-    static_client_shared -> HKDF.Extract = Main Secret
-                         v
-
-
-``shared_secret_static_client_kem`` is the shared secret encapsulated to the client's public key.
-If there is no client authentication, it's simply replaced by ``0``.
-
-                         v
-                       0 -> HKDF.Extract = Main Secret
-                         v
-
-## Finished keys
-
-We derived the finished keys from ``MS`` instead of from ``CHTS`` and ``SHTS``.
-We separate them by individual labels and the transcript.
-
-    finished_client <- HKDF.Expand(MS, "c finished", transcript_up_to_CF)
-    finished_server <- HKDF.Expand(MS, "s finished", transcript_up_to_SF)
-
 # Record Protocol
 
 KEMTLS uses the same TLS 1.3 Record Protocol.
@@ -938,6 +856,86 @@ key derivation process incorporates both the input secrets and the handshake
 transcript.  Note that because the handshake transcript includes the random
 values from the Hello messages, any given handshake will have different traffic
 secrets, even if the same input secrets are used.
+
+## Key schedule
+
+KEMTLS uses the same HKDF-Extract and HKDF-Expand functions as defined by
+TLS 1.3.
+
+Keys are derived from two input secrets using the HKDF-Extract and
+Derive-Secret functions.  The general pattern for adding a new secret
+is to use HKDF-Extract with the Salt being the current secret state
+and the Input Keying Material (IKM) being the new secret to be added.
+
+In this version of KEMTLS, the input secret is:
+
+ -  KEM shared secret which could be just one PQKEM or the concatenation
+    of the PQKEM with the "classical" KEM.
+
+The key schedule proceeds as follows:
+
+~~~
+             0
+             |
+             v
+   PSK ->  HKDF-Extract = Early Secret
+             |
+             +-----> Derive-Secret(., "ext binder" | "res binder", "")
+             |                     = binder_key
+             |
+             +-----> Derive-Secret(., "c e traffic", ClientHello)
+             |                     = client_early_traffic_secret
+             |
+             +-----> Derive-Secret(., "e exp master", ClientHello)
+             |                     = early_exporter_master_secret
+             v
+       Derive-Secret(., "derived", "")
+             |
+             v
+   KEM ->  HKDF-Extract = Handshake Secret
+             |
+             +-----> Derive-Secret(., "c hs traffic",
+             |                     ClientHello...ServerHello)
+             |                     = client_handshake_traffic_secret
+             |
+             +-----> Derive-Secret(., "s hs traffic",
+             |                     ClientHello...ServerHello)
+             |                     = server_handshake_traffic_secret
+             v
+       Derive-Secret(., "derived", "") = dHS
+             |
+             v
+   KEM ->  HKDF-Extract = Authenticated Handshake Secret
+             |
+             +-----> Derive-Secret(., "c ahs traffic",
+             |                     ClientHello...KEMCiphertext)
+             |                     = client_handshake_traffic_secret
+             |
+             +-----> Derive-Secret(., "s ahs traffic",
+             |                     ClientHello...KEMCiphertext)
+             |                     = server_handshake_traffic_secret
+             v
+       Derive-Secret(., "derived", "") = AHS
+             |
+             v
+   0 -> HKDF-Extract = Master Secret
+             |
+             +-----> Derive-Secret(., "c ap traffic",
+             |                     ClientHello...server Finished)
+             |                     = client_application_traffic_secret_0
+             |
+             +-----> Derive-Secret(., "s ap traffic",
+             |                     ClientHello...server Finished)
+             |                     = server_application_traffic_secret_0
+             |
+             +-----> Derive-Secret(., "exp master",
+             |                     ClientHello...server Finished)
+             |                     = exporter_master_secret
+             |
+             +-----> Derive-Secret(., "res master",
+                                   ClientHello...client Finished)
+                                   = resumption_master_secret
+~~~
 
 # (Middlebox) Compatibility Considerations
 
