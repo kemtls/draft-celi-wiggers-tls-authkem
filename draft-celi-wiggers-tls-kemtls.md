@@ -373,6 +373,13 @@ KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
 in a pre-distributed mode, however, one extension is mandatory: "cached_information"
 for server authentication. This extension is described later in the document.
 
+When the ServerHello message is received:
+
+- the client and server derive handshake traffic secrets `CHTS` and `SHTS` which are
+  used to encrypt subsequent flows in the handshake
+- it is derived the “derived handshake secret”: `dHS` which is kept as the
+  current secret state of the key schedule.
+
 ### Hello Retry Request
 
 KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
@@ -693,10 +700,11 @@ KEMCiphertext: The post-quantum KEM ciphertext (or a hybrid one) against the
 KEMTLS follows the TLS 1.3 key schedule, which applies a sequence of HKDF
 operations to the Shared Secret Keys and the handshake context to derive:
 
-- the client and server handshake traffic secrets `CHTS` and `SHTS` which are
-  used to encrypt subsequent flows in the handshake
-- “derived handshake secret”: `dHS` which is kept as the current secret state
-  of the key schedule.
+- the client and server authenticated handshake traffic secrets
+  `CAHTS` and `SAHTS` which are used to encrypt subsequent flows
+  in the handshake
+- updated secret state `dAHS` of the key schedule.
+- a master key.
 
 ### Certificate
 
@@ -790,7 +798,47 @@ private key(s) of the public key(s) advertised in the end-entity certificate sen
 
 ### Explicit Authentication Messages
 
-#### Finished
+As discussed, KEMTLS generally uses a message for explicit
+authentication: Finished message. Note that in the non pre-distributed mode,
+KEMTLS achieves explicit authentication only when the server sends the final
+`Finished` message (the client is only implicitly authenticated when they
+send their `Finished` message). In a pre-distributed mode, the server achieves
+explicit authentication when sending their `Finished` message (one round-trip
+earlier) and the client, in turn, when they send their `Finished` message
+(one round-trip earlier). Full downgrade resilience and forward secrecy
+is achieved once the KEMTLS handshake completes.
+
+The key used to compute the Finished message is computed from the
+Master Key using HKDF. Specifically:
+
+~~~
+ finished_key =
+     HKDF-Expand-Label(MasterKey, "finished", "", Hash.length)
+~~~
+
+Structure of this message:
+
+~~~
+  struct {
+      opaque verify_data[Hash.length];
+  } Finished;
+~~~
+
+The verify_data value is computed as follows:
+
+~~~
+  verify_data =
+      HMAC(finished_key,
+           Transcript-Hash(Handshake Context,
+                           Certificate*, KEMCiphertext*))
+~~~
+
+* Only included if present.
+
+Any records following a Finished message MUST be encrypted under the
+appropriate application traffic key as described in TLS 1.3.  In
+particular, this includes any alerts sent by the server in response
+to client Certificate and KEMCiphertext messages.
 
 # Key schedule
 
