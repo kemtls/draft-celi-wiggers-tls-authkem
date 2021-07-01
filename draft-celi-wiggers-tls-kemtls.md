@@ -530,11 +530,20 @@ are added to the `NamedGroup` list:
 ~~~
 
 The algorithms added here correspond to the round-3 finalists of the post-quantum
-NIST competition. They are made available as follows:
+NIST competition. ecurity, NIST's P521 curve is used with it.
 
-- If the `KEM` has L1 security, NIST's P256 curve or x25519 is used with it
-- If `KEM` has L3 security, NIST's P384 curve or x448 is used with it.
-- If `KEM` has L5 security, NIST's P521 curve is used with it.
+
+Post-Quantum KEMs (PQKEM):  Indicates support for the
+  corresponding named post-quantum KEM corresponding to the round-3 finalists of
+  the post-quantum NIST competition. They correspond to a L1, L3 or L5
+  security level.
+
+Hybrid KEMs (HKEM): Indicates support for the
+  corresponding named hybrid KEMs (a "classical" -ECDHE- and post-quantum algorithms).
+  They are made available as follows:
+  - If the `KEM` has L1 security, NIST's P256 curve or x25519 is used with it
+  - If `KEM` has L3 security, NIST's P384 curve or x448 is used with it.
+  - If `KEM` has L5 security, NIST's P512 curve.
 
 #### Key Share
 
@@ -569,6 +578,33 @@ The HybridKeyExchange sent as part of the ServerHello:
 
 If a hybrid mode is not in use, only the post-quantum public key or
 ciphertext is advertised.
+
+##### Post-Quantum KEM Parameters
+
+Post-Quantum KEM Parameters for both clients and servers are encoded in the
+opaque key_exchange field of a KeyShareEntry in a
+HybridKeyShare structure.  The opaque value contains either:
+
+- the KEM public value
+- the KEM ciphertext value
+
+for the specified algorithm encoded as a big-endian integer and padded to
+the left with zeros to the size of p in bytes.
+
+Peers MUST validate each other's public key.
+
+##### Hybrid KEM Parameters
+
+Hybrid KEM parameters for both clients and servers are encoded in the
+opaque key_exchange field of a KeyShareEntry in a HybridKeyShare structure.
+The opaque value contains:
+
+- the KEM public value or
+- the KEM ciphertext value
+
+and
+
+- the ECDHE public value
 
 #### Cached Information
 
@@ -655,12 +691,12 @@ KEMCiphertext: The post-quantum KEM ciphertext (or a hybrid one) against the
   certificate's public key(s).
 
 KEMTLS follows the TLS 1.3 key schedule, which applies a sequence of HKDF
-operations to the Shared Secret Key and the handshake context to derive:
+operations to the Shared Secret Keys and the handshake context to derive:
 
 - the client and server handshake traffic secrets `CHTS` and `SHTS` which are
   used to encrypt subsequent flows in the handshake
-- “derived handshake secret” `dHS` which is kept as the current secret state
-  of the key schedule
+- “derived handshake secret”: `dHS` which is kept as the current secret state
+  of the key schedule.
 
 ### Certificate
 
