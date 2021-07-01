@@ -728,25 +728,30 @@ KEMTLS uses the same Certificate message as TLS 1.3 with these changes:
   } Certificate;
 ~~~
 
-In a hybrid mode, the leaf Certificate or the RawHybridPublicKey MUST
+In a hybrid mode, the end-entity Certificate or the RawHybridPublicKey MUST
 contain both a classical KEM public key and a post-quantum one.
 In a non-hybrid mode, the leaf Certificate or the RawHybridPublicKey MUST
 contain a post-quantum KEM public key.
+
+Note that we are only specifying here the algorithms in the end-entity
+Certificate. A Certificate chain MUST advertise post-quantum algorithms
+and sign in a quantum-safe way each entry in order to be considered fully
+post-quantum safe.  All certificates provided by the server or client MUST be
+signed by an authentication algorithm advertised by the server or client.
 
 ### KEM Ciphertext
 
 This message is used to provide implicit proof that an endpoint
 possesses the private key(s) corresponding to its certificate by sending
-the appropriate parameters that will be used to calculate the shared
-secret.
+the appropriate parameters that will be used to calculate the implicity
+authenticated shared secret.
 
 The calculation of the shared secret also provides integrity for the handshake
 up to this point. Servers MUST send this message when authenticating
 via a certificate. Clients MUST send this message whenever
 authenticating via a certificate (i.e., when the Certificate message
 is non-empty). When sent, this message MUST appear immediately after
-the Certificate message and immediately prior to the Finished
-message.
+the Certificate message has been received and prior to the Finished message.
 
 Structure of this message:
 
@@ -758,8 +763,13 @@ Structure of this message:
 ~~~
 
 The algorithm field specifies the authentication algorithm used.  The
-ciphertext is the result of a Encapsulation() function. In the hybrid mode,
-it is a concatenation of the two return of Encapsulation() functions.
+ciphertext field is the result of a Encapsulation() function. In the
+hybrid mode, it is a concatenation of the two fields returned by the of
+Encapsulation() functions:
+
+~~~
+  concatenated_ciphertext = ciphertext from (EC)-DH || ciphertext from PQ-KEM
+~~~
 
 If the KEMCiphertext message is sent by a server, the authentication
 algorithm MUST be one offered in the client's "signature_algorithms"
@@ -771,12 +781,12 @@ MUST be one of those present in the supported_signature_algorithms
 field of the "signature_algorithms" extension in the
 CertificateRequest message.
 
-In addition, the authentication algorithm MUST be compatible with the key
+In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
 
 The receiver of a KEMCiphertext message MUST perform the Decapsulation()
-operation by using the sent ciphertext and the private key(s) of the
-public key(s) advertised on the end-entity certificate sent.
+operation by using the sent ciphertext (or the concatenated ones)  and the
+private key(s) of the public key(s) advertised in the end-entity certificate sent.
 
 ### Explicit Authentication Messages
 
