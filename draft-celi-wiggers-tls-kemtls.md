@@ -438,6 +438,16 @@ are added to the `SignatureScheme` list:
       saber(TBD),
       fira_saber(TBD),
 
+      /* Post-quantum signature algorithms */
+      dilithium2(TBD),
+      dilithium3(TBD),
+      dilithium5(TBD),
+      falcon512(TBD),
+      falcon1024(TBD),
+      rainbowI(TBD),
+      rainbowIII(TBD),
+      rainbowV(TBD),
+
       /* Hybrid authentication algorithms */
       kyber512_secp256r1(TBD),
       ntru2048509_secp256r1(TBD),
@@ -470,7 +480,11 @@ are added to the `SignatureScheme` list:
 ~~~
 
 The algorithms added here correspond to the round-3 finalists of the post-quantum
-NIST competition targeting a 128 security level.
+NIST competition. They are made available as follows:
+
+- If the `KEM` has L1 security, NIST's P256 curve or ed25519 is used with it
+- If `KEM` has L3 security, NIST's P384 curve or ed448 is used with it.
+- If `KEM` has L5 security, NIST's P521 curve is used with it.
 
 ####  Supported Groups
 
@@ -516,7 +530,11 @@ are added to the `NamedGroup` list:
 ~~~
 
 The algorithms added here correspond to the round-3 finalists of the post-quantum
-NIST competition targeting a 128 security level.
+NIST competition. They are made available as follows:
+
+- If the `KEM` has L1 security, NIST's P256 curve or x25519 is used with it
+- If `KEM` has L3 security, NIST's P384 curve or x448 is used with it.
+- If `KEM` has L5 security, NIST's P521 curve is used with it.
 
 #### Key Share
 
@@ -554,7 +572,7 @@ ciphertext is advertised.
 
 #### Cached Information
 
-This document defines a new extension type (cached_info(TBD)), which
+This document defines a new extension type ("cached_info(TBD)"), which
 is used in ClientHello and ServerHello messages.  The extension type
 is specified as follows.
 
@@ -618,8 +636,7 @@ not be present as well. If present, it will be ignored.
 As discussed, KEMTLS generally uses a common set of messages for implicit
 authentication and key confirmation: Certificate and KEMCiphertext.
 
-The computations for the Authentication messages all uniformly take
-the following inputs:
+The computations for the Authentication messages take the following inputs:
 
 -  The certificate and authentication key to be used.
 -  A Handshake Context consisting of the set of messages to be included in the
