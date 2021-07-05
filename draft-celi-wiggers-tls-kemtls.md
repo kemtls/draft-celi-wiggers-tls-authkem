@@ -70,6 +70,26 @@ informative:
     seriesinfo:
       DOI: 10.1145/3372297.3423350
       "IACR ePrint": https://ia.cr/2020/534
+  KEMTLSPDK:
+    title: "More Efficient KEMTLS with Pre-Shared Keys"
+    date: 2021-05
+    author: 
+      - ins: D. Stebila
+        name: Douglas Stebila
+        org: University of Waterloo
+      - ins: P. Schwabe
+        name: Peter Schwabe
+        org: "Radboud University and Max Planck Institute for Security and Privacy"
+      - ins: T. Wiggers
+        name: Thom Wiggers
+        org: "Radboud University"
+  NISTPQC:
+    title: Post-Quantum Cryptography Standardization
+    date: 2020
+    author:
+      - ins: NIST
+        org: National Institute for Standards and Technology 
+
 
 --- abstract
 
