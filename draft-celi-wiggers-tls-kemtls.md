@@ -23,14 +23,14 @@ author:
  -
     ins: P. Schwabe
     name: Peter Schwabe
-    org: Radboud University
+    org: "Radboud University and Max Planck Institute for Security and Privacy"
     email: peter@cryptojedi.org
 
  -
     ins: D. Stebila
     name: Douglas Stebila
     org: University of Waterloo
-    email: douglas_stebila@stebila.ca
+    email: dstebila@uwaterloo.ca
 
  -
     ins: N. Sullivan
