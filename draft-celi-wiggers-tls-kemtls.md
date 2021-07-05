@@ -124,6 +124,14 @@ should provide the following properties:
 -  Integrity: Data sent over the channel after establishment cannot
    be modified by attackers without detection.
 
+TLS 1.3 is in essence a signed key exchange protocol. Authentication
+in TLS 1.3 is achieved by signing the handshake transcript. KEMTLS
+provides authentication by deriving a shared secret that is
+encapsulated against the public key contained in the certificate.
+Only the holder of the private key corresponding to the certificate's
+public key can derive the same shared secret and thus decrypt it's peers
+messages.
+
 KEMTLS is provided as an extension to TLS 1.3, but it heavily modifies
 the handshake protocol of it.
 
@@ -141,8 +149,53 @@ information to reduce the number of round trips it needs to perform.
 
 # Terminology
 
-TODO: add definition of traditional algorithms, post-quantum algorithms
-and KEM functionality.
+The following terms are used as they are in {{!RFC8446}}
+
+client:  The endpoint initiating the TLS connection.
+
+connection:  A transport-layer connection between two endpoints.
+
+endpoint:  Either the client or server of the connection.
+
+handshake:  An initial negotiation between client and server that
+  establishes the parameters of their subsequent interactions
+  within TLS.
+
+peer:  An endpoint.  When discussing a particular endpoint, "peer"
+  refers to the endpoint that is not the primary subject of
+  discussion.
+
+receiver:  An endpoint that is receiving records.
+
+sender:  An endpoint that is transmitting records.
+
+server:  The endpoint that this did initiate the TLS connection.
+  i.e. the peer of the client.
+
+## Key Encapsulation Mechanisms
+
+As this proposal relies heavily on KEMs, which have not recently been
+used in TLS,w e will provide a brief overview of this primitive.
+
+A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
+the methods ``KeyGen``, ``Encapsulate`` and ``Decapsulate``.  Although
+{{!RFC5990}} previously defined RSA-KEM, we do not follow its definitions.
+KEMs are of interest to the TLS protocol because NIST is in the process of
+standardizing post-quantum KEM algorithms to replace "classic" key exchange
+based on elliptic curve or finite-field Diffie-Hellman [NISTPQC].
+
+``Encapsulate``:  Takes a public key, and produces a shared secret and
+  ciphertext.
+
+ciphertext:  The result of the ``Encapsulate`` method that is to be
+  sent to the peer that holds the private key.
+
+``Decapsulate``:  Takes the ciphertext and the private key. Returns
+  the shared secret.
+
+Note that KEMs are not resistant against quantum attacks in general (c.f.
+RSA-KEM {{!RFC5990}}).  However, most recent proposals for post-quantum
+key exchange algorithms have been KEMs.
 
 # Protocol Overview
 
