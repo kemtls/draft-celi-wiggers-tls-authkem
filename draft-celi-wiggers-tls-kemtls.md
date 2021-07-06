@@ -44,12 +44,6 @@ author:
     org: Radboud University
     email: thom@thomwiggers.nl
 
- -
-    ins: C. Wood
-    name: Christopher Wood
-    org: Cloudflare
-    email: caw@heapingbits.net
-
 normative:
   RFC8446:
 
