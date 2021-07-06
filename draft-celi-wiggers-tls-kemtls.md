@@ -67,7 +67,7 @@ informative:
   KEMTLSPDK:
     title: "More Efficient KEMTLS with Pre-Shared Keys"
     date: 2021-05
-    author: 
+    author:
       - ins: D. Stebila
         name: Douglas Stebila
         org: University of Waterloo
@@ -82,7 +82,7 @@ informative:
     date: 2020
     author:
       - ins: NIST
-        org: National Institute for Standards and Technology 
+        org: National Institute for Standards and Technology
 
 
 --- abstract
@@ -169,7 +169,7 @@ server:  The endpoint that this did initiate the TLS connection.
 ## Key Encapsulation Mechanisms
 
 As this proposal relies heavily on KEMs, which have not recently been
-used in TLS,w e will provide a brief overview of this primitive.
+used in TLS, we will provide a brief overview of this primitive.
 
 A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
 the methods ``KeyGen``, ``Encapsulate`` and ``Decapsulate``.  Although
