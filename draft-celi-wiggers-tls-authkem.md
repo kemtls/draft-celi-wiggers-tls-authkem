@@ -109,6 +109,19 @@ Only the holder of the private key corresponding to the certificate's
 public key can derive the same shared secret and thus decrypt it's peers
 messages.
 
+In this proposal we will use the DH-based KEMs from  {{!I-D.irtf-cfrg-hpke}},
+but KEMs are of interest to the TLS protocol because NIST is in the process of
+standardizing post-quantum KEM algorithms to replace "classic" key exchange
+based on elliptic curve or finite-field Diffie-Hellman [NISTPQC].
+
+This proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}} which is in
+turn based on the OPTLS proposal for TLS 1.3 [KW16].  However, these proposals
+requires non-interactive key exchange: they combine the client's public key with
+the server's long-term key.  This does impose a requirement that the ephemeral and
+static keys use the same algorithm, which this proposal does not require. Additionally,
+there are no post-quantum proposals for non-interactive key exchange currently
+considered for standardization, while several KEMs are on the way.
+
 # Requirements Notation
 
 {::boilerplate bcp14}
@@ -143,25 +156,15 @@ server:  The endpoint that this did initiate the TLS connection.
 As this proposal relies heavily on KEMs, which have not recently been
 used in TLS, we will provide a brief overview of this primitive.
 
-A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
-the methods ``KeyGen``, ``Encapsulate`` and ``Decapsulate``.  Although
-{{!RFC5990}} previously defined RSA-KEM, we do not follow its definitions.
-KEMs are of interest to the TLS protocol because NIST is in the process of
-standardizing post-quantum KEM algorithms to replace "classic" key exchange
-based on elliptic curve or finite-field Diffie-Hellman [NISTPQC].
+A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}}
+is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
 
-``Encapsulate``:  Takes a public key, and produces a shared secret and
-  ciphertext.
+``Encaps(pkR)``:  Takes a public key, and produces a shared secret and
+  encapsulation.
 
-ciphertext:  The result of the ``Encapsulate`` method that is to be
-  sent to the peer that holds the private key.
-
-``Decapsulate``:  Takes the ciphertext and the private key. Returns
+``Decap(enc, skR)``:  Takes the encapsulation and the private key. Returns
   the shared secret.
 
-Note that KEMs are not resistant against quantum attacks in general (c.f.
-RSA-KEM {{!RFC5990}}).  However, most recent proposals for post-quantum
-key exchange algorithms have been KEMs.
 
 # Protocol Overview
 
@@ -179,9 +182,9 @@ Exch | + (kem)key_share
                                             <EncryptedExtensions>  ^  Server
                                              <CertificateRequest>  v  Params
      ^                                              <Certificate>  ^
-Auth | <KEMCiphertext>                                             |  Auth
+Auth | <KEMEncapsulation>                                             |  Auth
      | {Certificate}                -------->                      |
-     |                              <--------     {KEMCiphertext}  |
+     |                              <--------     {KEMEncapsulation}  |
      | {Finished}                   -------->                      |
      | [Application Data*]          -------->                      |
      v                              <-------           {Finished}  |
@@ -257,11 +260,11 @@ authentication is needed.  Specifically:
   use, the Certificate should also include a hybrid long-term public
   key.
 
-* KEMCiphertext: A key encapsulation against the certificate's long-term
+* KEMEncapsulation: A key encapsulation against the certificate's long-term
   public key, which yields an implicitly authenticated shared secret.
 
 Upon receiving the server's messages, the client responds with its
-Authentication messages, namely Certificate and KEMCiphertext (if
+Authentication messages, namely Certificate and KEMEncapsulation (if
 requested).
 
 Finally, the server and client reply with their explicitly authenticated
@@ -286,7 +289,7 @@ attack. Full downgrade resilience is only achieved when explicit
 authentication is achieved: when the Client receives the Finished
 message from the Server.
 
-## Prior-knowledge KEM-TLS
+## Prior-knowledge KEMTLS
 
 Given the added number of round-trips of KEMTLS compared to the TLS 1.3,
 the KEMTLS handshake can be improved by the usage of pre-distributed
@@ -308,9 +311,9 @@ Exch | + (kem)key_share
                                             <EncryptedExtensions>  ^  Server
                                              <CertificateRequest>  v  Params
      ^                                              <Certificate>  ^
-Auth | <KEMCiphertext>                                             |  Auth
+Auth | <KEMEncapsulation>                                             |  Auth
      | {Certificate}                -------->                      |
-     |                              <--------     {KEMCiphertext}  |
+     |                              <--------     {KEMEncapsulation}  |
      | {Finished}                   -------->                      |
      | [Cached Server Certificate]
      | [Application Data*]          -------->                      |
@@ -331,7 +334,7 @@ Auth | + kem_ciphertext_extension
      |                                          +  (kem)key_share  | Exch,
      |                                 +  {cached_info_extension}  | Auth &
      |                                      {EncryptedExtensions}  | Server
-     |                                            {KEMCiphertext}  | Params
+     |                                            {KEMEncapsulation}  | Params
      |                              <--------          {Finished}  v
      |                              <-------- [Application Data*]
      v {Finished}                   -------->
@@ -349,7 +352,7 @@ derived from the kem_ciphertext encapsulation.
 
 The handshake protocol is used to negotiate the security parameters
 of a connection, as in TLS 1.3. It uses the same messages, expect
-for the addition of a `KEMCiphertext` message and does not use
+for the addition of a `KEMEncapsulation` message and does not use
 the `CertificateVerify` one.
 
 ~~~
@@ -372,7 +375,7 @@ enum {
               case encrypted_extensions:  EncryptedExtensions;
               case certificate_request:   CertificateRequest;
               case certificate:           Certificate;
-              case kem_ciphertext:        KEMCiphertext;
+              case kem_ciphertext:        KEMEncapsulation;
               ...
           };
       } Handshake;
@@ -387,7 +390,7 @@ abort the handshake with an "unexpected_message" alert.
 KEMTLS uses the same key exchange messages as TLS 1.3 with this
 exceptions:
 
-- Usage of a new message `KEMCiphertext`.
+- Usage of a new message `KEMEncapsulation`.
 - The `CertificateVerify` message is not used.
 - Two extensions can be added to the `ClientHello` message: "cached_information"
   and "kem_ciphertext".
@@ -618,12 +621,12 @@ The HybridKeyExchange sent as part of the ServerHello:
 ~~~
    struct {
        opaque key_exchange_1<1..2^16-1>; ----> the classical public key
-       opaque key_exchange_2<1..2^16-1>; ----> the KEM ciphertext
+       opaque key_exchange_2<1..2^16-1>; ----> the KEM encapsulation
    } HybridKeyExchange
 ~~~
 
 If a hybrid mode is not in use, only the post-quantum public key or
-ciphertext is advertised.
+encapsulation is advertised.
 
 ##### Post-Quantum KEM Parameters
 
@@ -632,7 +635,7 @@ opaque key_exchange field of a KeyShareEntry in a
 HybridKeyShare structure.  The opaque value contains either:
 
 - the KEM public value
-- the KEM ciphertext value
+- the KEM encapsulation value
 
 for the specified algorithm encoded as a big-endian integer and padded to
 the left with zeros to the size of p in bytes.
@@ -646,7 +649,7 @@ opaque key_exchange field of a KeyShareEntry in a HybridKeyShare structure.
 The opaque value contains:
 
 - the KEM public value or
-- the KEM ciphertext value
+- the KEM encapsulation value
 
 and
 
@@ -710,13 +713,13 @@ server select the correct information.  The fingerprint identifies the server
 certificate (and the corresponding private key) for use with the rest
 of the handshake.
 
-If this extension is not present, the `kem_ciphertext` extension MUST
+If this extension is not present, the `kem_encapsulation` extension MUST
 not be present as well. If present, it will be ignored.
 
 ### Implicit Authentication Messages
 
 As discussed, KEMTLS generally uses a common set of messages for implicit
-authentication and key confirmation: Certificate and KEMCiphertext.
+authentication and key confirmation: Certificate and KEMEncapsulation.
 
 The computations for the Authentication messages take the following inputs:
 
@@ -733,7 +736,7 @@ Based on these inputs, the messages then contain:
 Certificate:  The certificate to be used for authentication, and any supporting
   certificates in the chain.
 
-KEMCiphertext: The post-quantum KEM ciphertext (or a hybrid one) against the
+KEMEncapsulation: The post-quantum KEM encapsulation (or a hybrid one) against the
   certificate's public key(s).
 
 KEMTLS follows the TLS 1.3 key schedule, which applies a sequence of HKDF
@@ -786,7 +789,7 @@ and sign in a quantum-safe way each entry in order to be considered fully
 post-quantum safe.  All certificates provided by the server or client MUST be
 signed by an authentication algorithm advertised by the server or client.
 
-### KEM Ciphertext
+### KEM Encapsulation
 
 This message is used to provide implicit proof that an endpoint
 possesses the private key(s) corresponding to its certificate by sending
@@ -805,20 +808,20 @@ Structure of this message:
 ~~~
   struct {
       SignatureScheme algorithm;
-      opaque ciphertext<0..2^16-1>;
-  } KEMCiphertext;
+      opaque encapsulation<0..2^16-1>;
+  } KEMEncapsulation;
 ~~~
 
 The algorithm field specifies the authentication algorithm used.  The
-ciphertext field is the result of a Encapsulation() function. In the
+encapsulation field is the result of a Encapsulation() function. In the
 hybrid mode, it is a concatenation of the two fields returned by the of
 Encapsulation() functions:
 
 ~~~
-  concatenated_ciphertext = ciphertext from (EC)-DH || ciphertext from PQ-KEM
+  concatenated_encapsulation = encapsulation from (EC)-DH || encapsulation from PQ-KEM
 ~~~
 
-If the KEMCiphertext message is sent by a server, the authentication
+If the KEMEncapsulation message is sent by a server, the authentication
 algorithm MUST be one offered in the client's "signature_algorithms"
 extension unless no valid certificate chain can be produced without
 unsupported algorithms.
@@ -831,8 +834,8 @@ CertificateRequest message.
 In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
 
-The receiver of a KEMCiphertext message MUST perform the Decapsulation()
-operation by using the sent ciphertext (or the concatenated ones)  and the
+The receiver of a KEMEncapsulation message MUST perform the Decapsulation()
+operation by using the sent encapsulation (or the concatenated ones)  and the
 private key(s) of the public key(s) advertised in the end-entity certificate sent.
 
 ### Explicit Authentication Messages
@@ -869,7 +872,7 @@ The verify_data value is computed as follows:
   verify_data =
       HMAC(finished_key,
            Transcript-Hash(Handshake Context,
-                           Certificate*, KEMCiphertext*))
+                           Certificate*, KEMEncapsulation*))
 ~~~
 
 * Only included if present.
@@ -877,7 +880,7 @@ The verify_data value is computed as follows:
 Any records following a Finished message MUST be encrypted under the
 appropriate application traffic key as described in TLS 1.3.  In
 particular, this includes any alerts sent by the server in response
-to client Certificate and KEMCiphertext messages.
+to client Certificate and KEMEncapsulation messages.
 
 # Record Protocol
 
@@ -947,11 +950,11 @@ The key schedule proceeds as follows:
    KEM ->  HKDF-Extract = Authenticated Handshake Secret
              |
              +-----> Derive-Secret(., "c ahs traffic",
-             |                     ClientHello...KEMCiphertext)
+             |                     ClientHello...KEMEncapsulation)
              |                     = client_handshake_traffic_secret
              |
              +-----> Derive-Secret(., "s ahs traffic",
-             |                     ClientHello...KEMCiphertext)
+             |                     ClientHello...KEMEncapsulation)
              |                     = server_handshake_traffic_secret
              v
        Derive-Secret(., "derived", "") = AHS
@@ -985,7 +988,7 @@ middle boxes.
 
 The ``ClientHello`` and ``ServerHello`` messages are still in the clear
 and these require the addition of new ``key_share`` types.
-Typical KEM public-key and ciphertext sizes are also significantly bigger
+Typical KEM public-key and encapsulation sizes are also significantly bigger
 than pre-quantum (EC)DH keyshares. This may still cause problems.
 
 # Integration with Delegated Credentials
