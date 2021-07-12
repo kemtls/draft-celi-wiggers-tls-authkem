@@ -806,10 +806,13 @@ However, the client can not have received confirmation that the server's
 choices for symmetric encryption, as specified in the `ServerHello` message,
 were authentic. These are not authenticated until the `Finished` message from
 the server arrived. This may allow an adversary to downgrade the symmetric
-algorithms, but only to what the client is willing to accept. If the client
-trusts the symmetric algorithms advertised in its `ClientHello` message,
-this should not be a concern. A client MUST NOT accept any cryptographic
-parameters it does not include in its own `ClientHello` message.
+algorithms, but only to what the client is willing to accept. If such an attack
+occurs, the handshake will also never succesfully complete and no data can be
+sent back.
+
+If the client trusts the symmetric algorithms advertised in its `ClientHello`
+message, this should not be a concern. A client MUST NOT accept any
+cryptographic parameters it does not include in its own `ClientHello` message.
 
 If client authentication is used, explicit authentication is reached before
 any application data, on either client or server side, is transmitted.
