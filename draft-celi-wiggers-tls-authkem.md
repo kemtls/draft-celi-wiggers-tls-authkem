@@ -711,7 +711,7 @@ The key schedule proceeds as follows:
             Derive-Secret(., "derived", "") = dHS
             |
             v
-      s -> HKDF-Extract = Authenticated Handshake Secret
+    SSs -> HKDF-Extract = Authenticated Handshake Secret
             |
             +--> Derive-Secret(., "c ahs traffic",
             |                  ClientHello...KEMEncapsulation)
