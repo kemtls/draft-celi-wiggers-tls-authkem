@@ -725,6 +725,7 @@ SSc||0 * -> HKDF-Extract = Master Secret
 
 The * means that if client authentication was requested the `SSc` value should
 be used. Otherwise, the `0` value is used.
+~~~
 
 The operations to compute `SSs` or `SSc` from the client are:
 
