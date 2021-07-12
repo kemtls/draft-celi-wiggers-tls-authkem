@@ -23,7 +23,7 @@ author:
  -
     ins: P. Schwabe
     name: Peter Schwabe
-    org: "Radboud University and Max Planck Institute for Security and Privacy"
+    org: "Radboud University & MPI S&P"
     email: peter@cryptojedi.org
 
  -
@@ -48,6 +48,7 @@ normative:
   RFC8446:
 
 informative:
+  RFC5869:
   KEMTLS:
     title: "Post-Quantum TLS without Handshake Signatures"
     date: 2020-11
@@ -57,7 +58,7 @@ informative:
         org: University of Waterloo
       - ins: P. Schwabe
         name: Peter Schwabe
-        org: "Radboud University and Max Planck Institute for Security and Privacy"
+        org: "Radboud University & MPI S&P"
       - ins: T. Wiggers
         name: Thom Wiggers
         org: "Radboud University"
@@ -83,6 +84,16 @@ informative:
     author:
       - ins: NIST
         org: National Institute for Standards and Technology
+  KW16:
+       title: "The OPTLS Protocol and TLS 1.3"
+       date: 2016
+       seriesinfo: Proceedings of Euro S&quot;P 2016
+       target: https://eprint.iacr.org/2015/978
+       author:
+       -
+         ins: H. Krawczyk
+       -
+         ins: H. Wee
 
 
 --- abstract
@@ -119,7 +130,7 @@ turn based on the OPTLS proposal for TLS 1.3 [KW16].  However, these proposals
 requires non-interactive key exchange: they combine the client's public key with
 the server's long-term key.  This does impose a requirement that the ephemeral and
 static keys use the same algorithm, which this proposal does not require. Additionally,
-there are no post-quantum proposals for non-interactive key exchange currently
+there are no post-quantum proposals for non-interactive key exchange currently 
 considered for standardization, while several KEMs are on the way.
 
 # Requirements Notation
@@ -257,7 +268,7 @@ establishes cached information and the second handshake uses it:
 
 Key  ^ ClientHello
 Exch | + key_share
-     v + (kem)signature_algorithms      -------->
+     v + (kem)signature_algorithms  -------->
                                                       ServerHello  ^ Key
                                                 +  (kem)key_share  v Exch
                                             <EncryptedExtensions>  ^  Server
@@ -265,7 +276,7 @@ Exch | + key_share
      ^                                              <Certificate>  ^
 Auth | <KEMEncapsulation>                                          |  Auth
      | {Certificate}                -------->                      |
-     |                           <--------     {KEMEncapsulation}  |
+     |                              <--------  {KEMEncapsulation}  |
      | {Finished}                   -------->                      |
      | [Cached Server Certificate]
      | [Application Data*]          -------->                      |
@@ -281,17 +292,17 @@ Exch | + key_share
 &    | + cached_info_extension
 Auth | + kem_encapsulation_extension
      | + (kem)signature_algorithms
-     | <Certificate>                -------->                      |
-     |                                                ServerHello  ^ Key
-     |                                          +       key_share  | Exch,
-     |                                 +  {cached_info_extension}  | Auth &
-     |                                      {EncryptedExtensions}  | Server
-     |                                         {KEMEncapsulation}  | Params
-     |                              <--------          {Finished}  v
-     |                              <-------- [Application Data*]
-     v {Finished}                   -------->
+     | <Certificate>          -------->                      |
+     |                                          ServerHello  ^ Key
+     |                                    +  (kem)key_share  | Exch,
+     |                           +  {cached_info_extension}  | Auth &
+     |                                {EncryptedExtensions}  | Server
+     |                                   {KEMEncapsulation}  | Params
+     |                        <--------          {Finished}  v
+     |                        <-------- [Application Data*]
+     v {Finished}             -------->
 
-       [Application Data]           <------->  [Application Data]
+       [Application Data]     <------->  [Application Data]
 ~~~~~
 
 In some applications, such as in a VPN, the client already knows that the
@@ -312,7 +323,7 @@ enum {
           ...
           encrypted_extensions(8),
           certificate(11),
-          kem_ciphertext(tbd),
+          kem_encapsulation(tbd),
           certificate_request(13),
           ...
           message_hash(254),
@@ -327,7 +338,7 @@ enum {
               case encrypted_extensions:  EncryptedExtensions;
               case certificate_request:   CertificateRequest;
               case certificate:           Certificate;
-              case kem_ciphertext:        KEMEncapsulation;
+              case kem_encapsulation:     KEMEncapsulation;
               ...
           };
       } Handshake;
@@ -345,7 +356,7 @@ exceptions:
 - Usage of a new message `KEMEncapsulation`.
 - The `CertificateVerify` message is not used.
 - Two extensions can be added to the `ClientHello` message: "cached_information"
-  and "kem_ciphertext".
+  and "kem_encapsulation".
 - One extensions can be added to the `ServerHello` message: "cached_information".
 
 KEMTLS preserves the same cryptographic negotiation with the addition
@@ -355,7 +366,7 @@ of more algorithms to the "supported_groups" and "signature_algorithms".
 
 KEMTLS uses the `ClientHello` message as described for TLS 1.3. When used
 in a pre-distributed mode, however, two extensions are mandatory: "cached_information"
-and "kem_ciphertext" for server authentication. This extensions are
+and "kem_encapsulation" for server authentication. This extensions are
 described later in the document.
 
 Note that in KEMTLS with pre-distributed information, the client's `Certificate`
@@ -391,7 +402,7 @@ enum {
     ...
     signature_algorithms_cert(50),              /* RFC 8446 */
     key_share(51),                              /* RFC 8446 */
-    kem_ciphertext(TBD),                        /* RFC TBD */
+    kem_encapsulation (TBD),                    /* RFC TBD */
     cached_info(TBD),                           /* RFC TBD */
     (65535)
 } ExtensionType;
@@ -402,11 +413,11 @@ appear:
 
 ~~~
    +--------------------------------------------------+-------------+
-   | Extension                                        |     KEM TLS |
+   | Extension                                        |      KEMTLS |
    +--------------------------------------------------+-------------+
    | cached_info [RFCTBD]                             |      CH, SH |
    |                                                  |             |
-   | kem_ciphertext [RFCTBD]                          |          CH |
+   | kem_encapsulation  [RFCTBD]                      |          CH |
    |                                                  |             |
    +--------------------------------------------------+-------------+
 ~~~
@@ -806,9 +817,15 @@ The key used to compute the Finished message is computed from the
 Master Key using HKDF. Specifically:
 
 ~~~
- finished_key =
-     HKDF-Expand-Label(MasterKey, "finished", "", Hash.length)
+server/client_finished_key =
+  HKDF-Expand-Label(MasterKey, 
+                    server/client_label, 
+                    "", Hash.length)
+
+server_label = "tls13 server finished"
+client_label = "tls13 client finished"
 ~~~
+
 
 Structure of this message:
 
@@ -854,7 +871,7 @@ secrets, even if the same input secrets are used.
 ## Key schedule
 
 KEMTLS uses the same HKDF-Extract and HKDF-Expand functions as defined by
-TLS 1.3.
+TLS 1.3, in turn defined by {{RFC5869}}.
 
 Keys are derived from two input secrets using the HKDF-Extract and
 Derive-Secret functions.  The general pattern for adding a new secret
@@ -872,7 +889,7 @@ The key schedule proceeds as follows:
              0
              |
              v
-   PSK ->  HKDF-Extract = Early Secret
+      PSK -> HKDF-Extract = Early Secret
              |
              +-----> Derive-Secret(., "ext binder" | "res binder", "")
              |                     = binder_key
@@ -883,10 +900,10 @@ The key schedule proceeds as follows:
              +-----> Derive-Secret(., "e exp master", ClientHello)
              |                     = early_exporter_master_secret
              v
-       Derive-Secret(., "derived", "")
+             Derive-Secret(., "derived", "")
              |
              v
-   KEM ->  HKDF-Extract = Handshake Secret
+  (EC)DHE -> HKDF-Extract = Handshake Secret
              |
              +-----> Derive-Secret(., "c hs traffic",
              |                     ClientHello...ServerHello)
@@ -896,10 +913,10 @@ The key schedule proceeds as follows:
              |                     ClientHello...ServerHello)
              |                     = server_handshake_traffic_secret
              v
-       Derive-Secret(., "derived", "") = dHS
+             Derive-Secret(., "derived", "") = dHS
              |
              v
-   KEM ->  HKDF-Extract = Authenticated Handshake Secret
+       SSs -> HKDF-Extract = Authenticated Handshake Secret
              |
              +-----> Derive-Secret(., "c ahs traffic",
              |                     ClientHello...KEMEncapsulation)
@@ -909,10 +926,10 @@ The key schedule proceeds as follows:
              |                     ClientHello...KEMEncapsulation)
              |                     = server_handshake_traffic_secret
              v
-       Derive-Secret(., "derived", "") = AHS
+             Derive-Secret(., "derived", "") = AHS
              |
              v
-   0 -> HKDF-Extract = Master Secret
+      SSc -> HKDF-Extract = Master Secret
              |
              +-----> Derive-Secret(., "c ap traffic",
              |                     ClientHello...server Finished)
@@ -929,6 +946,31 @@ The key schedule proceeds as follows:
              +-----> Derive-Secret(., "res master",
                                    ClientHello...client Finished)
                                    = resumption_master_secret
+~~~
+
+The client computes the following input values as follows:
+`SSs`, the shared secret from the server's long-term public key is 
+computed from the public key `pk_server` included by
+the server's certificate.
+
+If client authentication via KEM is used, `SSc`, the shared secret
+encapsulated against the client's long-term public key, is computed
+by decapsulating the encapsulation sent by the server to the client.
+If client authentication is not used, this value is 0.
+
+~~~
+SSs, encapsulation <- Encap(pk_server)
+               SSc <- Decap(encapsulation, sk_client)
+~~~
+
+The server computes `SSs`, the shared secret encapsulated against
+its long-term public key; and `SSc`, the shared secret encapsulated
+against the clients long-term public key (if client authentication is used)
+as follows:
+
+~~~
+               SSs <- Decap(encapsulation, sk_server)
+SSc, encapsulation <- Encap(pk_client)
 ~~~
 
 # (Middlebox) Compatibility Considerations
