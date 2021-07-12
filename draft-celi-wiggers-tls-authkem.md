@@ -95,11 +95,11 @@ TODO
 
 DISCLAIMER: This is a work-in-progress draft.
 
-This document gives a construction for KEM authentication in TLS
-1.3.  The overall design approach is a simple: usage of KEMs for
-certificate-based authentication. Authentication happens via asymmetric
-cryptography by the usage of key-encapsulation mechanisms (KEM) by
-using the long-term KEM public keys in the Certificate.
+This document gives a construction for KEM-based authentication in TLS
+1.3.  The overall design approach is a simple: usage of Key Encapsulation
+Mechanisms (KEM) for certificate-based authentication. Authentication happens via
+asymmetric cryptography by the usage of KEMs by using the long-term KEM public
+keys in the Certificate.
 
 TLS 1.3 is in essence a signed key exchange protocol. Authentication
 in TLS 1.3 is achieved by signing the handshake transcript. KEM-based
@@ -153,8 +153,8 @@ server:  The endpoint that this did initiate the TLS connection.
 
 ## Key Encapsulation Mechanisms
 
-As this proposal relies heavily on KEMs, which have not recently been
-used in TLS, we will provide a brief overview of this primitive.
+As this proposal relies heavily on KEMs, which are not originally
+used by TLS, we will provide a brief overview of this primitive.
 
 A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}}
 is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
@@ -168,17 +168,16 @@ is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
 
 # Protocol Overview
 
-Figure 1 below shows the basic full KEMTLS handshake with both KEMTLS
-modes:
+Figure 1 below shows the basic full KEM-authentication handshake:
 
 ~~~~~
        Client                                           Server
 
 Key  ^ ClientHello
-Exch | + (kem)key_share
+Exch | + key_share
      v + (kem)signature_algorithms      -------->
                                                       ServerHello  ^ Key
-                                                +  (kem)key_share  v Exch
+                                                +       key_share  v Exch
                                             <EncryptedExtensions>  ^  Server
                                              <CertificateRequest>  v  Params
      ^                                              <Certificate>  ^
@@ -206,59 +205,23 @@ Auth | <KEMEncapsulation>                                             |  Auth
               [] Indicates messages protected using keys
                  derived from [sender]_application_traffic_secret_N.
 
-             Figure 1: Message Flow for Full KEMTLS Handshake
-             Post-quantum KEMs that can be added are shown as part of the
-             key_share and signature_algorithms extensions
+             Figure 1: Message Flow for KEM-Authentication Handshake
 ~~~~~
 
-The handshake can be thought of in four phases compared to the
-three ones from TLS 1.3. It achieves both post-quantum confidentiality and
-post-quantum authentication (certificate-based).
+When using KEMs for authentication, the handshake can be thought of in four
+phases compared to the three ones from TLS 1.3. It achieves both confidentiality
+and authentication (certificate-based).
 
-In the Key Exchange phase, the client sends the ClientHello
-message, which contains a random nonce (ClientHello.random); its
-offered protocol versions; a list of symmetric cipher/HKDF hash pairs; a set
-of KEM key shares and/or hybrid key shares (if using a hybrid mode); and
-potentially additional extensions.
-
-The server processes the ClientHello, and determines the appropriate
-cryptographic parameters for the connection: if both a Post-quantum
-KEM has been advertised for usage in key_shares and signature_algorithms
-extension, then KEMTLS is supported by the client.
-
-The server then responds with its own ServerHello, which indicates the
-negotiated connection parameters.
-The combination of the ClientHello and the ServerHello determines the shared
-keys.  The ServerHello contains a "key_share" extension with the server's
-ephemeral Post-Quantum KEM share; the server's share MUST be in the same group
-as one of the client's shares.  If a hybrid mode is in use, the ServerHello
-contains a "key_share" extension with the server's ephemeral hybrid
-share, which MUST be in the same group as the client's shares, and the
-post-quantum one.
-
-The server then sends two messages to establish the Server
-Parameters:
-
-* EncryptedExtensions:  responses to ClientHello extensions that are
-  not required to determine the cryptographic parameters, other than
-  those that are specific to individual certificates.
-
-* CertificateRequest:  in KEMTLS, only certificate-based client
-  authentication is desired, so the server sends the desired parameters
-  for that certificate.  This message is omitted if client authentication
-  is not desired.
-
-Then, the client and server exchange implicity authenticated messages.
-KEMTLS uses the same set of messages every time that certificate-based
-authentication is needed.  Specifically:
+After the Key Exchange and Server Parameters phase of TLS 1.3 handshake, the
+client and server exchange implicity authenticated messages.
+KEM-based authentication uses the same set of messages every time that
+certificate-based authentication is needed.  Specifically:
 
 * Certificate:  The certificate of the endpoint and any per-certificate
   extensions.  This message is omitted by the client if the server
   did not send CertificateRequest (thus indicating that the client
   should not authenticate with a certificate). The Certificate
-  should include a long-term public KEM key. If a hybrid mode is in
-  use, the Certificate should also include a hybrid long-term public
-  key.
+  should include a long-term KEM public key.
 
 * KEMEncapsulation: A key encapsulation against the certificate's long-term
   public key, which yields an implicitly authenticated shared secret.
@@ -266,17 +229,6 @@ authentication is needed.  Specifically:
 Upon receiving the server's messages, the client responds with its
 Authentication messages, namely Certificate and KEMEncapsulation (if
 requested).
-
-Finally, the server and client reply with their explicitly authenticated
-messages, specifically:
-
-* Finished:  A MAC (Message Authentication Code) over the entire
-  handshake.  This message provides key confirmation and binds the
-  endpoint's identity to the exchanged keys.
-
-At this point, the handshake is complete, and the client and server
-derive the keying material required by the record layer to exchange
-application-layer data protected through authenticated encryption.
 
 Application Data MUST NOT be sent prior to sending the Finished
 message, except as specified in Section 2.3.  Note that while the
