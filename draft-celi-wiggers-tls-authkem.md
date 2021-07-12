@@ -443,14 +443,14 @@ The table below indicates the messages where a given extension may
 appear:
 
 ~~~
-   +--------------------------------------------------+-------------+
-   | Extension                                        |    KEM-Auth |
-   +--------------------------------------------------+-------------+
-   | stored_auth_key [RFCTBD]                         |      CH, SH |
-   |                                                  |             |
-   | kem_encapsulation  [RFCTBD]                      |          CH |
-   |                                                  |             |
-   +--------------------------------------------------+-------------+
++---------------------------------------+-------------+
+| Extension                             |    KEM-Auth |
++---------------------------------------+-------------+
+| stored_auth_key [RFCTBD]              |      CH, SH |
+|                                       |             |
+| kem_encapsulation  [RFCTBD]           |          CH |
+|                                       |             |
++---------------------------------------+-------------+
 ~~~
 
 #### Stored Auth Key
