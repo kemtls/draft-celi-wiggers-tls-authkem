@@ -177,7 +177,7 @@ used by TLS, we will provide a brief overview of this primitive.
 A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}},
 is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
 
-``Encaps(pkR)``:  Takes a public key, and produces a shared secret and
+``Encap(pkR)``:  Takes a public key, and produces a shared secret and
   encapsulation.
 
 ``Decap(enc, skR)``:  Takes the encapsulation and the private key. Returns
@@ -766,11 +766,25 @@ than pre-quantum (EC)DH keyshares. This may still cause problems.
 
 # Security Considerations {#sec-considerations}
 
-The academic works proposing KEM-Auth contain a in-depth technical discussion of
-and a proof of the security of the handshake protocol without client
-authentication [KEMTLS]. The work proposing the variant protocol [KEMTLSPDK]
-with pre-distributed public keys has a proof for both unilaterally and mutually
-authenticated handshakes.
+* The academic works proposing KEM-Auth contain a in-depth technical discussion
+  of and a proof of the security of the handshake protocol without client
+  authentication [KEMTLS]. The work proposing the variant protocol [KEMTLSPDK]
+  with pre-distributed public keys has a proof for both unilaterally and
+  mutually authenticated handshakes.
+
+* The client's certificate is kept secret from active observers by the
+  derivation of the `client_authenticated_handshake_secret`, which ensures that
+  only the intended server can read the client's identity.
+
+* When the client opportunistically sends its certificate, it is not encrypted
+  under a forward-secure key.  This has similar considerations and trade-offs as
+  0-RTT data.  If it is a replayed message, there are no expected consequences
+  for security as the malicious replayer will not be able to decapsulate the
+  shared secret.
+
+* A client that opportunistically sends its certificate, SHOULD send it
+  encrypted with a ciphertext that it knows the server will accept. Otherwise,
+  it will fail.
 
 ## Implicit authentication
 
@@ -791,14 +805,6 @@ parameters it does not include in its own `ClientHello` message.
 
 If client authentication is used, explicit authentication is reached before
 any application data, on either client or server side, is transmitted.
-
-TODO / check if covered above:
-
-* sending data to an implicitly authenticated and not-full downgrade
-resilient peer
-* address CA and pq keys
-* consider implicit vs explicit authentication
-* consider downgrade resilience
 
 # IANA Considerations
 
