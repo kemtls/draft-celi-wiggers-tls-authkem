@@ -762,18 +762,6 @@ The operations to compute `SSs` or `SSc` from the server are:
 SSc, encapsulation <- Encap(public_key_client)
 ~~~
 
-# (Middlebox) Compatibility Considerations
-
-Like in TLS 1.3, after the ephemeral key is derived
-a ``ChangeCipherSpec`` message is sent and the messages afterwards are
-encrypted. This will make the following messages opaque to non-decrypting
-middle boxes.
-
-The ``ClientHello`` and ``ServerHello`` messages are still in the clear
-and these require the addition of new ``key_share`` types.
-Typical KEM public-key and encapsulation sizes are also significantly bigger
-than pre-quantum (EC)DH keyshares. This may still cause problems.
-
 # Security Considerations {#sec-considerations}
 
 * The academic works proposing KEM-Auth contain a in-depth technical discussion
@@ -818,10 +806,6 @@ cryptographic parameters it does not include in its own `ClientHello` message.
 
 If client authentication is used, explicit authentication is reached before
 any application data, on either client or server side, is transmitted.
-
-# IANA Considerations
-
-* We need a new OID for each KEM to encode them in X.509 certificates.
 
 --- back
 
