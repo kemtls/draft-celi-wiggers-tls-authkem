@@ -360,11 +360,9 @@ abort the handshake with an "unexpected_message" alert.
 
 ## Key Exchange Messages
 
-KEM-Auth based uses the same key exchange messages as TLS 1.3 with this
+KEM-Auth uses the same key exchange messages as TLS 1.3 with this
 exceptions:
 
-- Usage of a new message `KEMEncapsulation`.
-- The `CertificateVerify` message is not used.
 - Two extensions can be added to the `ClientHello` message: "stored_auth_key"
   and "kem_encapsulation".
 - One extensions can be added to the `ServerHello` message: "stored_auth_key".
@@ -500,6 +498,7 @@ not be present as well. If present, it will be ignored.
 
 As discussed, KEM-Auth generally uses a common set of messages for implicit
 authentication and key confirmation: Certificate and KEMEncapsulation.
+The CertificateVerify message MUST not be sent.
 
 The computations for the Authentication messages take the following inputs:
 
