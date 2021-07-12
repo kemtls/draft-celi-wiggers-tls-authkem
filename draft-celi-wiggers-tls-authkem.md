@@ -484,7 +484,7 @@ public keys from the server.
 
 ~~~
   enum {
-       uint8 pub_key;
+       uint8 pub_key = 0;
   } StoredInformationType;
 
   struct {
