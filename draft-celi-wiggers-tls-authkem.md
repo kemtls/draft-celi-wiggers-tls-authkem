@@ -331,7 +331,7 @@ Clients will indicate support for this mode by negotiating it as if
 it were a signature scheme. We thus add these new signature scheme
 values (even though, they are not signature schemes) for the KEMs
 defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1. Note that we will be
-only using their internal KEM API.
+only using their internal KEM's API defined there.
 
 ~~~
   enum {
