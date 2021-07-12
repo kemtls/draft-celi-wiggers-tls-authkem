@@ -109,35 +109,36 @@ DISCLAIMER: This is a work-in-progress draft.
 This document gives a construction for KEM-based authentication in TLS
 1.3.  The overall design approach is a simple: usage of Key Encapsulation
 Mechanisms (KEM) for certificate-based authentication. Authentication happens via
-asymmetric cryptography by the usage of KEMs by using the long-term KEM public
+asymmetric cryptography by the usage of KEMs advertised as the long-term KEM public
 keys in the Certificate.
 
-TLS 1.3 is in essence a signed key exchange protocol. Authentication
-in TLS 1.3 is achieved by signing the handshake transcript. KEM-based
-authentication provides authentication by deriving a shared secret that
-is encapsulated against the public key contained in the certificate.
+TLS 1.3 is in essence a signed key exchange protocol (if using certificate-based
+authentication). Authentication in TLS 1.3 is achieved by signing the handshake
+transcript. KEM-based authentication provides authentication by deriving a
+shared secret that is encapsulated against the public key contained in the certificate.
 Only the holder of the private key corresponding to the certificate's
 public key can derive the same shared secret and thus decrypt it's peers
 messages.
 
 This approach is appropriate for endpoints that have KEM public keys. Though
 this is currently rare, certificates could be issued with (EC)DH public keys as
-specified for instance in {{I-D.ietf-curdle-pkix}}, or through delegated
-credentials {{I-D.ietf-tls-subcerts}}.
+specified for instance in {{I-D.ietf-curdle-pkix}}, or using a delegation
+mechanism, such as delegated credentials {{I-D.ietf-tls-subcerts}}.
 
-In this proposal we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}, but we
+In this proposal we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}. We
 believe KEMs are especially worth discussing in the context of the TLS protocol
 because NIST is in the process of standardizing post-quantum KEM algorithms to
-replace "classic" key exchange based on elliptic curve or finite-field
-Diffie-Hellman [NISTPQC].
+replace "classic" key exchange (based on elliptic curve or finite-field
+Diffie-Hellman [NISTPQC]).
 
-This proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}} which is in
-turn based on the OPTLS proposal for TLS 1.3 [KW16].  However, these proposals
-requires non-interactive key exchange: they combine the client's public key with
-the server's long-term key.  This does impose a requirement that the ephemeral and
-static keys use the same algorithm, which this proposal does not require. Additionally,
-there are no post-quantum proposals for non-interactive key exchange currently
-considered for standardization, while several KEMs are on the way.
+This proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}}, which is in
+turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
+require a non-interactive key exchange: they combine the client's public key with
+the server's long-term key. This imposes a requirement that the ephemeral and
+static keys use the same algorithm, which this proposal does not require.
+Additionally, there are no post-quantum proposals for a non-interactive key
+exchange currently considered for standardization, while several KEMs are on the
+way.
 
 # Requirements Notation
 
@@ -173,7 +174,7 @@ server:  The endpoint that this did initiate the TLS connection.
 As this proposal relies heavily on KEMs, which are not originally
 used by TLS, we will provide a brief overview of this primitive.
 
-A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}}
+A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}},
 is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
 
 ``Encaps(pkR)``:  Takes a public key, and produces a shared secret and
@@ -236,19 +237,25 @@ certificate-based authentication is needed.  Specifically:
   extensions.  This message is omitted by the client if the server
   did not send CertificateRequest (thus indicating that the client
   should not authenticate with a certificate). The Certificate
-  should include a long-term KEM public key.
+  MUST include the long-term KEM public key.
 
 * KEMEncapsulation: A key encapsulation against the certificate's long-term
   public key, which yields an implicitly authenticated shared secret.
 
 Upon receiving the server's messages, the client responds with its
 Authentication messages, namely Certificate and KEMEncapsulation (if
-requested).
+requested). If client authentication was not requested, the Client
+sends its Finished message.
+
+Upon receiving the client's messages, the server responds with its
+Finished message, which achieves explicit authentication.
+Upon receiving the server's Finished message, the client achieves explicit
+authentication.
 
 Application Data MUST NOT be sent prior to sending the Finished
-message, except as specified in Section 2.3.  Note that while the
-client may send Application Data prior to receiving the server's
-last Authentication message, any data sent at that point is, of course,
+message, except as specified in Section 2.3 of {{RFC5869}}.  Note that
+while the client may send Application Data prior to receiving the server's
+last explicit Authentication message, any data sent at that point is, of course,
 being sent to an implicitly authenticated peer. It is worth noting
 that Application Data sent prior to receiving the server's last
 Authentication message can be subject to a client downgrade
@@ -312,7 +319,7 @@ Auth | + kem_encapsulation_extension
 In some applications, such as in a VPN, the client already knows that the
 server will require mutual authentication. This means that a client can proactively
 authenticate by sending its certificate as early in the handshake as possible.
-The client's certificate have to be sent encrypted by using the shared secret
+The client's certificate has to be sent encrypted by using the shared secret
 derived from the kem_encapsulation message.
 
 # Handshake protocol
