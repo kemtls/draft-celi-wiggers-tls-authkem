@@ -234,7 +234,7 @@ phases compared to the three ones from TLS 1.3. It achieves both confidentiality
 and authentication (certificate-based).
 
 After the Key Exchange and Server Parameters phase of TLS 1.3 handshake, the
-client and server exchange implicity authenticated messages.
+client and server exchange implicitly authenticated messages.
 KEM-based authentication uses the same set of messages every time that
 certificate-based authentication is needed.  Specifically:
 
@@ -576,7 +576,7 @@ signed by an authentication algorithm advertised by the server or client.
 
 This message is used to provide implicit proof that an endpoint
 possesses the private key(s) corresponding to its certificate by sending
-the appropriate parameters that will be used to calculate the implicity
+the appropriate parameters that will be used to calculate the implicitly
 authenticated shared secret.
 
 The calculation of the shared secret also provides integrity for the handshake
@@ -815,7 +815,7 @@ choices for symmetric encryption, as specified in the `ServerHello` message,
 were authentic. These are not authenticated until the `Finished` message from
 the server arrived. This may allow an adversary to downgrade the symmetric
 algorithms, but only to what the client is willing to accept. If such an attack
-occurs, the handshake will also never succesfully complete and no data can be
+occurs, the handshake will also never successfully complete and no data can be
 sent back.
 
 If the client trusts the symmetric algorithms advertised in its `ClientHello`
