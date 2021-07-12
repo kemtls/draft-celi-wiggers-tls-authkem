@@ -49,6 +49,7 @@ normative:
 
 informative:
   RFC5869:
+  RFC5280:
   KEMTLS:
     title: "Post-Quantum TLS without Handshake Signatures"
     date: 2020-11
@@ -470,7 +471,7 @@ is used in ClientHello and ServerHello messages.  The extension type
 is specified as follows.
 
 ~~~
-  enum {
+  struct {
        stored_auth_key(TBD), (65535)
   } ExtensionType;
 ~~~
@@ -483,7 +484,7 @@ public keys from the server.
 
 ~~~
   enum {
-       pub_key(1) (255)
+       uint8 pub_key;
   } StoredInformationType;
 
   struct {
@@ -507,7 +508,9 @@ This document defines the following type:
    With the type field set to 'pub_key', the client MUST include the
    fingerprint of the Public Key of the end-entity certificate in
    the hash_value field. For this type, the fingerprint MUST be calculated
-   using the procedure below, using the Public Key as the input data.
+   using the procedure below, using the Public Key (represented
+   using the Subject Public Key Info representation, as defined in {{RFC5869}},
+   Section 4.1.2.7) as the input data.
 
 The fingerprint calculation proceeds this way:
 
