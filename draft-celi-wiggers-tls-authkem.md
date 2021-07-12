@@ -283,10 +283,10 @@ Exch | + key_share
                               -------->
                                                 ServerHello  ^ Key
                                           +  (kem)key_share  v Exch
-                                      <EncryptedExtensions>  ^  Server
-                                       <CertificateRequest>  v  Params
+                                      <EncryptedExtensions>  ^ Server
+                                       <CertificateRequest>  v Params
      ^                                        <Certificate>  ^
-Auth | <KEMEncapsulation>                                    |  Auth
+Auth | <KEMEncapsulation>                                    | Auth
      | {Certificate}          -------->                      |
      |                        <--------  {KEMEncapsulation}  |
      | {Finished}             -------->                      |
