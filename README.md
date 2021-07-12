@@ -2,7 +2,7 @@
 
 This is the working area for the individual Internet-Draft, "KEMTLS".
 
-* [Editor's Copy](https://claucece.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-kemtls.html)
+* [Editor's Copy](https://claucece.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.html)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem)
 * [Compare Editor's Copy to Individual Draft](https://claucece.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.diff)
 
