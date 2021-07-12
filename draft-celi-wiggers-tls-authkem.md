@@ -293,21 +293,19 @@ Auth | <KEMEncapsulation>                                    |  Auth
      | [Cached Server Certificate]                           |
      | [Application Data*]    -------->                      |
      v                        <-------           {Finished}  |
-                                [Cached Client Certificate]  |
                                                              v
        [Application Data]     <------->  [Application Data]
-
 
        Client                                        Server
 
 Key  ^ ClientHello
 Exch | + key_share
-&    | + cached_info_extension
+&    | + stored_auth_key_extension
 Auth | + kem_encapsulation_extension
      | + (kem)signature_algorithms
      | <Certificate>          -------->         ServerHello  ^ Key
      |                                    +  (kem)key_share  | Exch,
-     |                           +  {cached_info_extension}  | Auth &
+     |                       +  {stored_auth_key_extension}  | Auth &
      |                                {EncryptedExtensions}  | Server
      |                                   {KEMEncapsulation}  | Params
      |                        <--------          {Finished}  v
@@ -367,9 +365,9 @@ exceptions:
 
 - Usage of a new message `KEMEncapsulation`.
 - The `CertificateVerify` message is not used.
-- Two extensions can be added to the `ClientHello` message: "cached_information"
+- Two extensions can be added to the `ClientHello` message: "stored_auth_key"
   and "kem_encapsulation".
-- One extensions can be added to the `ServerHello` message: "cached_information".
+- One extensions can be added to the `ServerHello` message: "stored_auth_key".
 
 KEM-Auth preserves the same cryptographic negotiation with the addition
 of the KEM algorithms to the `signature_algorithms`.
@@ -377,7 +375,7 @@ of the KEM algorithms to the `signature_algorithms`.
 ### Client Hello
 
 KEM-Auth uses the `ClientHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, two extensions are mandatory: "cached_information"
+in a pre-distributed mode, however, two extensions are mandatory: "stored_auth_key"
 and "kem_encapsulation" for server authentication. This extensions are
 described later in the document.
 
@@ -471,7 +469,7 @@ public keys from the server.
   } StoredObject;
 
   struct {
-       StoredObject cached_info<1..2^16-1>;
+       StoredObject stored_auth_key<1..2^16-1>;
   } StoredInformation;
 ~~~
 
