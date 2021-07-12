@@ -615,13 +615,18 @@ Structure of this message:
 The verify_data value is computed as follows:
 
 ~~~
-  verify_data =
-      HMAC(finished_key,
+server/client_verify_data =
+      HMAC(server/client_finished_key,
            Transcript-Hash(Handshake Context,
-                           Certificate*, KEMEncapsulation*))
+                           Certificate*,
+                           KEMEncapsulation*,
+                           Finished†)
 ~~~
 
 * Only included if present.
+† The party who last sends the finished message in terms of flights
+  includes the other party's Finished message.
+
 
 Any records following a Finished message MUST be encrypted under the
 appropriate application traffic key as described in TLS 1.3.  In
