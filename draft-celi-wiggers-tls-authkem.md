@@ -120,10 +120,16 @@ Only the holder of the private key corresponding to the certificate's
 public key can derive the same shared secret and thus decrypt it's peers
 messages.
 
-In this proposal we will use the DH-based KEMs from  {{!I-D.irtf-cfrg-hpke}},
-but KEMs are of interest to the TLS protocol because NIST is in the process of
-standardizing post-quantum KEM algorithms to replace "classic" key exchange
-based on elliptic curve or finite-field Diffie-Hellman [NISTPQC].
+This approach is appropriate for endpoints that have KEM public keys. Though
+this is currently rare, certificates could be issued with (EC)DH public keys as
+specified for instance in {{I-D.ietf-curdle-pkix}}, or through delegated
+credentials {{I-D.ietf-tls-subcerts}}.
+
+In this proposal we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}, but we
+believe KEMs are especially worth discussing in the context of the TLS protocol
+because NIST is in the process of standardizing post-quantum KEM algorithms to
+replace "classic" key exchange based on elliptic curve or finite-field
+Diffie-Hellman [NISTPQC].
 
 This proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}} which is in
 turn based on the OPTLS proposal for TLS 1.3 [KW16].  However, these proposals
