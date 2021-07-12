@@ -181,9 +181,9 @@ Exch | + key_share
                                             <EncryptedExtensions>  ^  Server
                                              <CertificateRequest>  v  Params
      ^                                              <Certificate>  ^
-Auth | <KEMEncapsulation>                                             |  Auth
+Auth | <KEMEncapsulation>                                          |  Auth
      | {Certificate}                -------->                      |
-     |                              <--------     {KEMEncapsulation}  |
+     |                              <--------  {KEMEncapsulation}  |
      | {Finished}                   -------->                      |
      | [Application Data*]          -------->                      |
      v                              <-------           {Finished}  |
@@ -243,8 +243,8 @@ message from the Server.
 
 ## Prior-knowledge KEMTLS
 
-Given the added number of round-trips of KEMTLS compared to the TLS 1.3,
-the KEMTLS handshake can be improved by the usage of pre-distributed
+Given the added number of round-trips of KEM-based auth compared to the TLS 1.3,
+the handshake can be improved by the usage of pre-distributed
 KEM authentication keys to achieve explicit authentication and full downgrade
 resilience as early as possible. A peer's long-term KEM authentication key can
 be cached in advance, as well.
@@ -256,16 +256,16 @@ establishes cached information and the second handshake uses it:
        Client                                           Server
 
 Key  ^ ClientHello
-Exch | + (kem)key_share
+Exch | + key_share
      v + (kem)signature_algorithms      -------->
                                                       ServerHello  ^ Key
                                                 +  (kem)key_share  v Exch
                                             <EncryptedExtensions>  ^  Server
                                              <CertificateRequest>  v  Params
      ^                                              <Certificate>  ^
-Auth | <KEMEncapsulation>                                             |  Auth
+Auth | <KEMEncapsulation>                                          |  Auth
      | {Certificate}                -------->                      |
-     |                              <--------     {KEMEncapsulation}  |
+     |                           <--------     {KEMEncapsulation}  |
      | {Finished}                   -------->                      |
      | [Cached Server Certificate]
      | [Application Data*]          -------->                      |
@@ -277,16 +277,16 @@ Auth | <KEMEncapsulation>                                             |  Auth
        Client                                           Server
 
 Key  ^ ClientHello
-Exch | + (kem)key_share
+Exch | + key_share
 &    | + cached_info_extension
-Auth | + kem_ciphertext_extension
+Auth | + kem_encapsulation_extension
      | + (kem)signature_algorithms
      | <Certificate>                -------->                      |
      |                                                ServerHello  ^ Key
-     |                                          +  (kem)key_share  | Exch,
+     |                                          +       key_share  | Exch,
      |                                 +  {cached_info_extension}  | Auth &
      |                                      {EncryptedExtensions}  | Server
-     |                                            {KEMEncapsulation}  | Params
+     |                                         {KEMEncapsulation}  | Params
      |                              <--------          {Finished}  v
      |                              <-------- [Application Data*]
      v {Finished}                   -------->
@@ -298,7 +298,7 @@ In some applications, such as in a VPN, the client already knows that the
 server will require mutual authentication. This means that a client can proactively
 authenticate by sending its certificate as early in the handshake as possible.
 The client's certificate have to be sent encrypted by using the shared secret
-derived from the kem_ciphertext encapsulation.
+derived from the kem_encapsulation message.
 
 # Handshake protocol
 
