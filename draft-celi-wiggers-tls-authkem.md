@@ -255,7 +255,7 @@ Upon receiving the server's Finished message, the client achieves explicit
 authentication.
 
 Application Data MUST NOT be sent prior to sending the Finished
-message, except as specified in Section 2.3 of {{RFC5869}}.  Note that
+message, except as specified in Section 2.3 of {{RFC8446}}.  Note that
 while the client may send Application Data prior to receiving the server's
 last explicit Authentication message, any data sent at that point is, of course,
 being sent to an implicitly authenticated peer. It is worth noting
@@ -798,7 +798,7 @@ were authentic. These are not authenticated until the `Finished` message from
 the server arrived. This may allow an adversary to downgrade the symmetric
 algorithms, but only to what the client is willing to accept. If such an attack
 occurs, the handshake will also never succesfully complete and no data can be
-sent back. 
+sent back.
 
 If the client trusts the symmetric algorithms advertised in its `ClientHello`
 message, this should not be a concern. A client MUST NOT accept any
