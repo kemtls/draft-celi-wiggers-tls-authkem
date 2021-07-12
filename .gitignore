@@ -10,7 +10,9 @@
 .targets.mk
 /*-[0-9][0-9].xml
 archive.json
+draft-celi-wiggers-tls-kemtls.xml
+lib
 report.xml
 venv/
 lib
-draft-celi-wiggers-tls-kemtls.xml
+draft-celi-wiggers-tls-authkem.xml
