@@ -176,8 +176,9 @@ server:  The endpoint that this did initiate the TLS connection.
 As this proposal relies heavily on KEMs, which are not originally
 used by TLS, we will provide a brief overview of this primitive.
 
-A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}},
-is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
+A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}}
+as an internal API, is a cryptographic primitive that defines the
+methods ``Encap`` and ``Decap``:
 
 ``Encap(pkR)``:  Takes a public key, and produces a shared secret and
   encapsulation.
@@ -185,6 +186,7 @@ is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
 ``Decap(enc, skR)``:  Takes the encapsulation and the private key. Returns
   the shared secret.
 
+Note that we are using the internal API for KEMs as defined in {{!I-D.irtf-cfrg-hpke}}.
 
 # Protocol Overview
 
@@ -327,7 +329,9 @@ derived from the kem_encapsulation message.
 
 Clients will indicate support for this mode by negotiating it as if
 it were a signature scheme. We thus add these new signature scheme
-values for the KEMs defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1.
+values (even though, they are not signature schemes) for the KEMs
+defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1. Note that we will be
+only using their internal KEM API.
 
 ~~~
   enum {
