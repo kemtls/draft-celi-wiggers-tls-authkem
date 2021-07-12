@@ -279,32 +279,33 @@ establishes cached information and the second handshake uses it:
 
 Key  ^ ClientHello
 Exch | + key_share
-     v + (kem)signature_algorithms  -------->
-                                                      ServerHello  ^ Key
-                                                +  (kem)key_share  v Exch
-                                            <EncryptedExtensions>  ^  Server
-                                             <CertificateRequest>  v  Params
-     ^                                              <Certificate>  ^
-Auth | <KEMEncapsulation>                                          |  Auth
-     | {Certificate}                -------->                      |
-     |                              <--------  {KEMEncapsulation}  |
-     | {Finished}                   -------->                      |
-     | [Cached Server Certificate]
-     | [Application Data*]          -------->                      |
-     v                              <-------           {Finished}  |
-                                      [Cached Client Certificate]  |
-                                                                   v
-       [Application Data]           <------->  [Application Data]
+     v + (kem)signature_algorithms
+                              -------->
+                                                ServerHello  ^ Key
+                                          +  (kem)key_share  v Exch
+                                      <EncryptedExtensions>  ^  Server
+                                       <CertificateRequest>  v  Params
+     ^                                        <Certificate>  ^
+Auth | <KEMEncapsulation>                                    |  Auth
+     | {Certificate}          -------->                      |
+     |                        <--------  {KEMEncapsulation}  |
+     | {Finished}             -------->                      |
+     | [Cached Server Certificate]                           |
+     | [Application Data*]    -------->                      |
+     v                        <-------           {Finished}  |
+                                [Cached Client Certificate]  |
+                                                             v
+       [Application Data]     <------->  [Application Data]
 
-       Client                                           Server
+
+       Client                                        Server
 
 Key  ^ ClientHello
 Exch | + key_share
 &    | + cached_info_extension
 Auth | + kem_encapsulation_extension
      | + (kem)signature_algorithms
-     | <Certificate>          -------->                      |
-     |                                          ServerHello  ^ Key
+     | <Certificate>          -------->         ServerHello  ^ Key
      |                                    +  (kem)key_share  | Exch,
      |                           +  {cached_info_extension}  | Auth &
      |                                {EncryptedExtensions}  | Server
