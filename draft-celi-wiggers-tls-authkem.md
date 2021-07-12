@@ -791,7 +791,33 @@ than pre-quantum (EC)DH keyshares. This may still cause problems.
 
 # Security Considerations {#sec-considerations}
 
-TODO:
+The academic works proposing KEMTLS contain a in-depth technical discussion of
+and a proof of the security of the handshake protocol without client
+authentication [KEMTLS]. The work proposing the variant protocol [KEMTLSPDK]
+with pre-distributed public keys has a proof for both unilaterally and mutually
+authenticated handshakes.
+
+## Implicit authentication
+
+Because preserving a 1/1.5RTT handshake in KEMTLS requires the client to
+send its request in the same flight as in which it receives the `ServerHello`
+message, it can not yet have fully authenticated the server. However,
+through the inclusion of the key encapsulated to the server's long-term
+secret, only an authentic server should be able to decrypt these messages.
+
+However, the client can not have received confirmation that the server's
+choices for symmetric encryption, as specified in the `ServerHello` message,
+were authentic. These are not authenticated until the `Finished` message from
+the server arrived. This may allow an adversary to downgrade the symmetric
+algorithms, but only to what the client is willing to accept. If the client 
+trusts the symmetric algorithms advertised in its `ClientHello` message,
+this should not be a concern. A client MUST NOT accept any cryptographic
+parameters it does not include in its own `ClientHello` message.
+
+If client authentication is used, explicit authentication is reached before
+any application data, on either client or server side, is transmitted.
+
+TODO / check if covered above:
 
 * sending data to an implicitly authenticated and not-full downgrade
 resilient peer
