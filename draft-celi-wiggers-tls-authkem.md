@@ -122,8 +122,8 @@ messages.
 
 This approach is appropriate for endpoints that have KEM public keys. Though
 this is currently rare, certificates could be issued with (EC)DH public keys as
-specified for instance in {{I-D.ietf-curdle-pkix}}, or using a delegation
-mechanism, such as delegated credentials {{I-D.ietf-tls-subcerts}}.
+specified for instance in {{!I-D.ietf-curdle-pkix}}, or using a delegation
+mechanism, such as delegated credentials {{!I-D.ietf-tls-subcerts}}.
 
 In this proposal we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}. We
 believe KEMs are especially worth discussing in the context of the TLS protocol
