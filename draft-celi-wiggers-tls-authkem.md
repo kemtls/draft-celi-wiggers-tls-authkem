@@ -762,8 +762,6 @@ and these require the addition of new ``key_share`` types.
 Typical KEM public-key and encapsulation sizes are also significantly bigger
 than pre-quantum (EC)DH keyshares. This may still cause problems.
 
-# Integration with Delegated Credentials
-
 # Security Considerations {#sec-considerations}
 
 * The academic works proposing KEM-Auth contain a in-depth technical discussion
