@@ -1,7 +1,7 @@
 ---
 title: KEMTLS
 abbrev: KEMTLS
-docname: draft-celi-wiggers-tls-kemtls-latest
+docname: draft-celi-wiggers-tls-authkem-latest
 category: info
 
 ipr: trust200902
