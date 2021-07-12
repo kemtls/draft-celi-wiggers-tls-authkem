@@ -386,15 +386,18 @@ message gets send alongside the `ClientHello` one for mutual authentication.
 ### Server Hello
 
 KEM-Auth uses the `ServerHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, one extension is mandatory: "cached_auth_key"
+in a pre-distributed mode, however, one extension is mandatory: "stored_auth_key"
 for server authentication. This extension is described later in the document.
 
 When the ServerHello message is received:
 
-- the client and server derive handshake traffic secrets `CHTS` and `SHTS` which are
-  used to encrypt subsequent flows in the handshake
+- the client and server derive handshake traffic secrets `client_handshake_traffic_secret`
+  and `server_handshake_traffic_secret` which are used to encrypt subsequent
+  flows in the handshake
 - the “handshake secret” is derived: `dHS` which is kept as the
   current secret state of the key schedule.
+
+Refer to Section 8.1 for information on how to derive this secrets.
 
 ### Hello Retry Request
 
@@ -504,7 +507,7 @@ The computations for the Authentication messages take the following inputs:
 -  The certificate and authentication key to be used.
 -  A Handshake Context consisting of the set of messages to be included in the
    transcript hash.
--  A Shared Secret Key (from the KEM operations) to be used to compute an
+-  A Shared Secret Key (from the key exchange operations) to be used to compute an
    authenticated handshake shared key.
 -  A Handshake Context consisting of the set of messages to be
    included in the transcript hash.
@@ -518,11 +521,12 @@ KEMEncapsulation: The KEM encapsulation against the end-entity
   certificate's public key(s).
 
 KEM-Auth follows the TLS 1.3 key schedule, which applies a sequence of HKDF
-operations to the Shared Secret Keys and the handshake context to derive:
+operations to the Handshake Secret Keys and the handshake context to derive:
 
 - the client and server authenticated handshake traffic secrets
-  `CAHTS` and `SAHTS` which are used to encrypt subsequent flows
-  in the handshake
+  `client_handshake_authenticated_traffic_secret`
+  and `server_handshake_authenticated_traffic_secret` which are used to
+  encrypt subsequent flows in the handshake
 - updated secret state `dAHS` of the key schedule.
 - a Master Key.
 
@@ -531,7 +535,7 @@ operations to the Shared Secret Keys and the handshake context to derive:
 KEM-Auth uses the same `Certificate` message as TLS 1.3.
 
 The end-entity `Certificate` or the `RawPublicKey` MUST contain or be a
-KEM public key and.
+KEM public key.
 
 Note that we are only specifying here the algorithms in the end-entity
 `Certificate`. All certificates provided by the server or client MUST be
@@ -559,7 +563,10 @@ Structure of this message:
   } KEMEncapsulation;
 ~~~
 
-The encapsulation field is the result of a `Encap()` function.
+The encapsulation field is the result of a `Encaps(pkR)` function. The
+Encapsulation() function will also result on a shared secret (`ssS` or `ssC`,
+depending on the Server or Client executing it respectively) which is
+used to derive the `AHS` or `MS` secrets.
 
 If the KEMEncapsulation message is sent by a server, the authentication
 algorithm MUST be one offered in the client's `signature_algorithms`
@@ -574,9 +581,11 @@ CertificateRequest message.
 In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
 
-The receiver of a `KEMEncapsulation` message MUST perform the `Decap()`
-operation by using the sent encapsulation (or the concatenated ones) and the
-private key(s) of the public key(s) advertised in the end-entity certificate sent.
+The receiver of a `KEMEncapsulation` message MUST perform the `Decap(enc, skR)`
+operation by using the sent encapsulation and the private key of the public key
+advertised in the end-entity certificate sent. The `Decap(enc, skR)` function
+will also result on a shared secret (`ssS` or `ssC`, depending on the Server or
+Client executing it respectively) which is used to derive the `AHS` or `MS` secrets.
 
 ### Explicit Authentication Messages
 
@@ -598,7 +607,6 @@ server/client_finished_key =
   HKDF-Expand-Label(MasterKey,
                     server/client_label,
                     "", Hash.length)
-
 server_label = "tls13 server finished"
 client_label = "tls13 client finished"
 ~~~
@@ -633,14 +641,6 @@ appropriate application traffic key as described in TLS 1.3.  In
 particular, this includes any alerts sent by the server in response
 to client Certificate and KEMEncapsulation messages.
 
-# Record Protocol
-
-KEM-Auth uses the same TLS 1.3 Record Protocol.
-
-# Alert Protocol
-
-KEM-Auth uses the same TLS 1.3 Alert Protocol.
-
 # Cryptographic Computations
 
 The KEM-Auth handshake establishes three input secrets which are
@@ -659,11 +659,6 @@ Keys are derived from two input secrets using the HKDF-Extract and
 Derive-Secret functions.  The general pattern for adding a new secret
 is to use HKDF-Extract with the Salt being the current secret state
 and the Input Keying Material (IKM) being the new secret to be added.
-
-In this version of KEM-Auth, the input secret is:
-
- -  KEM shared secret which could be just one PQKEM or the concatenation
-    of the PQKEM with the "classical" KEM.
 
 The key schedule proceeds as follows:
 
@@ -702,16 +697,16 @@ The key schedule proceeds as follows:
             |
             +--> Derive-Secret(., "c ahs traffic",
             |                  ClientHello...KEMEncapsulation)
-            |                  = client_handshake_traffic_secret
+            |                  = client_handshake_authenticated_traffic_secret
             |
             +--> Derive-Secret(., "s ahs traffic",
             |                  ClientHello...KEMEncapsulation)
-            |                  = server_handshake_traffic_secret
+            |                  = server_handshake_authenticated_traffic_secret
             v
             Derive-Secret(., "derived", "") = AHS
             |
             v
-    SSc -> HKDF-Extract = Master Secret
+SSc||0 * -> HKDF-Extract = Master Secret
             |
             +--> Derive-Secret(., "c ap traffic",
             |                  ClientHello...server Finished)
@@ -728,31 +723,22 @@ The key schedule proceeds as follows:
             +--> Derive-Secret(., "res master",
                                ClientHello...client Finished)
                                = resumption_master_secret
-~~~
 
-The client computes the following input values as follows:
-`SSs`, the shared secret from the server's long-term public key is
-computed from the public key `pk_server` included by
-the server's certificate.
+The * means that if client authentication was requested the `SSc` value should
+be used. Otherwise, the `0` value is used.
 
-If client authentication via KEM is used, `SSc`, the shared secret
-encapsulated against the client's long-term public key, is computed
-by decapsulating the encapsulation sent by the server to the client.
-If client authentication is not used, this value is 0.
+The operations to compute `SSs` or `SSc` from the client are:
 
 ~~~
-SSs, encapsulation <- Encap(pk_server)
-               SSc <- Decap(encapsulation, sk_client)
+SSs, encapsulation <- Encap(public_key_server)
+               SSc <- Decap(encapsulation, private_key_client)
 ~~~
 
-The server computes `SSs`, the shared secret encapsulated against
-its long-term public key; and `SSc`, the shared secret encapsulated
-against the clients long-term public key (if client authentication is used)
-as follows:
+The operations to compute `SSs` or `SSc` from the server are:
 
 ~~~
-               SSs <- Decap(encapsulation, sk_server)
-SSc, encapsulation <- Encap(pk_client)
+               SSs <- Decap(encapsulation, priavte_key_server)
+SSc, encapsulation <- Encap(public_key_client)
 ~~~
 
 # (Middlebox) Compatibility Considerations
@@ -792,8 +778,8 @@ than pre-quantum (EC)DH keyshares. This may still cause problems.
 ## Implicit authentication
 
 Because preserving a 1/1.5RTT handshake in KEM-Auth requires the client to
-send its request in the same flight as in which it receives the `ServerHello`
-message, it can not yet have fully authenticated the server. However,
+send its request in the same flight when the `ServerHello` message is received,
+it can not yet have explicitly authenticated the server. However,
 through the inclusion of the key encapsulated to the server's long-term
 secret, only an authentic server should be able to decrypt these messages.
 
@@ -817,4 +803,5 @@ any application data, on either client or server side, is transmitted.
 
 # Acknowledgements
 
-This work has been supported by the European Research Council through Starting Grant No. 805031 (EPOQUE).
+This work has been supported by the European Research Council through
+Starting Grant No. 805031 (EPOQUE).
