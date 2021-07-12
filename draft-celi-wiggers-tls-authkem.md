@@ -778,6 +778,12 @@ SSc, encapsulation <- Encap(public_key_client)
   with pre-distributed public keys has a proof for both unilaterally and
   mutually authenticated handshakes.
 
+* Application Data sent prior to receiving the server's last explicit
+  authentication message (the Finished message) can be subject to a client
+  downgrade attack, and has weaker forward secrecy compared to TLS 1.3.
+  Full downgrade resilience and forward secrecy is achieved once the handshake
+  completes.
+
 * The client's certificate is kept secret from active observers by the
   derivation of the `client_authenticated_handshake_secret`, which ensures that
   only the intended server can read the client's identity.
@@ -791,6 +797,7 @@ SSc, encapsulation <- Encap(public_key_client)
 * A client that opportunistically sends its certificate, SHOULD send it
   encrypted with a ciphertext that it knows the server will accept. Otherwise,
   it will fail.
+
 
 ## Implicit authentication
 
