@@ -328,24 +328,28 @@ derived from the kem_encapsulation message.
 # Negotiation
 
 Clients will indicate support for this mode by negotiating it as if
-it were a signature scheme. We thus add these new signature scheme
-values (even though, they are not signature schemes) for the KEMs
-defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1. Note that we will be
-only using their internal KEM's API defined there.
+it were a signature scheme (part of the `SignatureScheme` extension). We thus
+add these new signature scheme values (even though, they are not signature
+schemes) for the KEMs defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1. Note that
+we will be only using their internal KEM's API defined there.
 
 ~~~
   enum {
-    sig_dhkem_p256_sha256   => TBD,
-    sig_dhkem_p384_sha384   => TBD,
-    sig_dhkem_p521_sha512   => TBD,
-    sig_dhkem_x25519_sha256 => TBD,
-    sig_dhkem_x448_sha512   => TBD,
+    dhkem_p256_sha256   => TBD,
+    dhkem_p384_sha384   => TBD,
+    dhkem_p521_sha512   => TBD,
+    dhkem_x25519_sha256 => TBD,
+    dhkem_x448_sha512   => TBD,
   }
 ~~~
 
 When present in the `signature_algorithms` extension, these values
 indicate KEM-Auth with the specified key exchange mode. These values
 MUST NOT appear in `signature_algorithms_cert`.
+
+In order to be used for KEM-Auth, this algorithms have to be added to
+the `SignatureScheme` extension sent in the ClientHello message, and
+supported by the server.
 
 # Handshake protocol
 
