@@ -95,47 +95,19 @@ TODO
 
 DISCLAIMER: This is a work-in-progress draft.
 
-The primary goal of TLS 1.3 as defined in {{!RFC8446}} is to provide a
-secure channel between two communicating peers; the only requirement
-from the underlying transport is a reliable, in-order data stream.
-Due to the advent of quantum computers, moving the TLS ecosystem
-to post-quantum cryptography is a need. The protocol achieving that
-goal is called KEMTLS. Specifically, this post-quantum secure channel
-should provide the following properties:
-
--  Authentication: The server side of the channel is always
-   authenticated; the client side is optionally authenticated.
-   Authentication happens via asymmetric cryptography by the
-   usage of key-encapsulation mechanisms (KEM) by using the long-term
-   KEM public keys in the Certificate.
-
--  Confidentiality: Data sent over the channel after establishment is
-   only visible to the intended endpoints.  KEMTLS does not hide the
-   length of the data it transmits, though endpoints are able to pad
-   KEMTLS records in order to obscure lengths and improve protection
-   against traffic analysis techniques.
-
--  Integrity: Data sent over the channel after establishment cannot
-   be modified by attackers without detection.
+This document gives a construction for KEM authentication in TLS
+1.3.  The overall design approach is a simple: usage of KEMs for
+certificate-based authentication. Authentication happens via asymmetric
+cryptography by the usage of key-encapsulation mechanisms (KEM) by
+using the long-term KEM public keys in the Certificate.
 
 TLS 1.3 is in essence a signed key exchange protocol. Authentication
-in TLS 1.3 is achieved by signing the handshake transcript. KEMTLS
-provides authentication by deriving a shared secret that is
-encapsulated against the public key contained in the certificate.
+in TLS 1.3 is achieved by signing the handshake transcript. KEM-based
+authentication provides authentication by deriving a shared secret that
+is encapsulated against the public key contained in the certificate.
 Only the holder of the private key corresponding to the certificate's
 public key can derive the same shared secret and thus decrypt it's peers
 messages.
-
-KEMTLS is provided as an extension to TLS 1.3, but it heavily modifies
-the handshake protocol of it.
-
-In this document, we will describe two modes in which KEMTLS can be used:
-a full post-quantum mode where only post-quantum algorithms are used
-and a hybrid post-quantum mode where traditional and post-quantum
-algorithms are combined.
-
-Note that KEMTLS can also be used in any of those modes with cached
-information to reduce the number of round trips it needs to perform.
 
 # Requirements Notation
 
