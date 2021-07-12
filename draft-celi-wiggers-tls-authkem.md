@@ -197,10 +197,10 @@ Exch | + key_share
                           -------->
                                              ServerHello  ^ Key
                                        +       key_share  v Exch
-                                   <EncryptedExtensions>  ^  Server
-                                    <CertificateRequest>  v  Params
+                                   <EncryptedExtensions>  ^ Server
+                                    <CertificateRequest>  v Params
      ^                                     <Certificate>  ^
-Auth | <KEMEncapsulation>                                 |  Auth
+Auth | <KEMEncapsulation>                                 | Auth
      | {Certificate}       -------->                      |
      |                     <--------  {KEMEncapsulation}  |
      | {Finished}          -------->                      |
@@ -303,16 +303,16 @@ Exch | + key_share
 &    | + stored_auth_key_extension
 Auth | + kem_encapsulation_extension
      | + (kem)signature_algorithms
-     | <Certificate>          -------->         ServerHello  ^ Key
-     |                                    +  (kem)key_share  | Exch,
-     |                       +  {stored_auth_key_extension}  | Auth &
-     |                                {EncryptedExtensions}  | Server
-     |                                   {KEMEncapsulation}  | Params
-     |                        <--------          {Finished}  v
-     |                        <-------- [Application Data*]
-     v {Finished}             -------->
+     | <Certificate>         -------->         ServerHello  ^ Key
+     |                                   +  (kem)key_share  | Exch,
+     |                      +  {stored_auth_key_extension}  | Auth &
+     |                               {EncryptedExtensions}  | Server
+     |                                  {KEMEncapsulation}  | Params
+     |                       <--------          {Finished}  v
+     |                       <-------- [Application Data*]
+     v {Finished}            -------->
 
-       [Application Data]     <------->  [Application Data]
+       [Application Data]    <------->  [Application Data]
 ~~~~~
 
 In some applications, such as in a VPN, the client already knows that the
