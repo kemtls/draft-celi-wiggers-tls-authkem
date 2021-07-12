@@ -256,7 +256,7 @@ attack. Full downgrade resilience is only achieved when explicit
 authentication is achieved: when the Client receives the Finished
 message from the Server.
 
-## Prior-knowledge KEMTLS
+## Prior-knowledge KEM-Auth
 
 Given the added number of round-trips of KEM-based auth compared to the TLS 1.3,
 the handshake can be improved by the usage of pre-distributed
@@ -354,7 +354,7 @@ abort the handshake with an "unexpected_message" alert.
 
 ## Key Exchange Messages
 
-KEM-auth based uses the same key exchange messages as TLS 1.3 with this
+KEM-Auth based uses the same key exchange messages as TLS 1.3 with this
 exceptions:
 
 - Usage of a new message `KEMEncapsulation`.
@@ -363,22 +363,22 @@ exceptions:
   and "kem_encapsulation".
 - One extensions can be added to the `ServerHello` message: "cached_information".
 
-KEM-auth preserves the same cryptographic negotiation with the addition
+KEM-Auth preserves the same cryptographic negotiation with the addition
 of the KEM algorithms to the "signature_algorithms".
 
 ### Client Hello
 
-KEMTLS uses the `ClientHello` message as described for TLS 1.3. When used
+KEM-Auth uses the `ClientHello` message as described for TLS 1.3. When used
 in a pre-distributed mode, however, two extensions are mandatory: "cached_information"
 and "kem_encapsulation" for server authentication. This extensions are
 described later in the document.
 
-Note that in KEM-auth with pre-distributed information, the client's `Certificate`
+Note that in KEM-Auth with pre-distributed information, the client's `Certificate`
 message gets send alongside the `ClientHello` one for mutual authentication.
 
 ### Server Hello
 
-KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
+KEM-Auth uses the `ServerHello` message as described for TLS 1.3. When used
 in a pre-distributed mode, however, one extension is mandatory: "cached_auth_key"
 for server authentication. This extension is described later in the document.
 
@@ -407,7 +407,7 @@ enum {
     signature_algorithms_cert(50),              /* RFC 8446 */
     key_share(51),                              /* RFC 8446 */
     kem_encapsulation (TBD),                    /* RFC TBD */
-    cached_auth_key(TBD),                       /* RFC TBD */
+    stored_auth_key(TBD),                       /* RFC TBD */
     (65535)
 } ExtensionType;
 ~~~
@@ -417,60 +417,60 @@ appear:
 
 ~~~
    +--------------------------------------------------+-------------+
-   | Extension                                        |      KEMTLS |
+   | Extension                                        |    KEM-Auth |
    +--------------------------------------------------+-------------+
-   | cached_auth_key [RFCTBD]                         |      CH, SH |
+   | stored_auth_key [RFCTBD]                         |      CH, SH |
    |                                                  |             |
    | kem_encapsulation  [RFCTBD]                      |          CH |
    |                                                  |             |
    +--------------------------------------------------+-------------+
 ~~~
 
-#### Cached Auth Key
+#### Stored Auth Key
 
-This document defines a new extension type ("cached_info(TBD)"), which
+This document defines a new extension type ("stored_auth_key(TBD)"), which
 is used in ClientHello and ServerHello messages.  The extension type
 is specified as follows.
 
 ~~~
   enum {
-       cached_info(TBD), (65535)
+       stored_auth_key(TBD), (65535)
   } ExtensionType;
 ~~~
 
 The extension_data field of this extension, when included in the
-ClientHello, MUST contain the `CachedInformation` structure.  The
-client MAY send multiple CachedObjects of the same `CachedInformationType`.
+ClientHello, MUST contain the `StoredInformation` structure.  The
+client MAY send multiple StoredObjects of the same `StoredInformationType`.
 This may, for example, be the case when the client has cached multiple
-certificates from the server.
+public keys from the server.
 
 ~~~
   enum {
-       cert(1) (255)
-  } CachedInformationType;
+       pub_key(1) (255)
+  } StoredInformationType;
 
   struct {
        select (type) {
          case client:
-           CachedInformationType type;
+           StoredInformationType type;
            opaque hash_value<1..255>;
          case server:
-           CachedInformationType type;
+           StoredInformationType type;
        } body;
-  } CachedObject;
+  } StoredObject;
 
   struct {
-       CachedObject cached_info<1..2^16-1>;
-  } CachedInformation;
+       StoredObject cached_info<1..2^16-1>;
+  } StoredInformation;
 ~~~
 
 This document defines the following type:
 
-- 'cert' type for not sending the complete server certificate message:
-   With the type field set to 'cert', the client MUST include the
-   fingerprint of the Certificate message in the hash_value field.
-   For this type, the fingerprint MUST be calculated using the
-   procedure below, using the Certificate message as the input data.
+- 'pub_key' type for not sending the complete server certificate message:
+   With the type field set to 'pub_key', the client MUST include the
+   fingerprint of the Public Key of the end-entity certificate in
+   the hash_value field. For this type, the fingerprint MUST be calculated
+   using the procedure below, using the Public Key as the input data.
 
 The fingerprint calculation proceeds this way:
 
@@ -480,8 +480,8 @@ The fingerprint calculation proceeds this way:
 2.  Use the output of the SHA-256 hash.
 
 The purpose of the fingerprint provided by the client is to help the
-server select the correct information.  The fingerprint identifies the server
-certificate (and the corresponding private key) for use with the rest
+server select the correct information. The fingerprint identifies the server
+public key (and the corresponding private key) for use with the rest
 of the handshake.
 
 If this extension is not present, the `kem_encapsulation` extension MUST
@@ -489,7 +489,7 @@ not be present as well. If present, it will be ignored.
 
 ### Implicit Authentication Messages
 
-As discussed, KEMTLS generally uses a common set of messages for implicit
+As discussed, KEM-Auth generally uses a common set of messages for implicit
 authentication and key confirmation: Certificate and KEMEncapsulation.
 
 The computations for the Authentication messages take the following inputs:
@@ -497,7 +497,7 @@ The computations for the Authentication messages take the following inputs:
 -  The certificate and authentication key to be used.
 -  A Handshake Context consisting of the set of messages to be included in the
    transcript hash.
--  A Shared Secret Key (from the PQ KEM operations) to be used to compute an
+-  A Shared Secret Key (from the KEM operations) to be used to compute an
    authenticated handshake shared key.
 -  A Handshake Context consisting of the set of messages to be
    included in the transcript hash.
@@ -507,10 +507,10 @@ Based on these inputs, the messages then contain:
 Certificate:  The certificate to be used for authentication, and any supporting
   certificates in the chain.
 
-KEMEncapsulation: The post-quantum KEM encapsulation (or a hybrid one) against the
+KEMEncapsulation: The KEM encapsulation against the end-entity
   certificate's public key(s).
 
-KEMTLS follows the TLS 1.3 key schedule, which applies a sequence of HKDF
+KEM-Auth follows the TLS 1.3 key schedule, which applies a sequence of HKDF
 operations to the Shared Secret Keys and the handshake context to derive:
 
 - the client and server authenticated handshake traffic secrets
@@ -521,43 +521,13 @@ operations to the Shared Secret Keys and the handshake context to derive:
 
 ### Certificate
 
-KEMTLS uses the same Certificate message as TLS 1.3 with these changes:
+KEM-Auth uses the same Certificate message as TLS 1.3.
 
-~~~
-  enum {
-      X509(0),
-      RawHybridPublicKey(2),
-      (255)
-  } CertificateType;
-
-  struct {
-      select (certificate_type) {
-          case RawHybridPublicKey:
-            /* From RFC TBD */
-            opaque ASN1_subjectPublicKeyInfo<1..2^24-1>; ----> the classical KEM public key
-            opaque ASN1_subjectPublicKeyInfo<1..2^24-1>; ----> the post-quantum KEM public key
-
-          case X509:
-            opaque cert_data<1..2^24-1>;
-      };
-      Extension extensions<0..2^16-1>;
-  } CertificateEntry;
-
-  struct {
-      opaque certificate_request_context<0..2^8-1>;
-      CertificateEntry certificate_list<0..2^24-1>;
-  } Certificate;
-~~~
-
-In a hybrid mode, the end-entity Certificate or the RawHybridPublicKey MUST
-contain both a classical KEM public key and a post-quantum one.
-In a non-hybrid mode, the leaf Certificate or the RawHybridPublicKey MUST
-contain a post-quantum KEM public key.
+The end-entity Certificate or the RawPublicKey MUST contain or be a
+KEM public key and.
 
 Note that we are only specifying here the algorithms in the end-entity
-Certificate. A Certificate chain MUST advertise post-quantum algorithms
-and sign in a quantum-safe way each entry in order to be considered fully
-post-quantum safe.  All certificates provided by the server or client MUST be
+Certificate. All certificates provided by the server or client MUST be
 signed by an authentication algorithm advertised by the server or client.
 
 ### KEM Encapsulation
@@ -578,19 +548,11 @@ Structure of this message:
 
 ~~~
   struct {
-      SignatureScheme algorithm;
       opaque encapsulation<0..2^16-1>;
   } KEMEncapsulation;
 ~~~
 
-The algorithm field specifies the authentication algorithm used.  The
-encapsulation field is the result of a Encapsulation() function. In the
-hybrid mode, it is a concatenation of the two fields returned by the of
-Encapsulation() functions:
-
-~~~
-  concatenated_encapsulation = encapsulation from (EC)-DH || encapsulation from PQ-KEM
-~~~
+The encapsulation field is the result of a Encapsulation() function.
 
 If the KEMEncapsulation message is sent by a server, the authentication
 algorithm MUST be one offered in the client's "signature_algorithms"
@@ -611,15 +573,15 @@ private key(s) of the public key(s) advertised in the end-entity certificate sen
 
 ### Explicit Authentication Messages
 
-As discussed, KEMTLS generally uses a message for explicit
+As discussed, KEM-Auth generally uses a message for explicit
 authentication: Finished message. Note that in the non pre-distributed mode,
-KEMTLS achieves explicit authentication only when the server sends the final
+KEM-Auth achieves explicit authentication only when the server sends the final
 `Finished` message (the client is only implicitly authenticated when they
 send their `Finished` message). In a pre-distributed mode, the server achieves
 explicit authentication when sending their `Finished` message (one round-trip
 earlier) and the client, in turn, when they send their `Finished` message
 (one round-trip earlier). Full downgrade resilience and forward secrecy
-is achieved once the KEMTLS handshake completes.
+is achieved once the KEM-Auth handshake completes.
 
 The key used to compute the Finished message is computed from the
 Master Key using HKDF. Specifically:
@@ -661,15 +623,15 @@ to client Certificate and KEMEncapsulation messages.
 
 # Record Protocol
 
-KEMTLS uses the same TLS 1.3 Record Protocol.
+KEM-Auth uses the same TLS 1.3 Record Protocol.
 
 # Alert Protocol
 
-KEMTLS uses the same TLS 1.3 Alert Protocol.
+KEM-Auth uses the same TLS 1.3 Alert Protocol.
 
 # Cryptographic Computations
 
-The KEMTLS handshake establishes three input secrets which are
+The KEM-Auth handshake establishes three input secrets which are
 combined to create the actual working keying material, as detailed below. The
 key derivation process incorporates both the input secrets and the handshake
 transcript.  Note that because the handshake transcript includes the random
@@ -678,7 +640,7 @@ secrets, even if the same input secrets are used.
 
 ## Key schedule
 
-KEMTLS uses the same HKDF-Extract and HKDF-Expand functions as defined by
+KEM-Auth uses the same HKDF-Extract and HKDF-Expand functions as defined by
 TLS 1.3, in turn defined by {{RFC5869}}.
 
 Keys are derived from two input secrets using the HKDF-Extract and
@@ -686,7 +648,7 @@ Derive-Secret functions.  The general pattern for adding a new secret
 is to use HKDF-Extract with the Salt being the current secret state
 and the Input Keying Material (IKM) being the new secret to be added.
 
-In this version of KEMTLS, the input secret is:
+In this version of KEM-Auth, the input secret is:
 
  -  KEM shared secret which could be just one PQKEM or the concatenation
     of the PQKEM with the "classical" KEM.
@@ -797,7 +759,7 @@ than pre-quantum (EC)DH keyshares. This may still cause problems.
 
 # Security Considerations {#sec-considerations}
 
-The academic works proposing KEMTLS contain a in-depth technical discussion of
+The academic works proposing KEM-Auth contain a in-depth technical discussion of
 and a proof of the security of the handshake protocol without client
 authentication [KEMTLS]. The work proposing the variant protocol [KEMTLSPDK]
 with pre-distributed public keys has a proof for both unilaterally and mutually
@@ -805,7 +767,7 @@ authenticated handshakes.
 
 ## Implicit authentication
 
-Because preserving a 1/1.5RTT handshake in KEMTLS requires the client to
+Because preserving a 1/1.5RTT handshake in KEM-Auth requires the client to
 send its request in the same flight as in which it receives the `ServerHello`
 message, it can not yet have fully authenticated the server. However,
 through the inclusion of the key encapsulated to the server's long-term
@@ -815,7 +777,7 @@ However, the client can not have received confirmation that the server's
 choices for symmetric encryption, as specified in the `ServerHello` message,
 were authentic. These are not authenticated until the `Finished` message from
 the server arrived. This may allow an adversary to downgrade the symmetric
-algorithms, but only to what the client is willing to accept. If the client 
+algorithms, but only to what the client is willing to accept. If the client
 trusts the symmetric algorithms advertised in its `ClientHello` message,
 this should not be a concern. A client MUST NOT accept any cryptographic
 parameters it does not include in its own `ClientHello` message.
