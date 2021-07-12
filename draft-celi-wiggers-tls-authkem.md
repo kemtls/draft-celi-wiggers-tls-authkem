@@ -371,7 +371,7 @@ exceptions:
 - One extensions can be added to the `ServerHello` message: "cached_information".
 
 KEM-Auth preserves the same cryptographic negotiation with the addition
-of the KEM algorithms to the "signature_algorithms".
+of the KEM algorithms to the `signature_algorithms`.
 
 ### Client Hello
 
@@ -528,13 +528,13 @@ operations to the Shared Secret Keys and the handshake context to derive:
 
 ### Certificate
 
-KEM-Auth uses the same Certificate message as TLS 1.3.
+KEM-Auth uses the same `Certificate` message as TLS 1.3.
 
-The end-entity Certificate or the RawPublicKey MUST contain or be a
+The end-entity `Certificate` or the `RawPublicKey` MUST contain or be a
 KEM public key and.
 
 Note that we are only specifying here the algorithms in the end-entity
-Certificate. All certificates provided by the server or client MUST be
+`Certificate`. All certificates provided by the server or client MUST be
 signed by an authentication algorithm advertised by the server or client.
 
 ### KEM Encapsulation
@@ -545,11 +545,11 @@ the appropriate parameters that will be used to calculate the implicity
 authenticated shared secret.
 
 The calculation of the shared secret also provides integrity for the handshake
-up to this point. Servers MUST send this message when authenticating
-via a certificate. Clients MUST send this message whenever
-authenticating via a certificate (i.e., when the Certificate message
-is non-empty). When sent, this message MUST appear immediately after
-the Certificate message has been received and prior to the Finished message.
+up to this point. Servers MUST send this message when authenticating via a
+certificate. Clients MUST send this message whenever authenticating via a
+certificate (i.e., when the `Certificate` message is non-empty). When sent, this
+message MUST appear immediately after the `Certificate` message has been
+received and prior to the `Finished` message.
 
 Structure of this message:
 
@@ -559,23 +559,23 @@ Structure of this message:
   } KEMEncapsulation;
 ~~~
 
-The encapsulation field is the result of a Encapsulation() function.
+The encapsulation field is the result of a `Encap()` function.
 
 If the KEMEncapsulation message is sent by a server, the authentication
-algorithm MUST be one offered in the client's "signature_algorithms"
+algorithm MUST be one offered in the client's `signature_algorithms`
 extension unless no valid certificate chain can be produced without
 unsupported algorithms.
 
 If sent by a client, the authentication algorithm used in the signature
-MUST be one of those present in the supported_signature_algorithms
-field of the "signature_algorithms" extension in the
+MUST be one of those present in the `supported_signature_algorithms`
+field of the `signature_algorithms` extension in the
 CertificateRequest message.
 
 In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
 
-The receiver of a KEMEncapsulation message MUST perform the Decapsulation()
-operation by using the sent encapsulation (or the concatenated ones)  and the
+The receiver of a `KEMEncapsulation` message MUST perform the `Decap()`
+operation by using the sent encapsulation (or the concatenated ones) and the
 private key(s) of the public key(s) advertised in the end-entity certificate sent.
 
 ### Explicit Authentication Messages
