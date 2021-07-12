@@ -124,7 +124,7 @@ messages.
 
 This approach is appropriate for endpoints that have KEM public keys. Though
 this is currently rare, certificates could be issued with (EC)DH public keys as
-specified for instance in {{!I-D.ietf-curdle-pkix}}, or using a delegation
+specified for instance in {{!RFC8410}}, or using a delegation
 mechanism, such as delegated credentials {{!I-D.ietf-tls-subcerts}}.
 
 In this proposal we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}. We
@@ -520,7 +520,7 @@ not be present as well. If present, it will be ignored.
 
 As discussed, KEM-Auth generally uses a common set of messages for implicit
 authentication and key confirmation: Certificate and KEMEncapsulation.
-The CertificateVerify message MUST not be sent.
+The CertificateVerify message MUST NOT be sent.
 
 The computations for the Authentication messages take the following inputs:
 
@@ -648,12 +648,12 @@ server/client_verify_data =
            Transcript-Hash(Handshake Context,
                            Certificate*,
                            KEMEncapsulation*,
-                           Finished†)
+                           Finished**)
 ~~~
 
-* Only included if present.
-† The party who last sends the finished message in terms of flights
-  includes the other party's Finished message.
+*  Only included if present.
+** The party who last sends the finished message in terms of flights
+   includes the other party's Finished message.
 
 
 Any records following a Finished message MUST be encrypted under the
@@ -810,7 +810,7 @@ were authentic. These are not authenticated until the `Finished` message from
 the server arrived. This may allow an adversary to downgrade the symmetric
 algorithms, but only to what the client is willing to accept. If such an attack
 occurs, the handshake will also never succesfully complete and no data can be
-sent back.
+sent back. 
 
 If the client trusts the symmetric algorithms advertised in its `ClientHello`
 message, this should not be a concern. A client MUST NOT accept any
