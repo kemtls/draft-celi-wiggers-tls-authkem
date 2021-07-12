@@ -186,37 +186,35 @@ Figure 1 below shows the basic full KEM-authentication handshake:
 
 Key  ^ ClientHello
 Exch | + key_share
-     v + (kem)signature_algorithms      -------->
-                                                      ServerHello  ^ Key
-                                                +       key_share  v Exch
-                                            <EncryptedExtensions>  ^  Server
-                                             <CertificateRequest>  v  Params
-     ^                                              <Certificate>  ^
-Auth | <KEMEncapsulation>                                          |  Auth
-     | {Certificate}                -------->                      |
-     |                              <--------  {KEMEncapsulation}  |
-     | {Finished}                   -------->                      |
-     | [Application Data*]          -------->                      |
-     v                              <-------           {Finished}  |
-                                                                   v
-       [Application Data]           <------->  [Application Data]
+     v + (kem)signature_algorithms 
+                          -------->
+                                             ServerHello  ^ Key
+                                       +       key_share  v Exch
+                                   <EncryptedExtensions>  ^  Server
+                                    <CertificateRequest>  v  Params
+     ^                                     <Certificate>  ^
+Auth | <KEMEncapsulation>                                 |  Auth
+     | {Certificate}       -------->                      |
+     |                     <--------  {KEMEncapsulation}  |
+     | {Finished}          -------->                      |
+     | [Application Data*] -------->                      |
+     v                     <-------           {Finished}  |
+                                                          v
+       [Application Data]  <------->  [Application Data]
 
-              +  Indicates noteworthy extensions sent in the
-                 previously noted message.
+        +  Indicates noteworthy extensions sent in the
+           previously noted message.
+        *  Indicates optional or situation-dependent
+           messages/extensions that are not always sent.
+        <> Indicates messages protected using keys
+           derived from a [sender]_handshake_traffic_secret.
+        {} Indicates messages protected using keys
+           derived from a 
+           [sender]_authenticated_handshake_traffic_secret.
+        [] Indicates messages protected using keys
+           derived from [sender]_application_traffic_secret_N.
 
-              *  Indicates optional or situation-dependent
-                 messages/extensions that are not always sent.
-
-              <> Indicates messages protected using keys
-                 derived from a [sender]_handshake_traffic_secret.
-
-              {} Indicates messages protected using keys
-                 derived from a [sender]_authenticated_handshake_traffic_secret.
-
-              [] Indicates messages protected using keys
-                 derived from [sender]_application_traffic_secret_N.
-
-             Figure 1: Message Flow for KEM-Authentication Handshake
+       Figure 1: Message Flow for KEM-Authentication Handshake
 ~~~~~
 
 When using KEMs for authentication, the handshake can be thought of in four
