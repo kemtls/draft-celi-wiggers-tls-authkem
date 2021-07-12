@@ -321,6 +321,26 @@ authenticate by sending its certificate as early in the handshake as possible.
 The client's certificate has to be sent encrypted by using the shared secret
 derived from the kem_encapsulation message.
 
+# Negotiation
+
+Clients will indicate support for this mode by negotiating it as if
+it were a signature scheme. We thus add these new signature scheme
+values for the KEMs defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1.
+
+~~~
+  enum {
+    sig_dhkem_p256_sha256   => TBD,
+    sig_dhkem_p384_sha384   => TBD,
+    sig_dhkem_p521_sha512   => TBD,
+    sig_dhkem_x25519_sha256 => TBD,
+    sig_dhkem_x448_sha512   => TBD,
+  }
+~~~
+
+When present in the `signature_algorithms` extension, these values
+indicate KEM-Auth with the specified key exchange mode. These values
+MUST NOT appear in `signature_algorithms_cert`.
+
 # Handshake protocol
 
 The handshake protocol is used to negotiate the security parameters
