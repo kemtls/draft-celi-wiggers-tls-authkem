@@ -130,7 +130,7 @@ turn based on the OPTLS proposal for TLS 1.3 [KW16].  However, these proposals
 requires non-interactive key exchange: they combine the client's public key with
 the server's long-term key.  This does impose a requirement that the ephemeral and
 static keys use the same algorithm, which this proposal does not require. Additionally,
-there are no post-quantum proposals for non-interactive key exchange currently 
+there are no post-quantum proposals for non-interactive key exchange currently
 considered for standardization, while several KEMs are on the way.
 
 # Requirements Notation
@@ -186,7 +186,7 @@ Figure 1 below shows the basic full KEM-authentication handshake:
 
 Key  ^ ClientHello
 Exch | + key_share
-     v + (kem)signature_algorithms 
+     v + (kem)signature_algorithms
                           -------->
                                              ServerHello  ^ Key
                                        +       key_share  v Exch
@@ -209,7 +209,7 @@ Auth | <KEMEncapsulation>                                 |  Auth
         <> Indicates messages protected using keys
            derived from a [sender]_handshake_traffic_secret.
         {} Indicates messages protected using keys
-           derived from a 
+           derived from a
            [sender]_authenticated_handshake_traffic_secret.
         [] Indicates messages protected using keys
            derived from [sender]_application_traffic_secret_N.
@@ -348,7 +348,7 @@ abort the handshake with an "unexpected_message" alert.
 
 ## Key Exchange Messages
 
-KEMTLS uses the same key exchange messages as TLS 1.3 with this
+KEM-auth based uses the same key exchange messages as TLS 1.3 with this
 exceptions:
 
 - Usage of a new message `KEMEncapsulation`.
@@ -357,8 +357,8 @@ exceptions:
   and "kem_encapsulation".
 - One extensions can be added to the `ServerHello` message: "cached_information".
 
-KEMTLS preserves the same cryptographic negotiation with the addition
-of more algorithms to the "supported_groups" and "signature_algorithms".
+KEM-auth preserves the same cryptographic negotiation with the addition
+of the KEM algorithms to the "signature_algorithms".
 
 ### Client Hello
 
@@ -367,31 +367,31 @@ in a pre-distributed mode, however, two extensions are mandatory: "cached_inform
 and "kem_encapsulation" for server authentication. This extensions are
 described later in the document.
 
-Note that in KEMTLS with pre-distributed information, the client's `Certificate`
+Note that in KEM-auth with pre-distributed information, the client's `Certificate`
 message gets send alongside the `ClientHello` one for mutual authentication.
 
 ### Server Hello
 
 KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, one extension is mandatory: "cached_information"
+in a pre-distributed mode, however, one extension is mandatory: "cached_auth_key"
 for server authentication. This extension is described later in the document.
 
 When the ServerHello message is received:
 
 - the client and server derive handshake traffic secrets `CHTS` and `SHTS` which are
   used to encrypt subsequent flows in the handshake
-- it is derived the “derived handshake secret”: `dHS` which is kept as the
+- the “handshake secret” is derived: `dHS` which is kept as the
   current secret state of the key schedule.
 
 ### Hello Retry Request
 
-KEMTLS uses the `ServerHello` message as described for TLS 1.3. When used
+KEM-Auth uses the `ServerHello` message as described for TLS 1.3. When used
 in a pre-distributed mode for mutual authentication, a `HelloRetryRequest`
-message, but the client's `Certificate` message is ignored.
+message can be sent, but the client's `Certificate` message is ignored.
 
 ### Extensions
 
-A number of KEMTLS messages contain tag-length-value encoded extensions
+A number of KEM-Auth messages contain tag-length-value encoded extensions
 structures. We are adding those extensions to the `ExtensionType` list
 from TLS 1.3.
 
@@ -401,7 +401,7 @@ enum {
     signature_algorithms_cert(50),              /* RFC 8446 */
     key_share(51),                              /* RFC 8446 */
     kem_encapsulation (TBD),                    /* RFC TBD */
-    cached_info(TBD),                           /* RFC TBD */
+    cached_auth_key(TBD),                       /* RFC TBD */
     (65535)
 } ExtensionType;
 ~~~
@@ -413,210 +413,14 @@ appear:
    +--------------------------------------------------+-------------+
    | Extension                                        |      KEMTLS |
    +--------------------------------------------------+-------------+
-   | cached_info [RFCTBD]                             |      CH, SH |
+   | cached_auth_key [RFCTBD]                         |      CH, SH |
    |                                                  |             |
    | kem_encapsulation  [RFCTBD]                      |          CH |
    |                                                  |             |
    +--------------------------------------------------+-------------+
 ~~~
 
-#### Signature Algorithms
-
-This extension works the same was as with TLS 1.3; but certain algorithms
-are added to the `SignatureScheme` list:
-
-~~~
-  enum {
-      ...
-      /* EdDSA algorithms */
-      ed25519(0x0807),
-      ed448(0x0808),
-
-      /* RSASSA-PSS algorithms with public key OID RSASSA-PSS */
-      rsa_pss_pss_sha256(0x0809),
-      rsa_pss_pss_sha384(0x080a),
-      rsa_pss_pss_sha512(0x080b),
-
-      /* Post-quantum KEM authentication algorithms */
-      kyber512(TBD),
-      kyber768(TBD),
-      kyber1024(TBD),
-      ntru2048509(TBD),
-      ntru2048677(TBD),
-      ntru4096821(TBD),
-      light_saber(TBD),
-      saber(TBD),
-      fira_saber(TBD),
-
-      /* Post-quantum signature algorithms */
-      dilithium2(TBD),
-      dilithium3(TBD),
-      dilithium5(TBD),
-      falcon512(TBD),
-      falcon1024(TBD),
-      rainbowI(TBD),
-      rainbowIII(TBD),
-      rainbowV(TBD),
-
-      /* Hybrid authentication algorithms */
-      kyber512_secp256r1(TBD),
-      ntru2048509_secp256r1(TBD),
-      light_saber_secp256r1(TBD),
-
-      kyber768_secp384r1(TBD),
-      ntru2048677_secp384r1(TBD),
-      saber_secp384r1(TBD),
-
-      kyber1024_secp521r1(TBD),
-      ntru4096821_secp521r1(TBD),
-      fira_saber_secp521r1(TBD),
-
-      kyber512_x25519(TBD),
-      ntru2048509_x25519(TBD),
-      light_saber_x25519(TBD),
-
-      kyber768_x448(TBD),
-      ntru2048677_x448(TBD),
-      saber_x448(TBD),
-
-      /* Legacy algorithms */
-      rsa_pkcs1_sha1(0x0201),
-      ecdsa_sha1(0x0203),
-
-      /* Reserved Code Points */
-      private_use(0xFE00..0xFFFF),
-      (0xFFFF)
-  } SignatureScheme;
-~~~
-
-The algorithms added here correspond to the round-3 finalists of the post-quantum
-NIST competition. They are made available as follows:
-
-- If the `KEM` has L1 security, NIST's P256 curve or ed25519 is used with it
-- If `KEM` has L3 security, NIST's P384 curve or ed448 is used with it.
-- If `KEM` has L5 security, NIST's P521 curve is used with it.
-
-####  Supported Groups
-
-This extension works the same was as with TLS 1.3; but certain algorithms
-are added to the `NamedGroup` list:
-
-~~~
-  enum {
-
-      /* Elliptic Curve Groups (ECDHE) */
-      secp256r1(0x0017), secp384r1(0x0018), secp521r1(0x0019),
-      x25519(0x001D), x448(0x001E),
-
-      /* Finite Field Groups (DHE) */
-      ffdhe2048(0x0100), ffdhe3072(0x0101), ffdhe4096(0x0102),
-      ffdhe6144(0x0103), ffdhe8192(0x0104),
-
-      /* Post-Quantum KEMs (PQKEM) */
-      kyber512(TBD), kyber768(TBD), kyber1024(TBD),
-      ntru2048509(TBD), ntru2048677(TBD), ntru4096821(TBD),
-      light_saber(TBD), saber(TBD), fira_saber(TBD),
-
-      /* Hybrid KEMs (HKEM) */
-      kyber512_secp256r1(TBD), ntru2048509_secp256r1(TBD),
-      light_saber_secp256r1(TBD),
-
-      kyber768_secp384r1(TBD), ntru2048677_secp384r1(TBD),
-      saber_secp384r1(TBD),
-
-      kyber1024_secp521r1(TBD), ntru4096821_secp521r1(TBD),
-      fira_saber_secp521r1(TBD),
-
-      kyber512_x25519(TBD), ntru2048509_x25519(TBD),
-      light_saber_x25519(TBD),
-
-      kyber768_x448(TBD), ntru2048677_x448(TBD),
-      saber_x448(TBD),
-
-      /* Reserved Code Points */
-      ecdhe_private_use(0xFE01..0xFEFF),
-      (0xFFFF)
-  } NamedGroup;
-~~~
-
-The algorithms added here correspond to the round-3 finalists of the post-quantum
-NIST competition. ecurity, NIST's P521 curve is used with it.
-
-
-Post-Quantum KEMs (PQKEM):  Indicates support for the
-  corresponding named post-quantum KEM corresponding to the round-3 finalists of
-  the post-quantum NIST competition. They correspond to a L1, L3 or L5
-  security level.
-
-Hybrid KEMs (HKEM): Indicates support for the
-  corresponding named hybrid KEMs (a "classical" -ECDHE- and post-quantum algorithms).
-  They are made available as follows:
-  - If the `KEM` has L1 security, NIST's P256 curve or x25519 is used with it
-  - If `KEM` has L3 security, NIST's P384 curve or x448 is used with it.
-  - If `KEM` has L5 security, NIST's P512 curve.
-
-#### Key Share
-
-KEMTLS uses the same mechanism as TLS 1.3 for advertising the endpoint's
-cryptographic parameters, with these changes:
-
-~~~
-  struct {
-      NamedGroup group;
-      HybridKeyExchange hybrid_key_exchanges;
-  } KeyShareEntry;
-~~~
-
-The HybridKeyExchange sent as part of the ClientHello or HelloRetryMessage
-corresponds to:
-
-~~~
-   struct {
-       opaque key_exchange_1<1..2^16-1>; ----> the classical public key
-       opaque key_exchange_2<1..2^16-1>; ----> the post-quantum public key
-   } HybridKeyExchange
-~~~
-
-The HybridKeyExchange sent as part of the ServerHello:
-
-~~~
-   struct {
-       opaque key_exchange_1<1..2^16-1>; ----> the classical public key
-       opaque key_exchange_2<1..2^16-1>; ----> the KEM encapsulation
-   } HybridKeyExchange
-~~~
-
-If a hybrid mode is not in use, only the post-quantum public key or
-encapsulation is advertised.
-
-##### Post-Quantum KEM Parameters
-
-Post-Quantum KEM Parameters for both clients and servers are encoded in the
-opaque key_exchange field of a KeyShareEntry in a
-HybridKeyShare structure.  The opaque value contains either:
-
-- the KEM public value
-- the KEM encapsulation value
-
-for the specified algorithm encoded as a big-endian integer and padded to
-the left with zeros to the size of p in bytes.
-
-Peers MUST validate each other's public key.
-
-##### Hybrid KEM Parameters
-
-Hybrid KEM parameters for both clients and servers are encoded in the
-opaque key_exchange field of a KeyShareEntry in a HybridKeyShare structure.
-The opaque value contains:
-
-- the KEM public value or
-- the KEM encapsulation value
-
-and
-
-- the ECDHE public value
-
-#### Cached Information
+#### Cached Auth Key
 
 This document defines a new extension type ("cached_info(TBD)"), which
 is used in ClientHello and ServerHello messages.  The extension type
@@ -816,8 +620,8 @@ Master Key using HKDF. Specifically:
 
 ~~~
 server/client_finished_key =
-  HKDF-Expand-Label(MasterKey, 
-                    server/client_label, 
+  HKDF-Expand-Label(MasterKey,
+                    server/client_label,
                     "", Hash.length)
 
 server_label = "tls13 server finished"
@@ -947,7 +751,7 @@ The key schedule proceeds as follows:
 ~~~
 
 The client computes the following input values as follows:
-`SSs`, the shared secret from the server's long-term public key is 
+`SSs`, the shared secret from the server's long-term public key is
 computed from the public key `pk_server` included by
 the server's certificate.
 
