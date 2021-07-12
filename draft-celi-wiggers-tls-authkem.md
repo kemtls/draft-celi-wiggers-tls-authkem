@@ -98,7 +98,9 @@ informative:
 
 --- abstract
 
-TODO
+This document gives a construction for KEM-based authentication in TLS
+1.3.  The overall design approach is a simple: usage of Key Encapsulation
+Mechanisms (KEM) for certificate-based authentication.
 
 --- middle
 
