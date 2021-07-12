@@ -663,66 +663,66 @@ In this version of KEM-Auth, the input secret is:
 The key schedule proceeds as follows:
 
 ~~~
-             0
-             |
-             v
-      PSK -> HKDF-Extract = Early Secret
-             |
-             +-----> Derive-Secret(., "ext binder" | "res binder", "")
-             |                     = binder_key
-             |
-             +-----> Derive-Secret(., "c e traffic", ClientHello)
-             |                     = client_early_traffic_secret
-             |
-             +-----> Derive-Secret(., "e exp master", ClientHello)
-             |                     = early_exporter_master_secret
-             v
-             Derive-Secret(., "derived", "")
-             |
-             v
-  (EC)DHE -> HKDF-Extract = Handshake Secret
-             |
-             +-----> Derive-Secret(., "c hs traffic",
-             |                     ClientHello...ServerHello)
-             |                     = client_handshake_traffic_secret
-             |
-             +-----> Derive-Secret(., "s hs traffic",
-             |                     ClientHello...ServerHello)
-             |                     = server_handshake_traffic_secret
-             v
-             Derive-Secret(., "derived", "") = dHS
-             |
-             v
-       SSs -> HKDF-Extract = Authenticated Handshake Secret
-             |
-             +-----> Derive-Secret(., "c ahs traffic",
-             |                     ClientHello...KEMEncapsulation)
-             |                     = client_handshake_traffic_secret
-             |
-             +-----> Derive-Secret(., "s ahs traffic",
-             |                     ClientHello...KEMEncapsulation)
-             |                     = server_handshake_traffic_secret
-             v
-             Derive-Secret(., "derived", "") = AHS
-             |
-             v
-      SSc -> HKDF-Extract = Master Secret
-             |
-             +-----> Derive-Secret(., "c ap traffic",
-             |                     ClientHello...server Finished)
-             |                     = client_application_traffic_secret_0
-             |
-             +-----> Derive-Secret(., "s ap traffic",
-             |                     ClientHello...server Finished)
-             |                     = server_application_traffic_secret_0
-             |
-             +-----> Derive-Secret(., "exp master",
-             |                     ClientHello...server Finished)
-             |                     = exporter_master_secret
-             |
-             +-----> Derive-Secret(., "res master",
-                                   ClientHello...client Finished)
-                                   = resumption_master_secret
+            0
+            |
+            v
+    PSK -> HKDF-Extract = Early Secret
+            |
+            +--> Derive-Secret(., "ext binder" | "res binder", "")
+            |                  = binder_key
+            |
+            +--> Derive-Secret(., "c e traffic", ClientHello)
+            |                  = client_early_traffic_secret
+            |
+            +--> Derive-Secret(., "e exp master", ClientHello)
+            |                  = early_exporter_master_secret
+            v
+            Derive-Secret(., "derived", "")
+            |
+            v
+(EC)DHE -> HKDF-Extract = Handshake Secret
+            |
+            +--> Derive-Secret(., "c hs traffic",
+            |                  ClientHello...ServerHello)
+            |                  = client_handshake_traffic_secret
+            |
+            +--> Derive-Secret(., "s hs traffic",
+            |                  ClientHello...ServerHello)
+            |                  = server_handshake_traffic_secret
+            v
+            Derive-Secret(., "derived", "") = dHS
+            |
+            v
+      s -> HKDF-Extract = Authenticated Handshake Secret
+            |
+            +--> Derive-Secret(., "c ahs traffic",
+            |                  ClientHello...KEMEncapsulation)
+            |                  = client_handshake_traffic_secret
+            |
+            +--> Derive-Secret(., "s ahs traffic",
+            |                  ClientHello...KEMEncapsulation)
+            |                  = server_handshake_traffic_secret
+            v
+            Derive-Secret(., "derived", "") = AHS
+            |
+            v
+    SSc -> HKDF-Extract = Master Secret
+            |
+            +--> Derive-Secret(., "c ap traffic",
+            |                  ClientHello...server Finished)
+            |                  = client_application_traffic_secret_0
+            |
+            +--> Derive-Secret(., "s ap traffic",
+            |                  ClientHello...server Finished)
+            |                  = server_application_traffic_secret_0
+            |
+            +--> Derive-Secret(., "exp master",
+            |                  ClientHello...server Finished)
+            |                  = exporter_master_secret
+            |
+            +--> Derive-Secret(., "res master",
+                               ClientHello...client Finished)
+                               = resumption_master_secret
 ~~~
 
 The client computes the following input values as follows:
