@@ -182,7 +182,7 @@ is a cryptographic primitive that defines the methods ``Encap`` and ``Decap``:
 Figure 1 below shows the basic full KEM-authentication handshake:
 
 ~~~~~
-       Client                                           Server
+       Client                                     Server
 
 Key  ^ ClientHello
 Exch | + key_share
