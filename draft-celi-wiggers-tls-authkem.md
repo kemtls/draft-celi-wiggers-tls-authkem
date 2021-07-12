@@ -349,29 +349,29 @@ for the addition of a `KEMEncapsulation` message and does not use
 the `CertificateVerify` one.
 
 ~~~
-enum {
-          ...
-          encrypted_extensions(8),
-          certificate(11),
-          kem_encapsulation(tbd),
-          certificate_request(13),
-          ...
-          message_hash(254),
-          (255)
-      } HandshakeType;
+  enum {
+      ...
+      encrypted_extensions(8),
+      certificate(11),
+      kem_encapsulation(tbd),
+      certificate_request(13),
+      ...
+      message_hash(254),
+      (255)
+    } HandshakeType;
 
-      struct {
-          HandshakeType msg_type;    /* handshake type */
-          uint24 length;             /* remaining bytes in message */
-          select (Handshake.msg_type) {
-              ...
-              case encrypted_extensions:  EncryptedExtensions;
-              case certificate_request:   CertificateRequest;
-              case certificate:           Certificate;
-              case kem_encapsulation:     KEMEncapsulation;
-              ...
-          };
-      } Handshake;
+  struct {
+      HandshakeType msg_type;    /* handshake type */
+      uint24 length;             /* remaining bytes in message */
+      select (Handshake.msg_type) {
+          ...
+          case encrypted_extensions:  EncryptedExtensions;
+          case certificate_request:   CertificateRequest;
+          case certificate:           Certificate;
+          case kem_encapsulation:     KEMEncapsulation;
+          ...
+      };
+  } Handshake;
 ~~~
 
 Protocol messages MUST be sent in the order defined in Section 4.
