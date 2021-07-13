@@ -191,12 +191,12 @@ as follows to export shared secrets appropriate for the use of HKDF in TLS 1.3:
 
 ~~~
 def Encapsulate(pk):
-  enc, ctx = HPKE.SetupBaseS(pk, "")
+  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
   ss = ctx.Export("", HKDF.Length)
   return (enc, ss)
     
 Decapsulate(enc, sk) = 
-  HPKE.SetupBaseR(enc, sk, "").Export("", HKDF.Length)
+  HPKE.SetupBaseR(enc, sk, "tls13 auth-kem").Export("", HKDF.Length)
 ~~~
 
 # Protocol Overview
