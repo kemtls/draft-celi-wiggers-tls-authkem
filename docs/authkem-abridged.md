@@ -5,7 +5,7 @@ authors:
  - Sofía Celi
 description: |
   High-level introduction to the AuthKEM proposal for TLS.
-  
+
 # Formatting
 breaks: false
 toc: true
@@ -26,8 +26,8 @@ header-includes: |
       border-color: #bce8f1;
     }
     div.warning {
-      color: #8a6d3b; 
-      background-color: #fcf8e3; 
+      color: #8a6d3b;
+      background-color: #fcf8e3;
       border-color: #faebcc;
     }
   </style>
@@ -54,10 +54,10 @@ A KEM is a public key key-exchange algorithm that defines two operations:
 * `Encaps(pk)` which, given a public key generates a _shared secret_ and an _encapsulation_
 * `Decaps(encapsulation, sk)`, which takes the encapsulation and returns the shared secret.
 
-KEM public keys _can't sign messages_; they're only suitable for _key exchange_. But, this mechanism can be used for authentication: arriving to the same shared secret proves that only the other correct party is the one you are communicating with. Thus, we need to define a new message flow for authentication.
+KEM public keys _can't sign messages_; they're only suitable for _key exchange_. But, this mechanism can be used for authentication: arriving to the same shared secret proves that only the other correct party is the one you are communicating with. The consequence of using this new authentication is that we need to define a new message flow for authentication.
 
 ### What KEMs are out there?
- 
+
 Current key exchange algorithms, like (EC)DH, can normally be rewritten as KEMs.
 Our proposal is defined using the KEMs from [HPKE][]; this currently defines a few KEMs based on ECDH algorithms like P-256 and X25519.
 [NIST is currently standardizing _Post-Quantum_ KEMs][nistpqc], which we expect will be added to HPKE.
@@ -77,7 +77,7 @@ For optimized implementations of post-quantum algorithms, it's likely that there
 
 #### _Quantum_ computers are coming
 
-Will a large-scale quantum computer be built? The answer is complicated. Many scientists believe it to be a significant engineering challenge. The main discussion point at this moment seems to be _when_ rather than _if_, though. Google recently announced that it will be building a practical quantum computer by 2029. 
+Will a large-scale quantum computer be built? The answer is complicated. Many scientists believe it to be a significant engineering challenge. The main discussion point at this moment seems to be _when_ rather than _if_, though. Google recently announced that it will be building a practical quantum computer by 2029.
 
 Historically, it has taken almost two decades to deploy our modern public key cryptography infrastructure. Therefore, regardless of whether we can estimate the exact time of the arrival of the quantum computing era, we must begin now to prepare our systems to be able to resist quantum computing.
 
@@ -91,7 +91,7 @@ Even though the main worry of a quantum computer existance is that an attacker c
 All Post-Quantum signature schemes currently being considered for standardization by NIST have some downsides compared to RSA and elliptic curves.
 Notably they're all quite a bit larger.
 [Experiments have shown][NDSS paper] only Dilithium and Falcon seem suitable for use in TLS at all.
-Both algorithms are based on structured lattices; Dilithium is quite big (and its smallest parameterset has gotten bigger since the experiments were done); Falcon requires fast, constant-time 64-bit floating point arithmetic and is [complicated to implement correctly][falcon impl].
+Both algorithms are based on structured lattices; Dilithium is quite big (and its smallest parameter set has gotten bigger since experiments were done); Falcon requires fast, constant-time 64-bit floating point arithmetic and is [complicated to implement correctly][falcon impl].
 NIST has announced it expects to standardize **at most one** of these two schemes.
 
 [NDSS paper]: https://eprint.iacr.org/2020/071/ "Post-Quantum Authentication in TLS 1.3: A Performance Study"
@@ -116,17 +116,17 @@ The transition to post-quantum cryptography will present a massive challenge to 
 ::: info
 **Why extend `signature_algorithms`? It's not a signature scheme!**
 
-This extension really identifies *authentication* algorithms. 
+This extension really identifies *authentication* algorithms.
 And if we would add a new extension we would have to _ignore_ the
 `signature_algorithms`-indicated algorithms, which is also just messy.
 :::
 
-2. The Client responds with `KemEncapsulation`. 
-3. The shared secret that the client obtained from the `Encapsulate` operation is combined with the existing handshake keys to derive a new "authenticated" handshake traffic secret. (This secret key will mostly be useful for client certificate authentication later).
-4. The client now immediately derives the Main Secret and submits Finished, **after which it can start sending its request**. 
+2. The Client responds with `KemEncapsulation` message.
+3. The shared secret that the client obtained from the `Encapsulate` operation is combined with the existing handshake keys to derive a new "authenticated" handshake traffic secret (-AHS- This secret key will mostly be useful for client certificate authentication later).
+4. The client now immediately derives the Main Secret and submits `Finished` message, **after which it can start sending its application data**.
 
 
-This means we have the following protocol overview: 
+This means we have the following protocol overview:
 
              Client                                  Server
            ClientHello         -------->
@@ -137,13 +137,13 @@ This means we have the following protocol overview:
            {Finished}          -------->                      |
            [Application Data]  -------->                      |
                                <--------          {Finished}  v
-                                                              
+
            [Application Data]  <------->  [Application Data]
-           
+
           <msg>: encrypted w/ keys derived from ephemeral KEX (HS)
           {msg}: encrypted w/ keys derived from HS+KEM (AHS)
           [msg]: encrypted w/ traffic keys derived from AHS (MS)
-            
+
 
 Note that we allow the client to send `Finished` first, unlike in TLS 1.3 where the Server sends `Finished` first (along its certificate).
 We make this change to avoid the penalty of an extra half round-trip.
@@ -154,9 +154,9 @@ As shown above, in this mode KEMTLS does not allow the server to send `Finished`
 This is due to the nature of KEMs, which are "interactive" protocols: they require the participation of two parties to complete the key exchange. Signature schemes don't require the participation of another party, so they allow non-interactive authentication.
 
 We avoid a full round-trip penalty that a naive implementation of KEM authentication would imply, by moving the `Finished` message and letting the client send its data immediately.
-This still allows a client to send its request to the server in the same place as it would have been sent in TLS 1.3.
+This still allows a client to send its application data to the server in the same place as it would have been sent in TLS 1.3.
 
-We think that in almost any application, like in HTTP, a client will first have to indicate what action they want the server to perform or what data they need, before any useful non-public data can be sent.
+We think that in almost any application, like in HTTP, a client will first have to indicate what action they want the server to perform or what data they need, before any useful non-public data can be sent by the server.
 KEMTLS allows both the request and the response to be sent in the same place.
 
 ::: info
@@ -176,13 +176,13 @@ We will now explain why we think this is not a problem.
 #### Presence of the server
 
 An adversary might replay the server's certificate to an unsuspecting client.
-This would eventually be foiled by the server's Finished message, but the client will have already transmitted data at that point.
+This would eventually be foiled by the server's `Finished` message, but the client will have already transmitted data at that point.
 That data **is encrypted under a key only the legitimate server can obtain**, so its confidentiality is ensured.
 But until the client receives the handshake completion messages from the server, the client can not be sure if the legitimate server was ever present in the handshake.
 
 This is not different from _truncation attacks_ already possible in TLS 1.3 or any other encrypted transport protocol, however.
 An application must be prepared to deal with interrupted/unsuccesful transmissions.
-An adversay can always simply cut a network connection at an opportune time.
+An adversary can always simply cut a network connection at an opportune time.
 This is why it is important for TLS implementations to carefully handle the record layer protections against truncation attacks: this is no different for KEMTLS.
 
 #### Choices of ciphersuites
@@ -215,19 +215,22 @@ Of course, TLS also has a mode where the client proves its identify through a cl
 For client authentication, we follow a similar mechanism.
 Unfortunately, we do suffer the full penalty of the additional round-trip necessary for authentication via key exchange here.
 
-::: info 
+::: info
 We will later discuss how to avoid this penalty _if_ the client already knows the server's long-term public key _and_ knows that it will want to authenticate.
 :::
 
 
 In the below picture we sketch the message flow of client authentication.
-The server indicates it wants the client to authenticate through the `CertificateRequest` method as per usual. The client replies with its certificate (which contains its KEM public key), to which the server creates an encapsulation. The resulting shared secret is mixed with the ephemeral key exchange shared secret and the server authentication shared secret to finally derive the traffic keys to encrypt the application data.
+
+1. The server indicates it wants the client to authenticate through the `CertificateRequest` method as per usual.
+2. The client replies with its certificate (which contains its KEM public key), to which the server creates an encapsulation.
+3. The resulting shared secret is mixed with the ephemeral key exchange shared secret and the server authentication shared secret to finally derive the traffic keys to encrypt the application data.
 
              Client                                  Server
            ClientHello         -------->
                                <--------         ServerHello
                                                        <...>
-                                        <CertificateRequest>  
+                                        <CertificateRequest>
                                <--------       <Certificate>  ^
            <KEMEncapsulation>                                 | Auth
          ^ {Certificate}       -------->                      |
@@ -236,14 +239,14 @@ The server indicates it wants the client to authenticate through the `Certificat
          | {Finished}          -------->                      |
          | [Application Data]  -------->                      |
          v                     <-------           {Finished}  v
-                                                              
+
            [Application Data]  <------->  [Application Data]
 
           <msg>: enc. w/ keys derived from ephemeral KEX (HS)
           {msg}: enc. w/ keys derived from HS+srv. KEM Auth (AHS)
           [msg]: enc. w/ keys derived from AHS+cl. KEM Auth (MS)
-          
-          
+
+
 We added AHS to the key schedule earlier.
 This is necessary because the client certificate needs to be sent securely.
 TLS requires the client's identity (its certificate) to be protected against both passive and active attackers. Encrypting it with (keys derived from) AHS ensures that only the real server can read it.
@@ -285,33 +288,32 @@ We call this "pre-distributed keys" (or PDK) because:
 ### Server authentication with pre-distributed keys
 
 The idea is simple: if the client already has the server's long-term public key (typically their certificate), it can start the AuthKEM authentication process one step "early".
-It transmits the `KEMEncapsulation` immediately along the `ClientHello` message as an extension.
-The server decapsulates it to obtain the authentication shared secret.
-It also still completes the ephemeral key exchange as normal.
-The server does not need to transmit the `Certificate` anymore.
-Furthermore, as the server now has all the information to derive the traffic keys, it can now also immediately reply with `Finished` and start writing application data.
+
+1. It transmits the `KEMEncapsulation` message immediately along the `ClientHello` message as an extension.
+2. The server decapsulates it to obtain the authentication shared secret. It also completes the ephemeral key exchange as usual. The server does not need to transmit the `Certificate` anymore.
+3. As the server now has all the information to derive the traffic keys, it can now also immediately reply with `Finished` and start writing application data.
 
                Client                               Server
-        
+
            ClientHello
             + KemEncapsulation
                                -------->
                                <--------         ServerHello
                                                        <...>
-                               <--------          <Finished>   
+                               <--------          <Finished>
                                <--------  [Application Data]
            <Finished>          -------->
            [Application Data]  <------->  [Application Data]
 
           <msg>: enc. w/ keys derived from KEX+srv. KEM auth (HS)
           [msg]: enc. w/ traffic keys derived from HS (MS)
-    
+
 To enable the client-authentication scenario that is to follow, we mix in the shared secret obtained by encapsulating to the server's long-term public key into the key schedule early: specifically, we derive the Early Secret (ES) key in TLS's handshake key schedule from it.
 This also mirrors that this key does not have any forward secrecy (which can only be obtained once the ephemeral key exchange is completed), just like ES in "normal" TLS 1.3.
 
 ::: info
 If the server rejects the `KEMEncapsulation` sent by the client in the `ClientHello` extension, the handshake can simply continue as usual; just ignoring the attempted "resumption".
-::: 
+:::
 
 ### Client authentication with pre-distributed keys
 
@@ -323,22 +325,22 @@ The server can then already send the client authentication `KEMEncapsulation` me
 
 
                Client                               Server
-        
+
            ClientHello
             + KemEncapsulation
             {Certificate}      -------->
                                <--------         ServerHello
                                                        <...>
                                           <KEMEncapsulation>
-                               <--------          <Finished>   
+                               <--------          <Finished>
                                <--------  [Application Data]
            <Finished>          -------->
            [Application Data]  <------->  [Application Data]
-           
+
           {msg}: enc. w/ keys derived from srv. KEM auth (ES)
           <msg>: enc. w/ keys derived from KEX+srv. KEM auth (HS)
           [msg]: enc. w/ keys derived from HS+cl. KEM auth (MS)
-    
+
 
 Again, the server can immediately derive the final handshake secret and the traffic secret keys, which allows it to complete the handshake by sending `Finished` in its first response to the client's `ClientHello`.
 
@@ -358,4 +360,4 @@ If its identity is _very_ sensitive, the client might opt to use any of the othe
 * Peter Schwabe, Douglas Stebila and Thom Wiggers. **Post-Quantum TLS Without Handshake Signatures**, ACM CCS 2020. https://ia.cr/2020/534
 * Peter Schwabe, Douglas Stebila and Thom Wiggers. **More efficient KEMTLS with pre-distributed keys**, ESORICS 2021. https://ia.cr/2021/779
 * Sofía Celi, Armando Faz-Hernández, Nick Sullivan, Goutam Tamvada, Luke Valenta, Bas Westerbaan,  Thom Wiggers, Chris Wood. **Implementing and Measuring KEMTLS** Latincrypt 2021, https://ia.cr/2021/1019
-* Sofía Celi, Peter Schwabe, Douglas Stebila, Nick Sullivan, Thom Wiggers. **[draft-celi-wiggers-authkem][]**, IETF draft 
+* Sofía Celi, Peter Schwabe, Douglas Stebila, Nick Sullivan, Thom Wiggers. **[draft-celi-wiggers-authkem][]**, IETF draft
