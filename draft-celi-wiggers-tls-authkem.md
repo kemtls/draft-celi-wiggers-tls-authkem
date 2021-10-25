@@ -101,7 +101,7 @@ informative:
 
 This document gives a construction for KEM-based authentication in TLS
 1.3. The overall design approach is a simple: usage of Key Encapsulation
-Mechanisms (KEM) for certificate-based authentication.
+Mechanisms (KEMs) to achieve certificate-based authentication.
 
 --- middle
 
@@ -111,15 +111,15 @@ DISCLAIMER: This is a work-in-progress draft.
 
 This document gives a construction for KEM-based authentication in TLS
 1.3.  The overall design approach is a simple: usage of Key Encapsulation
-Mechanisms (KEM) for certificate-based authentication. Authentication happens via
+Mechanisms (KEMs) for certificate-based authentication. Authentication happens via
 asymmetric cryptography by the usage of KEMs advertised as the long-term KEM public
 keys in the Certificate.
 
 TLS 1.3 is in essence a signed key exchange protocol (if using certificate-based
 authentication). Authentication in TLS 1.3 is achieved by signing the handshake
 transcript. KEM-based authentication provides authentication by deriving a
-shared secret that is encapsulated against the public key contained in the certificate.
-Only the holder of the private key corresponding to the certificate's
+shared secret that is encapsulated against the public key contained in the
+certificate. Only the holder of the private key corresponding to the certificate's
 public key can derive the same shared secret and thus decrypt it's peers
 messages.
 
@@ -191,14 +191,14 @@ Note that we are using the internal API for KEMs as defined in {{!I-D.irtf-cfrg-
 
 # Protocol Overview
 
-Figure 1 below shows the basic full KEM-authentication handshake:
+Figure 1 below shows the basic full KEM-authentication (KEM-Auth) handshake:
 
 ~~~~~
        Client                                     Server
 
 Key  ^ ClientHello
 Exch | + key_share
-     v + (kem)signature_algorithms
+     v + signature_algorithms
                           -------->
                                              ServerHello  ^ Key
                                        +       key_share  v Exch
@@ -226,7 +226,7 @@ Auth | <KEMEncapsulation>                                 | Auth
         [] Indicates messages protected using keys
            derived from [sender]_application_traffic_secret_N.
 
-       Figure 1: Message Flow for KEM-Authentication Handshake
+       Figure 1: Message Flow for KEM-Authentication (KEM-Auth) Handshake
 ~~~~~
 
 When using KEMs for authentication, the handshake can be thought of in four
@@ -270,7 +270,7 @@ message from the Server.
 
 ## Prior-knowledge KEM-Auth
 
-Given the added number of round-trips of KEM-based auth compared to the TLS 1.3,
+Given the added number of round-trips of KEM-auth compared to the TLS 1.3,
 the handshake can be improved by the usage of pre-distributed
 KEM authentication keys to achieve explicit authentication and full downgrade
 resilience as early as possible. A peer's long-term KEM authentication key can
@@ -284,10 +284,10 @@ establishes cached information and the second handshake uses it:
 
 Key  ^ ClientHello
 Exch | + key_share
-     v + (kem)signature_algorithms
+     v + signature_algorithms
                               -------->
                                                 ServerHello  ^ Key
-                                          +  (kem)key_share  v Exch
+                                          +  (    key_share  v Exch
                                       <EncryptedExtensions>  ^ Server
                                        <CertificateRequest>  v Params
      ^                                        <Certificate>  ^
@@ -307,9 +307,9 @@ Key  ^ ClientHello
 Exch | + key_share
 &    | + stored_auth_key_extension
 Auth | + kem_encapsulation_extension
-     | + (kem)signature_algorithms
+     | + signature_algorithms
      | <Certificate>         -------->         ServerHello  ^ Key
-     |                                   +  (kem)key_share  | Exch,
+     |                                   +       key_share  | Exch,
      |                      +  {stored_auth_key_extension}  | Auth &
      |                               {EncryptedExtensions}  | Server
      |                                  {KEMEncapsulation}  | Params
