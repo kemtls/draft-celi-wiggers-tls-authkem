@@ -590,6 +590,7 @@ Structure of this message:
 
 ~~~
   struct {
+      opaque certificate_request_context<0..2^8-1>
       opaque encapsulation<0..2^16-1>;
   } KEMEncapsulation;
 ~~~
@@ -607,7 +608,7 @@ unsupported algorithms.
 If sent by a client, the authentication algorithm used in the signature
 MUST be one of those present in the `supported_signature_algorithms`
 field of the `signature_algorithms` extension in the
-CertificateRequest message.
+`CertificateRequest` message.
 
 In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
@@ -617,6 +618,10 @@ operation by using the sent encapsulation and the private key of the public key
 advertised in the end-entity certificate sent. The `Decap(enc, skR)` function
 will also result on a shared secret (`ssS` or `ssC`, depending on the Server or
 Client executing it respectively) which is used to derive the `AHS` or `MS` secrets.
+
+`certificate_request_context` is included to allow the recipient to identify the
+certificate against which the encapsulation was generated. It MUST be set to the 
+value in the `Certificate` message to which the encapsulation was computed. 
 
 ### Explicit Authentication Messages
 
