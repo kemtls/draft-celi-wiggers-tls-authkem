@@ -208,6 +208,8 @@ KEMTLS was originally proposed in [an academic paper](https://ia.cr/2020/534). T
 
 The mode where we use AuthKEM with known server long-term keys was discussed in [another paper](https://ia.cr.2021/779). This paper also contains a security proof.
 
+We are currently undertaking the formal analysis of the KEMTLS protocol (which should extend the AuthKEM one) in Tamarin, building on the existing TLS 1.3 model. There's still a lot to be done, but we hope to be able to back this draft proposal with some machine-checked analysis in the future.
+
 ## TLS Client authentication via KEM
 
 
@@ -354,6 +356,13 @@ However, we argue that this has fairly low impact on the security of the protoco
 The client is also actively opting in to this message flow.
 If its identity is _very_ sensitive, the client might opt to use any of the other authentication flows.
 
+
+## Other properties
+
+### Deniability
+
+Auth-KEM, unlike the signature-authenticated handshake of TLS 1.3, provides offline deniability: given just the long-term public keys of the
+parties, it is possible to forge transcripts indistinguishable from real ones produced by honest parties following the protocol specification after the protocol execution.
 
 ## Further reading
 
