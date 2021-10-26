@@ -228,6 +228,7 @@ In the below picture we sketch the message flow of client authentication.
 2. The client replies with its certificate (which contains its KEM public key), to which the server creates an encapsulation.
 3. The resulting shared secret is mixed with the ephemeral key exchange shared secret and the server authentication shared secret to finally derive the traffic keys to encrypt the application data.
 
+```
              Client                                  Server
            ClientHello         -------->
                                <--------         ServerHello
@@ -247,7 +248,7 @@ In the below picture we sketch the message flow of client authentication.
           <msg>: enc. w/ keys derived from ephemeral KEX (HS)
           {msg}: enc. w/ keys derived from HS+srv. KEM Auth (AHS)
           [msg]: enc. w/ keys derived from AHS+cl. KEM Auth (MS)
-
+```
 
 We added AHS to the key schedule earlier.
 This is necessary because the client certificate needs to be sent securely.
