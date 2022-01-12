@@ -178,9 +178,10 @@ As this proposal relies heavily on KEMs, which are not originally
 used by TLS, we will provide a brief overview of this primitive.
 
 A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
-the methods ``Encapsulate`` and ``Decapapsulate``:
+the methods ``Encapsulate`` and ``Decapapsulate``. In this draft, we extend these
+operations with context separation strings:
 
-``Encapsulate(pkR, context_string)``:  Takes a public key, and produces a shared secret and encapsulation.
+``Encapsulate(pkR, context_string)``:    Takes a public key, and produces a shared secret and encapsulation.
 
 ``Decapsulate(enc, skR, context_str)``:  Takes the encapsulation and the private key. Returns the shared secret.
 
