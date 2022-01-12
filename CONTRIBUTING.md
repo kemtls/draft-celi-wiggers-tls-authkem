@@ -20,12 +20,12 @@ subject to a Simplified BSD License) in Contributions.
 ## Other Resources
 
 Discussion of this work occurs on the
-[wiggers working group mailing list](https://mailarchive.ietf.org/arch/browse/wiggers/)
-([subscribe](https://www.ietf.org/mailman/listinfo/wiggers)).  In addition to
+[TLS working group mailing list](https://mailarchive.ietf.org/arch/browse/tls/)
+([subscribe](https://www.ietf.org/mailman/listinfo/tls)).  In addition to
 contributions in GitHub, you are encouraged to participate in discussions there.
 
 **Note**: Some working groups adopt a policy whereby substantive discussion of
 technical issues needs to occur on the mailing list.
 
 You might also like to familiarize yourself with other
-[working group documents](https://datatracker.ietf.org/wg/wiggers/documents/).
+[working group documents](https://datatracker.ietf.org/wg/tls/documents/).
