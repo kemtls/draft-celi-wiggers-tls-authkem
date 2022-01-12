@@ -177,17 +177,28 @@ server:  The endpoint that this did initiate the TLS connection.
 As this proposal relies heavily on KEMs, which are not originally
 used by TLS, we will provide a brief overview of this primitive.
 
-A Key Encapsulation Mechanism (KEM), defined as in {{!I-D.irtf-cfrg-hpke}}
-as an internal API, is a cryptographic primitive that defines the
-methods ``Encap`` and ``Decap``:
+A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
+the methods ``Encapsulate`` and ``Decapapsulate``:
 
-``Encap(pkR)``:  Takes a public key, and produces a shared secret and
-  encapsulation.
+``Encapsulate(pkR, context_string)``:  Takes a public key, and produces a shared secret and encapsulation.
 
-``Decap(enc, skR)``:  Takes the encapsulation and the private key. Returns
-  the shared secret.
+``Decapsulate(enc, skR, context_str)``:  Takes the encapsulation and the private key. Returns the shared secret.
 
-Note that we are using the internal API for KEMs as defined in {{!I-D.irtf-cfrg-hpke}}.
+We implement these methods through the KEMs defined in {{!I-D.irtf-cfrg-hpke}}
+as follows to export shared secrets appropriate for the use of HKDF in TLS 1.3:
+
+~~~
+def Encapsulate(pk, context_string):
+  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem " + context_string)
+  ss = ctx.Export("", HKDF.Length)
+  return (enc, ss)
+    
+Decapsulate(enc, sk, context_string) =
+  HPKE.SetupBaseR(enc, sk, "tls13 auth-kem " + context_string)
+      .Export("", HKDF.Length)
+~~~
+
+Keys are generated and encoded for transmission following the conventions in {{!I-D.irtf-cfrg-hpke}}.
 
 # Protocol Overview
 
@@ -595,12 +606,11 @@ Structure of this message:
   } KEMEncapsulation;
 ~~~
 
-The encapsulation field is the result of a `Encaps(pkR)` function. The
-Encapsulation() function will also result on a shared secret (`ssS` or `ssC`,
-depending on the Server or Client executing it respectively) which is
-used to derive the `AHS` or `MS` secrets.
+The encapsulation field is the result of a `Encapsulate` function. The
+Encapsulation() function will also result in a shared secret (`ssS` or `ssC`,
+depending on the peer) which is used to derive the `AHS` or `MS` secrets.
 
-If the KEMEncapsulation message is sent by a server, the authentication
+If the `KEMEncapsulation` message is sent by a server, the authentication
 algorithm MUST be one offered in the client's `signature_algorithms`
 extension unless no valid certificate chain can be produced without
 unsupported algorithms.
@@ -613,9 +623,9 @@ field of the `signature_algorithms` extension in the
 In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
 
-The receiver of a `KEMEncapsulation` message MUST perform the `Decap(enc, skR)`
+The receiver of a `KEMEncapsulation` message MUST perform the `Decapsulate(enc, skR)`
 operation by using the sent encapsulation and the private key of the public key
-advertised in the end-entity certificate sent. The `Decap(enc, skR)` function
+advertised in the end-entity certificate sent. The `Decapsulate(enc, skR)` function
 will also result on a shared secret (`ssS` or `ssC`, depending on the Server or
 Client executing it respectively) which is used to derive the `AHS` or `MS` secrets.
 
@@ -767,15 +777,19 @@ be used. Otherwise, the `0` value is used.
 The operations to compute `SSs` or `SSc` from the client are:
 
 ~~~
-SSs, encapsulation <- Encap(public_key_server)
-               SSc <- Decap(encapsulation, private_key_client)
+SSs, encapsulation <- Encapsulate(public_key_server,
+                                  "server authentication")
+               SSc <- Decapsulate(encapsulation, private_key_client,
+                                  "client authentication")
 ~~~
 
 The operations to compute `SSs` or `SSc` from the server are:
 
 ~~~
-               SSs <- Decap(encapsulation, priavte_key_server)
-SSc, encapsulation <- Encap(public_key_client)
+               SSs <- Decapsulate(encapsulation, private_key_server
+                                  "server authentication")
+SSc, encapsulation <- Encapsulate(public_key_client,
+                                  "client authentication")
 ~~~
 
 # Security Considerations {#sec-considerations}
