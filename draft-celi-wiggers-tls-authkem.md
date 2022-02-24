@@ -146,6 +146,13 @@ Additionally, there are no post-quantum proposals for a non-interactive key
 exchange currently considered for standardization, while several KEMs are on the
 way.
 
+## Organization
+
+After a brief introduction to KEMs, we will introduce the AuthKEM authentication mechanism.
+For clarity, we discuss unilateral and mutual authentication separately.
+Next we will introduce the abbreviated AuthKEM handshake, and its opportunistic client authentication mechanism.
+In the remainder of the draft we will discuss the necessary implementation mechanics, such as code points, extensions, new protocol messages and the new key schedule.
+
 # Requirements Notation
 
 {::boilerplate bcp14}
@@ -203,6 +210,154 @@ Decapsulate(enc, sk, context_string) =
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in {{!I-D.irtf-cfrg-hpke}}.
+
+# Full 1.5-RTT AuthKEM Handshake Protocol
+
+
+Figure 1 below shows the basic KEM-authentication (KEM-Auth) handshake,
+without client authentication:
+
+~~~~~
+       Client                                     Server
+
+Key  ^ ClientHello
+Exch | + key_share
+     v + signature_algorithms
+                          -------->
+                                             ServerHello  ^ Key
+                                             + key_share  v Exch
+                                   <EncryptedExtensions>    
+                                           <Certificate>  ^
+       <KEMEncapsulation>  -------->                      | 
+       {Finished}          -------->                      | Auth
+       [Application Data]  -------->                      |
+                           <--------          {Finished}  v
+                                                          
+       [Application Data]  <------->  [Application Data]
+
+        +  Indicates noteworthy extensions sent in the
+           previously noted message.
+        <> Indicates messages protected using keys
+           derived from a [sender]_handshake_traffic_secret.
+        {} Indicates messages protected using keys
+           derived from a
+           [sender]_authenticated_handshake_traffic_secret.
+        [] Indicates messages protected using keys
+           derived from [sender]_application_traffic_secret_N.
+
+       Figure 1: Message Flow for KEM-Authentication (KEM-Auth)
+                 Handshake without client authentication.
+~~~~~
+
+This basic handshake captures the core of AuthKEM.
+Instead of using a signature to authenticate the handshake, the client encapsulates a shared secret to the server's certificate.
+Only the server that holds the private key corresponding to the certificate can derive the same shared secret.
+This shared secret is mixed into the handshake's key schedule.
+The client does not have to wait for the server's ``Finished`` message before it can send data. 
+It knows that its message can only be decrypted if the server was able to derive the authentication shared secret encapsulated in the ``KEMEncapsulation`` message. 
+
+``Finished`` messages are sent as in TLS 1.3, and achieve full explicit authentication.
+
+## Client authentication
+
+For client authentication, the server sends the ``CertificateRequest`` message as in {{RFC8446}}.
+This message can not be authenticated in during the AuthKEM handshake: we will discuss the implications below.
+
+As in {{RFC8446}}, section 4.4.2, if and only if the client receives ``CertificateRequest``, it MUST send a ``Certificate`` message.
+If the client has no suitable certificate, it MUST send a ``Certificate`` message containing no certificates.
+If the server is satisfied with the provided certificate, it MUST send back a ``KEMEncapsulation`` message, containing the encapsulation to the client's certificate.
+The resulting shared secret is mixed into the key schedule.
+This ensures any messages sent using keys derived from it are covered by the authentication.
+
+The AuthKEM handshake with client authentication is given in Figure 2.
+
+~~~~~
+       Client                                     Server
+
+Key  ^ ClientHello
+Exch | + key_share
+     v + signature_algorithms
+                          -------->
+                                             ServerHello  ^ Key
+                                             + key_share  v Exch
+                                   <EncryptedExtensions>  ^ Server
+                                    <CertificateRequest>  v Params
+                                           <Certificate>  ^
+     ^ <KEMEncapsulation>                                 | 
+     | {Certificate}       -------->                      |
+Auth |                     <--------  {KEMEncapsulation}  | Auth
+     v {Finished}          -------->                      |
+       [Application Data]  -------->                      |
+                           <-------           {Finished}  v
+                                                          
+       [Application Data]  <------->  [Application Data]
+
+        +  Indicates noteworthy extensions sent in the
+           previously noted message.
+        <> Indicates messages protected using keys
+           derived from a [sender]_handshake_traffic_secret.
+        {} Indicates messages protected using keys
+           derived from a
+           [sender]_authenticated_handshake_traffic_secret.
+        [] Indicates messages protected using keys
+           derived from [sender]_application_traffic_secret_N.
+
+       Figure 2: Message Flow for KEM-Authentication (KEM-Auth) 
+                 Handshake with client authentication.
+~~~~~
+
+If the server is not satisfied with the client's certificates, it MAY, at its discretion, decide to continue or terminate the handshake.
+
+Unfortunately, AuthKEM client authentication requires an extra round-trip.
+Clients that know the server's long-term public KEM key might choose to use the abbreviated AuthKEM handshake and opportunistically send the client certificate as a 0-RTT-like message.
+We will discuss this later.
+
+## Relevant handshake messages
+
+After the Key Exchange and Server Parameters phase of TLS 1.3 handshake, the
+client and server exchange implicitly authenticated messages.
+KEM-based authentication uses the same set of messages every time that
+certificate-based authentication is needed.  Specifically:
+
+* ``Certificate``:  The certificate of the endpoint and any per-certificate   extensions.  This message is omitted by the client if the server did not send CertificateRequest (thus indicating that the client should not authenticate with a certificate). For AuthKEM, `Certificate` MUST include the long-term KEM public key.
+
+  Certificates MUST be handled in accordance with {{RFC8446}}, section 4.4.2.4.
+
+* ``KEMEncapsulation``: A key encapsulation against the certificate's long-term   public key, which yields an implicitly authenticated shared secret.
+
+## Differences with RFC8446 TLS 1.3
+
+* New types of ``signature_algorithms`` for KEMs.
+* New handshake message ``KEMEncapsulation``
+* The client sends ``Finished`` before the server.
+* The clients sends data before the server has sent ``Finished``.
+
+## Implicit and explicit authentication 
+
+The data that the client MAY transmit to the server before having received the server's ``Finished`` is encrypted
+using ciphersuites chosen based on the client's and server's advertised preferences in the `ClientHello` and `ServerHello` messages.
+The ``ServerHello`` message can however not be authenticated before the ``Finished`` message from the server is verified.
+The full implications of this are discussed in the Security Considerations section.
+
+Upon receiving the client's authentication messages, the server responds with its
+Finished message, which achieves explicit authentication.
+Upon receiving the server's ``Finished`` message, the client achieves explicit
+authentication.
+Receiving this message retroactively confirms the server's cryptographic parameter choices.
+
+## Authenticating CertificateRequest
+
+The ``CertificateRequest`` message can not be authenticated during the AuthKEM handshake;
+only after ``Finished`` from the server has been processed do we know it was authentic.
+The security implications of this are discussed later.
+
+**This is dicussed in [Github issue #16](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+We would welcome feedback there.**
+
+Clients MAY choose to only accept post-handshake authentication.
+[Todo: Should they indicate this?]
+
+# OLD TEXT BELOW
 
 # Protocol Overview
 
@@ -847,6 +1002,12 @@ cryptographic parameters it does not include in its own `ClientHello` message.
 
 If client authentication is used, explicit authentication is reached before
 any application data, on either client or server side, is transmitted.
+
+Application Data MUST NOT be sent prior to sending the Finished
+message, except as specified in Section 2.3 of {{RFC8446}}.  Note that
+while the client MAY send Application Data prior to receiving the server's
+last explicit Authentication message, any data sent at that point is,
+being sent to an implicitly authenticated peer.
 
 --- back
 
