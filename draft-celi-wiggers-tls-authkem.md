@@ -6,7 +6,7 @@ category: info
 
 ipr: trust200902
 area: General
-workgroup: tls
+workgroup: TLS Working Group
 keyword: Internet-Draft
 
 stand_alone: yes
@@ -79,6 +79,9 @@ informative:
       - ins: T. Wiggers
         name: Thom Wiggers
         org: "Radboud University"
+    seriesinfo:
+      DOI: 10.1007/978-3-030-88418-5_1
+      "IACR ePrint": https://ia.cr/2021/779
   NISTPQC:
     title: Post-Quantum Cryptography Standardization
     date: 2020
