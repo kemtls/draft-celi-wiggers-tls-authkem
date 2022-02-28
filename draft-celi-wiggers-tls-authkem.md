@@ -598,7 +598,7 @@ Derive-Secret functions.  The general pattern for adding a new secret
 is to use HKDF-Extract with the Salt being the current secret state
 and the Input Keying Material (IKM) being the new secret to be added.
 
-The key schedule proceeds as follows:
+The full key schedule proceeds as follows:
 
 ~~~
             0
@@ -761,21 +761,23 @@ In particular, this includes any alerts sent by the server in response to client
 
 # Security Considerations {#sec-considerations}
 
-* The academic works proposing KEM-Auth contain a in-depth technical discussion
-  of and a proof of the security of the handshake protocol without client
+* The academic works proposing AuthKEM (KEMTLS) contain a in-depth technical
+  discussionof and a proof of the security of the handshake protocol without client
   authentication [KEMTLS]. The work proposing the variant protocol [KEMTLSPDK]
   with pre-distributed public keys has a proof for both unilaterally and
   mutually authenticated handshakes.
 
+* We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin.
+  The academic write-up of this is work in progress.
+
 * Application Data sent prior to receiving the server's last explicit
   authentication message (the Finished message) can be subject to a client
-  downgrade attack, and has weaker forward secrecy compared to TLS 1.3.
-  Full downgrade resilience and forward secrecy is achieved once the handshake
-  completes.
+  certificate suite downgrade attack. Full downgrade resilience and forward
+  secrecy is achieved once the handshake completes.
 
 * The client's certificate is kept secret from active observers by the
   derivation of the `client_authenticated_handshake_secret`, which ensures that
-  only the intended server can read the client's identity.
+  only the intended server can read the client's identity.]
 
 * When the client opportunistically sends its certificate, it is not encrypted
   under a forward-secure key.  This has similar considerations and trade-offs as
@@ -816,6 +818,37 @@ message, except as specified in Section 2.3 of {{RFC8446}}.  Note that
 while the client MAY send Application Data prior to receiving the server's
 last explicit Authentication message, any data sent at that point is,
 being sent to an implicitly authenticated peer.
+
+
+--- back
+
+# Acknowledgements
+
+This work has been supported by the European Research Council through
+Starting Grant No. 805031 (EPOQUE).
+
+# Open points of discussion 
+
+The following are open points for discussion.
+The corresponding Github issues will be linked.
+
+## Authentication concerns for client authentication requests.
+
+Tracked by [Issue #16](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+
+The certificate request message from the server can not be authenticated by the AuthKEM mechanism.
+This is already somewhat discussed above and under security considerations.
+We might want to allow clients to refuse client auth for scenarios where this is a concern.
+
+## Interaction with signing certificates
+
+Tracked by [Issue #20](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/20).
+
+In the current state of the draft, we have not yet discussed combining traditional signature-based authentication with KEM-based authentication.
+One might imagine that the Client has a sigining certificate and the server has a KEM public key.
+
+In the current draft, clients MUST use a KEM certificate algorithm if the server negotiated AuthKEM.
+
 
 # OLD TEXT BELOW
 
@@ -1152,13 +1185,3 @@ Any records following a Finished message MUST be encrypted under the
 appropriate application traffic key as described in TLS 1.3.  In
 particular, this includes any alerts sent by the server in response
 to client Certificate and KEMEncapsulation messages.
-
-
-
-
---- back
-
-# Acknowledgements
-
-This work has been supported by the European Research Council through
-Starting Grant No. 805031 (EPOQUE).
