@@ -1,7 +1,7 @@
 ---
 title: KEM-based Authentication for TLS 1.3
 abbrev: AuthKEM
-docname: draft-celi-wiggers-tls-authkem-latest
+docname: draft-celi-wiggers-tls-authkem-01
 category: info
 
 ipr: trust200902
