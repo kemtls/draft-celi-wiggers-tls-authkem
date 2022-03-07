@@ -46,6 +46,7 @@ author:
 
 normative:
   RFC8446:
+  RFC9180:
 
 informative:
   RFC5869:
@@ -133,7 +134,7 @@ this is currently rare, certificates can be issued with (EC)DH public keys as
 specified for instance in {{!RFC8410}}, or using a delegation
 mechanism, such as delegated credentials {{!I-D.ietf-tls-subcerts}}.
 
-In this proposal, we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}. We
+In this proposal, we use the DH-based KEMs from {{!RFC9180}}. We
 believe KEMs are especially worth discussing in the context of the TLS protocol
 because NIST is in the process of standardizing post-quantum KEM algorithms to
 replace "classic" key exchange (based on elliptic curve or finite-field
@@ -200,7 +201,7 @@ operations with context separation strings:
 
 ``Decapsulate(enc, skR, context_str)``:  Takes the encapsulation and the private key. Returns the shared secret.
 
-We implement these methods through the KEMs defined in {{!I-D.irtf-cfrg-hpke}}
+We implement these methods through the KEMs defined in {{!RFC9180}}
 to export shared secrets appropriate for using with the HKDF in TLS 1.3:
 
 ~~~
@@ -216,7 +217,7 @@ def Decapsulate(enc, sk, context_string):
              .Export("", HKDF.Length)
 ~~~
 
-Keys are generated and encoded for transmission following the conventions in {{!I-D.irtf-cfrg-hpke}}.
+Keys are generated and encoded for transmission following the conventions in {{!RFC9180}}.
 
 # Full 1.5-RTT AuthKEM Handshake Protocol
 
@@ -486,7 +487,7 @@ and key schedule.
 Clients will indicate support for this mode by negotiating it as if
 it were a signature scheme (part of the `signature_algorithms` extension). We thus
 add these new signature scheme values (even though, they are not signature
-schemes) for the KEMs defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1. Note that
+schemes) for the KEMs defined in {{!RFC9180}} Section 7.1. Note that
 we will be only using their internal KEM's API defined there.
 
 ~~~
