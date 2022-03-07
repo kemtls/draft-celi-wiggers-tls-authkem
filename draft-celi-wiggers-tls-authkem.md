@@ -6,7 +6,7 @@ category: info
 
 ipr: trust200902
 area: General
-workgroup: tls
+workgroup: TLS Working Group
 keyword: Internet-Draft
 
 stand_alone: yes
@@ -49,26 +49,10 @@ normative:
 
 informative:
   RFC5869:
-  RFC5280:
+#  RFC5280:
   KEMTLS:
     title: "Post-Quantum TLS without Handshake Signatures"
     date: 2020-11
-    author:
-      - ins: D. Stebila
-        name: Douglas Stebila
-        org: University of Waterloo
-      - ins: P. Schwabe
-        name: Peter Schwabe
-        org: "Radboud University & MPI S&P"
-      - ins: T. Wiggers
-        name: Thom Wiggers
-        org: "Radboud University"
-    seriesinfo:
-      DOI: 10.1145/3372297.3423350
-      "IACR ePrint": https://ia.cr/2020/534
-  KEMTLSPDK:
-    title: "More Efficient KEMTLS with Pre-Shared Keys"
-    date: 2021-05
     author:
       - ins: D. Stebila
         name: Douglas Stebila
@@ -79,6 +63,25 @@ informative:
       - ins: T. Wiggers
         name: Thom Wiggers
         org: "Radboud University"
+    seriesinfo:
+      DOI: 10.1145/3372297.3423350
+      "IACR ePrint": https://ia.cr/2020/534
+  KEMTLSPDK:
+    title: "More Efficient KEMTLS with Pre-Shared Keys"
+    date: 2021-05
+    author:
+      - ins: D. Stebil
+        name: Douglas Stebila
+        org: University of Waterloo
+      - ins: P. Schwabe
+        name: Peter Schwabe
+        org: "Radboud University and Max Planck Institute for Security and Privacy"
+      - ins: T. Wiggers
+        name: Thom Wiggers
+        org: "Radboud University"
+    seriesinfo:
+      DOI: 10.1007/978-3-030-88418-5_1
+      "IACR ePrint": https://ia.cr/2021/779
   NISTPQC:
     title: Post-Quantum Cryptography Standardization
     date: 2020
@@ -93,15 +96,19 @@ informative:
        author:
        -
          ins: H. Krawczyk
+         name: Hugo Krawczyk
+         org: IBM Research
        -
          ins: H. Wee
+         name: Hoeteck Wee
+         org: ENS, CNRS, INRIA and Columbia University
 
 
 --- abstract
 
-This document gives a construction for KEM-based authentication in TLS
-1.3. The overall design approach is a simple: usage of Key Encapsulation
-Mechanisms (KEMs) to achieve certificate-based authentication.
+This document gives a construction for a Key Encapsulation Mechanism (KEM)-based
+authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
+exchange protocol, using their long-term (KEM) public keys.
 
 --- middle
 
@@ -110,38 +117,45 @@ Mechanisms (KEMs) to achieve certificate-based authentication.
 DISCLAIMER: This is a work-in-progress draft.
 
 This document gives a construction for KEM-based authentication in TLS
-1.3.  The overall design approach is a simple: usage of Key Encapsulation
-Mechanisms (KEMs) for certificate-based authentication. Authentication happens via
-asymmetric cryptography by the usage of KEMs advertised as the long-term KEM public
-keys in the Certificate.
+1.3. Authentication happens via asymmetric cryptography by the usage of
+KEMs advertised as the long-term KEM public keys in the Certificate.
 
 TLS 1.3 is in essence a signed key exchange protocol (if using certificate-based
 authentication). Authentication in TLS 1.3 is achieved by signing the handshake
-transcript. KEM-based authentication provides authentication by deriving a
-shared secret that is encapsulated against the public key contained in the
-certificate. Only the holder of the private key corresponding to the certificate's
-public key can derive the same shared secret and thus decrypt it's peers
-messages.
+transcript with digital signatures algorithms. KEM-based authentication provides
+authentication by deriving a shared secret that is encapsulated against the
+public key contained in the Certificate. Only the holder of the private key
+corresponding to the certificate's public key can derive the same shared secret
+and thus decrypt it's peers messages.
 
 This approach is appropriate for endpoints that have KEM public keys. Though
-this is currently rare, certificates could be issued with (EC)DH public keys as
+this is currently rare, certificates can be issued with (EC)DH public keys as
 specified for instance in {{!RFC8410}}, or using a delegation
 mechanism, such as delegated credentials {{!I-D.ietf-tls-subcerts}}.
 
-In this proposal we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}. We
+In this proposal, we use the DH-based KEMs from {{!I-D.irtf-cfrg-hpke}}. We
 believe KEMs are especially worth discussing in the context of the TLS protocol
 because NIST is in the process of standardizing post-quantum KEM algorithms to
 replace "classic" key exchange (based on elliptic curve or finite-field
-Diffie-Hellman [NISTPQC]).
+Diffie-Hellman) [NISTPQC].
 
 This proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}}, which is in
 turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
 require a non-interactive key exchange: they combine the client's public key with
-the server's long-term key. This imposes a requirement that the ephemeral and
-static keys use the same algorithm, which this proposal does not require.
+the server's long-term key. This imposes an extra requirement: the ephemeral and
+static keys MUST use the same algorithm, which this proposal does not require.
 Additionally, there are no post-quantum proposals for a non-interactive key
 exchange currently considered for standardization, while several KEMs are on the
 way.
+
+## Organization
+
+After a brief introduction to KEMs, we will introduce the AuthKEM authentication
+mechanism. For clarity, we discuss unilateral and mutual authentication separately.
+Next, we introduce the abbreviated AuthKEM handshake, and its opportunistic
+client authentication mechanism. In the remainder of the draft, we will discuss
+the necessary implementation mechanics, such as code points, extensions, new
+protocol messages and the new key schedule.
 
 # Requirements Notation
 
@@ -169,16 +183,17 @@ receiver:  An endpoint that is receiving records.
 
 sender:  An endpoint that is transmitting records.
 
-server:  The endpoint that this did initiate the TLS connection.
+server:  The endpoint that responded to the initiation of the TLS connection.
   i.e. the peer of the client.
 
 ## Key Encapsulation Mechanisms
 
 As this proposal relies heavily on KEMs, which are not originally
 used by TLS, we will provide a brief overview of this primitive.
+Other cryptographic operations will be discussed later.
 
 A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
-the methods ``Encapsulate`` and ``Decapapsulate``. In this draft, we extend these
+the methods ``Encapsulate`` and ``Decapsulate``. In this draft, we extend these
 operations with context separation strings:
 
 ``Encapsulate(pkR, context_string)``:    Takes a public key, and produces a shared secret and encapsulation.
@@ -186,7 +201,7 @@ operations with context separation strings:
 ``Decapsulate(enc, skR, context_str)``:  Takes the encapsulation and the private key. Returns the shared secret.
 
 We implement these methods through the KEMs defined in {{!I-D.irtf-cfrg-hpke}}
-as follows to export shared secrets appropriate for the use of HKDF in TLS 1.3:
+to export shared secrets appropriate for using with the HKDF in TLS 1.3:
 
 ~~~
 def Encapsulate(pk, context_string):
@@ -194,16 +209,19 @@ def Encapsulate(pk, context_string):
   ss = ctx.Export("", HKDF.Length)
   return (enc, ss)
     
-Decapsulate(enc, sk, context_string) =
-  HPKE.SetupBaseR(enc, sk, "tls13 auth-kem " + context_string)
-      .Export("", HKDF.Length)
+def Decapsulate(enc, sk, context_string):
+  return HPKE.SetupBaseR(enc, 
+                         sk, 
+                         "tls13 auth-kem " + context_string)
+             .Export("", HKDF.Length)
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in {{!I-D.irtf-cfrg-hpke}}.
 
-# Protocol Overview
+# Full 1.5-RTT AuthKEM Handshake Protocol
 
-Figure 1 below shows the basic full KEM-authentication (KEM-Auth) handshake:
+Figure 1 below shows the basic KEM-authentication (KEM-Auth) handshake,
+without client authentication:
 
 ~~~~~
        Client                                     Server
@@ -213,23 +231,18 @@ Exch | + key_share
      v + signature_algorithms
                           -------->
                                              ServerHello  ^ Key
-                                       +       key_share  v Exch
-                                   <EncryptedExtensions>  ^ Server
-                                    <CertificateRequest>  v Params
-     ^                                     <Certificate>  ^
-Auth | <KEMEncapsulation>                                 | Auth
-     | {Certificate}       -------->                      |
-     |                     <--------  {KEMEncapsulation}  |
-     | {Finished}          -------->                      |
-     | [Application Data*] -------->                      |
-     v                     <-------           {Finished}  |
-                                                          v
+                                             + key_share  v Exch
+                                   <EncryptedExtensions>
+                                           <Certificate>  ^
+       <KEMEncapsulation>  -------->                      |
+       {Finished}          -------->                      | Auth
+       [Application Data]  -------->                      |
+                           <--------          {Finished}  v
+
        [Application Data]  <------->  [Application Data]
 
         +  Indicates noteworthy extensions sent in the
            previously noted message.
-        *  Indicates optional or situation-dependent
-           messages/extensions that are not always sent.
         <> Indicates messages protected using keys
            derived from a [sender]_handshake_traffic_secret.
         {} Indicates messages protected using keys
@@ -238,227 +251,269 @@ Auth | <KEMEncapsulation>                                 | Auth
         [] Indicates messages protected using keys
            derived from [sender]_application_traffic_secret_N.
 
-       Figure 1: Message Flow for KEM-Authentication (KEM-Auth) Handshake
+       Figure 1: Message Flow for KEM-Authentication (KEM-Auth)
+                 Handshake without client authentication.
 ~~~~~
 
-When using KEMs for authentication, the handshake can be thought of in four
-phases compared to the three ones from TLS 1.3. It achieves both confidentiality
-and authentication (certificate-based).
+This basic handshake captures the core of AuthKEM.
+Instead of using a signature to authenticate the handshake, the client
+encapsulates a shared secret to the server's certificate public key.
+Only the server that holds the private key corresponding to the certificate public
+key can derive the same shared secret.
+This shared secret is mixed into the handshake's key schedule.
+The client does not have to wait for the server's ``Finished`` message before it
+can send data.
+The client knows that its message can only be decrypted if the server was able
+to derive the authentication shared secret encapsulated in the ``KEMEncapsulation`` message.
+
+``Finished`` messages are sent as in TLS 1.3, and achieve full explicit authentication.
+
+## Client authentication
+
+For client authentication, the server sends the ``CertificateRequest`` message as in {{RFC8446}}.
+This message can not be authenticated in the AuthKEM handshake: we will discuss
+the implications below.
+
+As in {{RFC8446}}, section 4.4.2, if and only if the client receives ``CertificateRequest``,
+it MUST send a ``Certificate`` message.
+If the client has no suitable certificate, it MUST send a ``Certificate`` message
+containing no certificates.
+If the server is satisfied with the provided certificate, it MUST send back
+a ``KEMEncapsulation`` message, containing the encapsulation to the client's certificate.
+The resulting shared secret is mixed into the key schedule.
+This ensures any messages sent using keys derived from it are covered by the authentication.
+
+The AuthKEM handshake with client authentication is given in Figure 2.
+
+~~~~~
+       Client                                     Server
+
+Key  ^ ClientHello
+Exch | + key_share
+     v + signature_algorithms
+                          -------->
+                                             ServerHello  ^ Key
+                                             + key_share  v Exch
+                                   <EncryptedExtensions>  ^ Server
+                                    <CertificateRequest>  v Params
+                                           <Certificate>  ^
+     ^ <KEMEncapsulation>                                 |
+     | {Certificate}       -------->                      |
+Auth |                     <--------  {KEMEncapsulation}  | Auth
+     v {Finished}          -------->                      |
+       [Application Data]  -------->                      |
+                           <-------           {Finished}  v
+
+       [Application Data]  <------->  [Application Data]
+
+        +  Indicates noteworthy extensions sent in the
+           previously noted message.
+        <> Indicates messages protected using keys
+           derived from a [sender]_handshake_traffic_secret.
+        {} Indicates messages protected using keys
+           derived from a
+           [sender]_authenticated_handshake_traffic_secret.
+        [] Indicates messages protected using keys
+           derived from [sender]_application_traffic_secret_N.
+
+       Figure 2: Message Flow for KEM-Authentication (KEM-Auth)
+                 Handshake with client authentication.
+~~~~~
+
+If the server is not satisfied with the client's certificates, it MAY, at its
+discretion, decide to continue or terminate the handshake.
+
+Unfortunately, AuthKEM client authentication requires an extra round-trip.
+Clients that know the server's long-term public KEM key MAY choose to use the abbreviated AuthKEM handshake and opportunistically send the client certificate as a 0-RTT-like message.
+We will discuss this later.
+
+## Relevant handshake messages
 
 After the Key Exchange and Server Parameters phase of TLS 1.3 handshake, the
 client and server exchange implicitly authenticated messages.
 KEM-based authentication uses the same set of messages every time that
 certificate-based authentication is needed.  Specifically:
 
-* Certificate:  The certificate of the endpoint and any per-certificate
-  extensions.  This message is omitted by the client if the server
-  did not send CertificateRequest (thus indicating that the client
-  should not authenticate with a certificate). The Certificate
-  MUST include the long-term KEM public key.
+* ``Certificate``:  The certificate of the endpoint and any per-certificate
+extensions.  This message is omitted by the client if the server did not
+send a CertificateRequest message (thus indicating that the client should not
+authenticate with a certificate). For AuthKEM, `Certificate` MUST include the
+long-term KEM public key. Certificates MUST be handled in accordance
+with {{RFC8446}}, section 4.4.2.4.
 
-* KEMEncapsulation: A key encapsulation against the certificate's long-term
-  public key, which yields an implicitly authenticated shared secret.
+  Certificates MUST be handled in accordance with {{RFC8446}}, section 4.4.2.4.
 
-Upon receiving the server's messages, the client responds with its
-Authentication messages, namely Certificate and KEMEncapsulation (if
-requested). If client authentication was not requested, the Client
-sends its Finished message.
+* ``KEMEncapsulation``: A key encapsulation against the certificate's long-term public key, which yields an implicitly authenticated shared secret.
 
-Upon receiving the client's messages, the server responds with its
-Finished message, which achieves explicit authentication.
-Upon receiving the server's Finished message, the client achieves explicit
+## Overview of key differences with RFC8446 TLS 1.3
+
+* New types of ``signature_algorithms`` for KEMs.
+* Public keys in certificates are KEM algorithms
+* New handshake message ``KEMEncapsulation``
+* The key schedule mixes in the shared secrets from the authentication.
+* The ``Certificate`` is sent encrypted with a new handshake encryption key.
+* The client sends ``Finished`` before the server.
+* The clients sends data before the server has sent ``Finished``.
+
+## Implicit and explicit authentication
+
+The data that the client MAY transmit to the server before having received the
+server's ``Finished`` is encrypted using ciphersuites chosen based on the
+client's and server's advertised preferences in the ``ClientHello`` and ``ServerHello`` messages.
+The ``ServerHello`` message can however not be authenticated before the ``Finished`` message
+from the server is verified. The full implications of this are discussed in the
+Security Considerations section.
+
+Upon receiving the client's authentication messages, the server responds with its
+``Finished`` message, which achieves explicit authentication.
+Upon receiving the server's ``Finished`` message, the client achieves explicit
 authentication.
+Receiving this message retroactively confirms the server's cryptographic parameter choices.
 
-Application Data MUST NOT be sent prior to sending the Finished
-message, except as specified in Section 2.3 of {{RFC8446}}.  Note that
-while the client may send Application Data prior to receiving the server's
-last explicit Authentication message, any data sent at that point is, of course,
-being sent to an implicitly authenticated peer. It is worth noting
-that Application Data sent prior to receiving the server's last
-Authentication message can be subject to a client downgrade
-attack. Full downgrade resilience is only achieved when explicit
-authentication is achieved: when the Client receives the Finished
-message from the Server.
+## Authenticating CertificateRequest
 
-## Prior-knowledge KEM-Auth
+The ``CertificateRequest`` message can not be authenticated during the AuthKEM handshake;
+only after the ``Finished`` message from the server has been processed, it can be
+proven as authentic. The security implications of this are discussed later.
 
-Given the added number of round-trips of KEM-auth compared to the TLS 1.3,
-the handshake can be improved by the usage of pre-distributed
-KEM authentication keys to achieve explicit authentication and full downgrade
-resilience as early as possible. A peer's long-term KEM authentication key can
-be cached in advance, as well.
+**This is dicussed in [Github issue #16](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+We would welcome feedback there.**
 
-Figure 2 below shows a pair of handshakes in which the first handshake
-establishes cached information and the second handshake uses it:
+Clients MAY choose to only accept post-handshake authentication.
+
+TODO: Should they indicate this? TLS Flag?
+
+# Abbreviated AuthKEM with pre-shared public KEM keys
+
+When the client already has the server's long-term public key, we can do a more
+efficient handshake.
+The client will send the encapsulation to the server's long-term public key in a ``ClientHello`` extension.
+An overview of the abbreviated AuthKEM handshake is given in Figure 3.
+
+A client that already knows the server, might also already know that it will be
+required to present a client certificate. This is expected to be especially
+useful in server-to-server scenarios. The abbreviated handshake allows to encrypt
+the certificate and send it like early data.
 
 ~~~~~
-       Client                                           Server
-
-Key  ^ ClientHello
-Exch | + key_share
-     v + signature_algorithms
-                              -------->
-                                                ServerHello  ^ Key
-                                          +  (    key_share  v Exch
-                                      <EncryptedExtensions>  ^ Server
-                                       <CertificateRequest>  v Params
-     ^                                        <Certificate>  ^
-Auth | <KEMEncapsulation>                                    | Auth
-     | {Certificate}          -------->                      |
-     |                        <--------  {KEMEncapsulation}  |
-     | {Finished}             -------->                      |
-     | [Cached Server Certificate]                           |
-     | [Application Data*]    -------->                      |
-     v                        <-------           {Finished}  |
-                                                             v
-       [Application Data]     <------->  [Application Data]
-
        Client                                        Server
-
 Key  ^ ClientHello
 Exch | + key_share
-&    | + stored_auth_key_extension
-Auth | + kem_encapsulation_extension
-     | + signature_algorithms
-     | <Certificate>         -------->         ServerHello  ^ Key
-     |                                   +       key_share  | Exch,
-     |                      +  {stored_auth_key_extension}  | Auth &
+&    | + stored_auth_key
+Auth | + signature_algorithms
+     | + early_auth*
+     | + early_data*
+     | (Certificate*)
+     | (Application Data*)    -------->        ServerHello  ^ Key
+     |                                         + key_share  |
+     |                                   + stored_auth_key  |
+     |                                       + early_auth*  | Exch,
+     |                                       + early_data*  | Auth &
      |                               {EncryptedExtensions}  | Server
-     |                                  {KEMEncapsulation}  | Params
+     |                                 {KEMEncapsulation*}  | Params
      |                       <--------          {Finished}  v
      |                       <-------- [Application Data*]
+     | (EndOfEarlyData)
      v {Finished}            -------->
 
        [Application Data]    <------->  [Application Data]
+
+        +  Indicates noteworthy extensions sent in the
+           previously noted message.
+        *  Indicates optional or situation-dependent
+           messages/extensions that are not always sent.
+        <> Indicates messages protected using keys
+           derived from a
+           client_early_handshake_traffic_secret.
+        () Indicates messages protected using keys derived
+           from a client_early_traffic_secret.
+        {} Indicates messages protected using keys
+           derived from a
+           [sender]_handshake_traffic_secret.
+        [] Indicates messages protected using keys
+           derived from [sender]_application_traffic_secret_N.
+
+      Figure 3: Abbreviated AuthKEM handshake, with optional
+                opportunistic client authentication.
 ~~~~~
 
-In some applications, such as in a VPN, the client already knows that the
-server will require mutual authentication. This means that a client can proactively
-authenticate by sending its certificate as early in the handshake as possible.
-The client's certificate has to be sent encrypted by using the shared secret
-derived from the kem_encapsulation message.
+## Negotiation {#sec-authkem-pdk-negotiation}
 
-# Negotiation
+A client that knows a server's long-term KEM public key MAY choose to attempt the abbreviated AuthKEM handshake.
+If it does so, it MUST include the ``stored_auth_key`` extension in the ``ClientHello`` message.
+This message MUST contain the encapsulation against the long-term KEM public key.
+Details of the extension are described below.
+The shared secret resulting from the encapsulation is mixed in to the EarlySecret computation.
+
+The client MAY additionally choose to send a certificate to the server.
+It MUST know what ciphersuites the server accepts before it does so.
+If it chooses to do so, it MUST send the ``early_auth`` extension to the server.
+The ``Certificate`` is encrypted with the ``client_early_handshake_traffic_secret``.
+
+The server MAY accept the abbreviated AuthKEM handshake.
+If it does, it MUST reply with a ``stored_auth_key`` extension.
+If it does not accept the abbreviated AuthKEM handshake, for instance because it
+does not have access to the correct secret key anymore, it MUST NOT reply with
+a `stored_auth_key` extension.
+The server, if it accepts the abbreviated AuthKEM handshake, MAY additionally
+accept the ``Certificate`` message. If it does, it MUST reply with a ``early_auth`` extension.
+
+If the client, who sent a ``stored_auth_key`` extension, receives
+a ``ServerHello`` without ``stored_auth_key`` extension, it MUST recompute ``EarlySecret`` without
+the encapsulated shared secret.
+
+If the client sent a ``Certificate`` message, it MUST drop that message from its transcript.
+The client MUST then continue with a full AuthKEM handshake.
+
+## 0-RTT, forward secrecy and replay protection
+
+The client MAY send 0-RTT data, as in {{RFC8446}} 0-RTT mode.
+The ``Certificate`` MUST be sent before the 0-RTT data.
+
+As the ``EarlySecret`` is derived only from a key encapsulated to a long-term secret, it does not have forward secrecy.
+Clients MUST take this into consideration before transmitting 0-RTT data or opting in to early client auth.
+Certificates and 0-RTT data may also be replayed.
+
+This will be discussed in full under Security Considerations.
+
+# Implementation
+
+In this section we will discuss the implementation details such as extensions
+and key schedule.
+
+## Negotiation of AuthKEM
 
 Clients will indicate support for this mode by negotiating it as if
-it were a signature scheme (part of the `SignatureScheme` extension). We thus
+it were a signature scheme (part of the `signature_algorithms` extension). We thus
 add these new signature scheme values (even though, they are not signature
 schemes) for the KEMs defined in {{!I-D.irtf-cfrg-hpke}} Section 7.1. Note that
 we will be only using their internal KEM's API defined there.
 
 ~~~
-  enum {
-    dhkem_p256_sha256   => TBD,
-    dhkem_p384_sha384   => TBD,
-    dhkem_p521_sha512   => TBD,
-    dhkem_x25519_sha256 => TBD,
-    dhkem_x448_sha512   => TBD,
-  }
+enum {
+  dhkem_p256_sha256   => TBD,
+  dhkem_p384_sha384   => TBD,
+  dhkem_p521_sha512   => TBD,
+  dhkem_x25519_sha256 => TBD,
+  dhkem_x448_sha512   => TBD,
+}
 ~~~
 
-When present in the `signature_algorithms` extension, these values
-indicate KEM-Auth with the specified key exchange mode. These values
-MUST NOT appear in `signature_algorithms_cert`.
+When present in the `signature_algorithms` extension, these values indicate AuthKEM support with the specified key exchange mode.
+These values MUST NOT appear in `signature_algorithms_cert`, as this extension specifies the signing algorithms by which certificates are signed.
 
-In order to be used for KEM-Auth, this algorithms have to be added to
-the `SignatureScheme` extension sent in the ClientHello message, and
-supported by the server.
+## ClientHello and ServerHello extensions
 
-# Handshake protocol
 
-The handshake protocol is used to negotiate the security parameters
-of a connection, as in TLS 1.3. It uses the same messages, expect
-for the addition of a `KEMEncapsulation` message and does not use
-the `CertificateVerify` one.
-
-~~~
-  enum {
-      ...
-      encrypted_extensions(8),
-      certificate(11),
-      kem_encapsulation(tbd),
-      certificate_request(13),
-      ...
-      message_hash(254),
-      (255)
-    } HandshakeType;
-
-  struct {
-      HandshakeType msg_type;    /* handshake type */
-      uint24 length;             /* remaining bytes in message */
-      select (Handshake.msg_type) {
-          ...
-          case encrypted_extensions:  EncryptedExtensions;
-          case certificate_request:   CertificateRequest;
-          case certificate:           Certificate;
-          case kem_encapsulation:     KEMEncapsulation;
-          ...
-      };
-  } Handshake;
-~~~
-
-Protocol messages MUST be sent in the order defined in Section 4.
-A peer which receives a handshake message in an unexpected order MUST
-abort the handshake with an "unexpected_message" alert.
-
-## Key Exchange Messages
-
-KEM-Auth uses the same key exchange messages as TLS 1.3 with this
-exceptions:
-
-- Two extensions can be added to the `ClientHello` message: "stored_auth_key"
-  and "kem_encapsulation".
-- One extensions can be added to the `ServerHello` message: "stored_auth_key".
-
-KEM-Auth preserves the same cryptographic negotiation with the addition
-of the KEM algorithms to the `signature_algorithms`.
-
-### Client Hello
-
-KEM-Auth uses the `ClientHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, two extensions are mandatory: "stored_auth_key"
-and "kem_encapsulation" for server authentication. This extensions are
-described later in the document.
-
-Note that in KEM-Auth with pre-distributed information, the client's `Certificate`
-message gets send alongside the `ClientHello` one for mutual authentication.
-
-### Server Hello
-
-KEM-Auth uses the `ServerHello` message as described for TLS 1.3. When used
-in a pre-distributed mode, however, one extension is mandatory: "stored_auth_key"
-for server authentication. This extension is described later in the document.
-
-When the ServerHello message is received:
-
-- the client and server derive handshake traffic secrets `client_handshake_traffic_secret`
-  and `server_handshake_traffic_secret` which are used to encrypt subsequent
-  flows in the handshake
-- the “handshake secret” is derived: `dHS` which is kept as the
-  current secret state of the key schedule.
-
-Refer to Section 8.1 for information on how to derive this secrets.
-
-### Hello Retry Request
-
-KEM-Auth uses the `ServerHello` message as described for TLS 1.3. When used
-in a pre-distributed mode for mutual authentication, a `HelloRetryRequest`
-message can be sent, but the client's `Certificate` message is ignored.
-
-### Extensions
-
-A number of KEM-Auth messages contain tag-length-value encoded extensions
-structures. We are adding those extensions to the `ExtensionType` list
-from TLS 1.3.
+A number of AuthKEM messages contain tag-length-value encoded extensions structures.
+We are adding those extensions to the `ExtensionType` list from TLS 1.3.
 
 ~~~
 enum {
-    ...
-    signature_algorithms_cert(50),              /* RFC 8446 */
-    key_share(51),                              /* RFC 8446 */
-    kem_encapsulation (TBD),                    /* RFC TBD */
-    stored_auth_key(TBD),                       /* RFC TBD */
-    (65535)
+  ...
+  stored_auth_key (TBD),                 /* RFC TBD */
+  early_auth (TBD),                      /* RFC TBD */
+  (65535)
 } ExtensionType;
 ~~~
 
@@ -471,58 +526,37 @@ appear:
 +---------------------------------------+-------------+
 | stored_auth_key [RFCTBD]              |      CH, SH |
 |                                       |             |
-| kem_encapsulation  [RFCTBD]           |          CH |
+| early_auth  [RFCTBD]                  |      CH, SH |
 |                                       |             |
 +---------------------------------------+-------------+
 ~~~
 
-#### Stored Auth Key
+### Stored Auth Key
 
-This document defines a new extension type ("stored_auth_key(TBD)"), which
-is used in ClientHello and ServerHello messages.  The extension type
-is specified as follows.
-
-~~~
-  struct {
-       stored_auth_key(TBD), (65535)
-  } ExtensionType;
-~~~
+To transmit the early authentication encapsulation in the abbreviated AuthKEM handshake, this document defines a new extension type (``stored_auth_key (TBD)``).
+It is used in ClientHello and ServerHello messages.
 
 The extension_data field of this extension, when included in the
-ClientHello, MUST contain the `StoredInformation` structure.  The
-client MAY send multiple StoredObjects of the same `StoredInformationType`.
-This may, for example, be the case when the client has cached multiple
-public keys from the server.
+ClientHello, MUST contain the `StoredInformation` structure.
 
 ~~~
-  enum {
-       uint8 pub_key = 0;
-  } StoredInformationType;
-
-  struct {
-       select (type) {
-         case client:
-           StoredInformationType type;
-           opaque hash_value<1..255>;
-         case server:
-           StoredInformationType type;
-       } body;
-  } StoredObject;
-
-  struct {
-       StoredObject stored_auth_key<1..2^16-1>;
-  } StoredInformation;
+struct {
+      select (type) {
+        case client:
+          opaque key_fingerprint<1..255>;
+          opaque ciphertext<1..2^16-1>
+        case server:
+          AcceptedAuthKey '1';
+      } body;
+} StoredInformation
 ~~~
 
-This document defines the following type:
+This extension MUST contain the folowing information when included in ``ClientHello`` messages:
 
-- 'pub_key' type for not sending the complete server certificate message:
-   With the type field set to 'pub_key', the client MUST include the
-   fingerprint of the Public Key of the end-entity certificate in
-   the hash_value field. For this type, the fingerprint MUST be calculated
-   using the procedure below, using the Public Key (represented
-   using the Subject Public Key Info representation, as defined in {{RFC5869}},
-   Section 4.1.2.7) as the input data.
+* The client indicates the public key encapsulated to by its fingerprint
+* The client submits the ciphertext
+
+The server MUST send the extension back as an acknowledgement, if and only if it wishes to negotiated the abbreviated AuthKEM handshake.
 
 The fingerprint calculation proceeds this way:
 
@@ -531,84 +565,68 @@ The fingerprint calculation proceeds this way:
     length information of the record layer).
 2.  Use the output of the SHA-256 hash.
 
-The purpose of the fingerprint provided by the client is to help the
-server select the correct information. The fingerprint identifies the server
-public key (and the corresponding private key) for use with the rest
-of the handshake.
+If this extension is not present, the client and the server MUST NOT negotiate the abbreviated AuthKEM handshake.
 
-If this extension is not present, the `kem_encapsulation` extension MUST
-not be present as well. If present, it will be ignored.
+The presence of the fingerprint might reveal information about the identity of the server that the client has.
+This is discussed further under [Security Considerations](#sec-considerations).
 
-### Implicit Authentication Messages
 
-As discussed, KEM-Auth generally uses a common set of messages for implicit
-authentication and key confirmation: Certificate and KEMEncapsulation.
-The CertificateVerify message MUST NOT be sent.
+### Early authentication
 
-The computations for the Authentication messages take the following inputs:
-
--  The certificate and authentication key to be used.
--  A Handshake Context consisting of the set of messages to be included in the
-   transcript hash.
--  A Shared Secret Key (from the key exchange operations) to be used to compute an
-   authenticated handshake shared key.
--  A Handshake Context consisting of the set of messages to be
-   included in the transcript hash.
-
-Based on these inputs, the messages then contain:
-
-Certificate:  The certificate to be used for authentication, and any supporting
-  certificates in the chain.
-
-KEMEncapsulation: The KEM encapsulation against the end-entity
-  certificate's public key(s).
-
-KEM-Auth follows the TLS 1.3 key schedule, which applies a sequence of HKDF
-operations to the Handshake Secret Keys and the handshake context to derive:
-
-- the client and server authenticated handshake traffic secrets
-  `client_handshake_authenticated_traffic_secret`
-  and `server_handshake_authenticated_traffic_secret` which are used to
-  encrypt subsequent flows in the handshake
-- updated secret state `dAHS` of the key schedule.
-- a Master Key.
-
-### Certificate
-
-KEM-Auth uses the same `Certificate` message as TLS 1.3.
-
-The end-entity `Certificate` or the `RawPublicKey` MUST contain or be a
-KEM public key.
-
-Note that we are only specifying here the algorithms in the end-entity
-`Certificate`. All certificates provided by the server or client MUST be
-signed by an authentication algorithm advertised by the server or client.
-
-### KEM Encapsulation
-
-This message is used to provide implicit proof that an endpoint
-possesses the private key(s) corresponding to its certificate by sending
-the appropriate parameters that will be used to calculate the implicitly
-authenticated shared secret.
-
-The calculation of the shared secret also provides integrity for the handshake
-up to this point. Servers MUST send this message when authenticating via a
-certificate. Clients MUST send this message whenever authenticating via a
-certificate (i.e., when the `Certificate` message is non-empty). When sent, this
-message MUST appear immediately after the `Certificate` message has been
-received and prior to the `Finished` message.
-
-Structure of this message:
+To indicate the client will attempt client authentication in the abbreviated AuthKEM handshake, and for the server to indicate acceptance of attempting this authentication mechanism,
+we define the ```early_auth (TDB)`` extension.
+It is used in ClientHello and ServerHello messages.
 
 ~~~
-  struct {
-      opaque certificate_request_context<0..2^8-1>
-      opaque encapsulation<0..2^16-1>;
-  } KEMEncapsulation;
+struct {
+} EarlyAuth
+~~~
+
+This is an empty extension.
+
+It MUST NOT be sent if the ``stored_auth_key`` extension is not present.
+
+## Protocol messages
+
+The handshake protocol is used to negotiate the security parameters
+of a connection, as in TLS 1.3. It uses the same messages, expect
+for the addition of a `KEMEncapsulation` message and does not use
+the `CertificateVerify` one.
+
+~~~
+enum {
+    ...
+    kem_encapsulation(tbd),
+    ...
+    (255)
+  } HandshakeType;
+
+struct {
+    HandshakeType msg_type;    /* handshake type */
+    uint24 length;             /* remaining bytes in message */
+    select (Handshake.msg_type) {
+        ...
+        case kem_encapsulation:     KEMEncapsulation;
+        ...
+    };
+} Handshake;
+~~~
+
+Protocol messages MUST be sent in the order defined in Section 4.
+A peer which receives a handshake message in an unexpected order MUST
+abort the handshake with an "unexpected_message" alert.
+
+The KEMEncapsulation message is defined as follows:
+
+~~~
+struct {
+    opaque certificate_request_context<0..2^8-1>
+    opaque encapsulation<0..2^16-1>;
+} KEMEncapsulation;
 ~~~
 
 The encapsulation field is the result of a `Encapsulate` function. The
-Encapsulation() function will also result in a shared secret (`ssS` or `ssC`,
+``Encapsulate()`` function will also result in a shared secret (`ssS` or `ssC`,
 depending on the peer) which is used to derive the `AHS` or `MS` secrets.
 
 If the `KEMEncapsulation` message is sent by a server, the authentication
@@ -631,75 +649,21 @@ will also result on a shared secret (`ssS` or `ssC`, depending on the Server or
 Client executing it respectively) which is used to derive the `AHS` or `MS` secrets.
 
 `certificate_request_context` is included to allow the recipient to identify the
-certificate against which the encapsulation was generated. It MUST be set to the 
-value in the `Certificate` message to which the encapsulation was computed. 
+certificate against which the encapsulation was generated. It MUST be set to the
+value in the `Certificate` message to which the encapsulation was computed.
 
-### Explicit Authentication Messages
+## Cryptographic computations
 
-As discussed, KEM-Auth generally uses a message for explicit
-authentication: Finished message. Note that in the non pre-distributed mode,
-KEM-Auth achieves explicit authentication only when the server sends the final
-`Finished` message (the client is only implicitly authenticated when they
-send their `Finished` message). In a pre-distributed mode, the server achieves
-explicit authentication when sending their `Finished` message (one round-trip
-earlier) and the client, in turn, when they send their `Finished` message
-(one round-trip earlier). Full downgrade resilience and forward secrecy
-is achieved once the KEM-Auth handshake completes.
-
-The key used to compute the Finished message is computed from the
-Master Key using HKDF. Specifically:
-
-~~~
-server/client_finished_key =
-  HKDF-Expand-Label(MasterKey,
-                    server/client_label,
-                    "", Hash.length)
-server_label = "tls13 server finished"
-client_label = "tls13 client finished"
-~~~
-
-
-Structure of this message:
-
-~~~
-  struct {
-      opaque verify_data[Hash.length];
-  } Finished;
-~~~
-
-The verify_data value is computed as follows:
-
-~~~
-server/client_verify_data =
-      HMAC(server/client_finished_key,
-           Transcript-Hash(Handshake Context,
-                           Certificate*,
-                           KEMEncapsulation*,
-                           Finished**)
-~~~
-
-*  Only included if present.
-** The party who last sends the finished message in terms of flights
-   includes the other party's Finished message.
-
-
-Any records following a Finished message MUST be encrypted under the
-appropriate application traffic key as described in TLS 1.3.  In
-particular, this includes any alerts sent by the server in response
-to client Certificate and KEMEncapsulation messages.
-
-# Cryptographic Computations
-
-The KEM-Auth handshake establishes three input secrets which are
+The AuthKEM handshake establishes three input secrets which are
 combined to create the actual working keying material, as detailed below. The
 key derivation process incorporates both the input secrets and the handshake
 transcript.  Note that because the handshake transcript includes the random
 values from the Hello messages, any given handshake will have different traffic
 secrets, even if the same input secrets are used.
 
-## Key schedule
+### Key schedule for full AuthKEM handshakes
 
-KEM-Auth uses the same HKDF-Extract and HKDF-Expand functions as defined by
+AuthKEM uses the same HKDF-Extract and HKDF-Expand functions as defined by
 TLS 1.3, in turn defined by {{RFC5869}}.
 
 Keys are derived from two input secrets using the HKDF-Extract and
@@ -707,7 +671,14 @@ Derive-Secret functions.  The general pattern for adding a new secret
 is to use HKDF-Extract with the Salt being the current secret state
 and the Input Keying Material (IKM) being the new secret to be added.
 
-The key schedule proceeds as follows:
+The notable differences are:
+
+* The addition of the ``Authenticated Handshake Secret`` and a new set of
+  handshake traffic encryption keys.
+* The inclusion of the ``SSs`` and ``SSc`` shared secrets as IKM to 
+  ``Authenticated Handshake Secret`` and ``Main Secret``, respectively
+
+The full key schedule proceeds as follows:
 
 ~~~
             0
@@ -744,16 +715,16 @@ The key schedule proceeds as follows:
             |
             +--> Derive-Secret(., "c ahs traffic",
             |                  ClientHello...KEMEncapsulation)
-            |                  = client_handshake_authenticated_traffic_secret
+            |         = client_handshake_authenticated_traffic_secret
             |
             +--> Derive-Secret(., "s ahs traffic",
             |                  ClientHello...KEMEncapsulation)
-            |                  = server_handshake_authenticated_traffic_secret
+            |         = server_handshake_authenticated_traffic_secret
             v
-            Derive-Secret(., "derived", "") = AHS
+            Derive-Secret(., "derived", "") = dAHS
             |
             v
-SSc||0 * -> HKDF-Extract = Master Secret
+SSc||0 * -> HKDF-Extract = Main Secret
             |
             +--> Derive-Secret(., "c ap traffic",
             |                  ClientHello...server Finished)
@@ -771,9 +742,42 @@ SSc||0 * -> HKDF-Extract = Master Secret
                                ClientHello...client Finished)
                                = resumption_master_secret
 
-The * means that if client authentication was requested the `SSc` value should
-be used. Otherwise, the `0` value is used.
+*: if client authentication was requested, the `SSc` value should 
+   be used. Otherwise, the `0` value is used.
 ~~~
+
+### Abbreviated AuthKEM key schedule
+
+The abbreviated AuthKEM handshake follows the {{RFC8446}} key schedule more closely.
+We change the computation of the ``EarlySecret`` as follows, and add a computation for
+``client_early_handshake_traffic_secret``:
+~~~
+            0
+            |
+            v
+    SSs -> HKDF-Extract = Early Secret
+            |
+            ...
+            +--> Derive-Secret(., "c e traffic", ClientHello)
+            |                  = client_early_traffic_secret
+            |
+            +--> Derive-Secret(., "c e hs traffic", ClientHello)
+            |                  = client_early_handshake_traffic_secret
+            ...
+~~~
+
+We change the computation of ``Main Secret`` as follows:
+~~~
+            Derive-Secret(., "derived", "") = dHS
+            |
+            v
+SSc||0 * -> HKDF-Extract = Main Secret
+            |
+            ...
+~~~
+
+### Computations of KEM shared secrets
+
 
 The operations to compute `SSs` or `SSc` from the client are:
 
@@ -793,19 +797,65 @@ SSc, encapsulation <- Encapsulate(public_key_client,
                                   "client authentication")
 ~~~
 
+### Explicit Authentication Messages
+
+As discussed, AuthKEM generally uses a message for explicit
+authentication: Finished message. Note that in the full handshake,
+AuthKEM achieves explicit authentication only when the server sends the final
+``Finished`` message (the client is only implicitly authenticated when they
+send their ``Finished`` message). In a abbreviated handshake mode, the server achieves
+explicit authentication when sending their ``Finished`` message (one round-trip
+earlier) and the client, in turn, when they send their ``Finished`` message
+(one round-trip earlier). Full downgrade resilience and forward secrecy
+is achieved once the AuthKEM handshake completes.
+
+The key used to compute the ``Finished`` message MUST be computed from the
+``MainSecret`` using HKDF. Specifically:
+
+~~~
+server/client_finished_key =
+  HKDF-Expand-Label(MainSecret,
+                    server/client_label,
+                    "", Hash.length)
+server_label = "tls13 server finished"
+client_label = "tls13 client finished"
+~~~
+
+The ``verify_data`` value is computed as follows:
+
+~~~
+server/client_verify_data =
+      HMAC(server/client_finished_key,
+           Transcript-Hash(Handshake Context,
+                           Certificate*,
+                           KEMEncapsulation*,
+                           Finished**)
+
+*  Only included if present.
+** The party who last sends the finished message in terms of flights
+   includes the other party's Finished message.
+~~~
+
+See the [abbreviated AuthKEM handshake negotiation section](#sec-authkem-pdk-negotiation) for special considerations for the abbreviated AuthKEM handshake.
+
+Any records following a Finished message MUST be encrypted under the appropriate application traffic key as described in TLS 1.3.
+In particular, this includes any alerts sent by the server in response to client ``Certificate`` and ``KEMEncapsulation`` messages.
+
 # Security Considerations {#sec-considerations}
 
-* The academic works proposing KEM-Auth contain a in-depth technical discussion
-  of and a proof of the security of the handshake protocol without client
+* The academic works proposing AuthKEM (KEMTLS) contain a in-depth technical
+  discussion of and a proof of the security of the handshake protocol without client
   authentication [KEMTLS]. The work proposing the variant protocol [KEMTLSPDK]
-  with pre-distributed public keys has a proof for both unilaterally and
-  mutually authenticated handshakes.
+  with pre-distributed public keys (the abbreviated AuthKEM handshake)
+  has a proof for both unilaterally and mutually authenticated handshakes.
+
+* We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin.
+  The academic write-up of this is work in progress.
 
 * Application Data sent prior to receiving the server's last explicit
   authentication message (the Finished message) can be subject to a client
-  downgrade attack, and has weaker forward secrecy compared to TLS 1.3.
-  Full downgrade resilience and forward secrecy is achieved once the handshake
-  completes.
+  certificate suite downgrade attack. Full downgrade resilience and forward
+  secrecy is achieved once the handshake completes.
 
 * The client's certificate is kept secret from active observers by the
   derivation of the `client_authenticated_handshake_secret`, which ensures that
@@ -821,6 +871,9 @@ SSc, encapsulation <- Encapsulate(public_key_client,
   encrypted with a ciphertext that it knows the server will accept. Otherwise,
   it will fail.
 
+* The PDK extension identifies the public key to which the client has encapsulated via a hash.
+  This reveals some information about which server identity the client has.
+  {{!I-D.ietf-tls-esni-14}} may help alleviate this.
 
 ## Implicit authentication
 
@@ -845,9 +898,58 @@ cryptographic parameters it does not include in its own `ClientHello` message.
 If client authentication is used, explicit authentication is reached before
 any application data, on either client or server side, is transmitted.
 
+Application Data MUST NOT be sent prior to sending the Finished
+message, except as specified in Section 2.3 of {{RFC8446}}.  Note that
+while the client MAY send Application Data prior to receiving the server's
+last explicit Authentication message, any data sent at that point is,
+being sent to an implicitly authenticated peer.
+
+## Authentication of Certificate Request
+
+Due to the implicit authentication of the server's messages during the
+full AuthKEM handshake, the ``CertificateRequest`` message can not be
+authenticated before the client received ``Finished``.
+
+The key schedule guarantees that the server can not read the client's 
+certificate message (as discussed above). An active adversary that 
+maliciously inserts a ``CertificateRequest`` message will also 
+result in a mismatch in transcript hashes, which will cause 
+the handshake to fail.
+
+However, there may be side effects. The adversary might learn that
+the client has a certificate by observing the length of the messages
+sent. There may also be side-effects, especially in situations where
+the client is prompted to e.g. approve use or unlock a certificate
+stored encrypted or on a smart card.
+
+
 --- back
 
 # Acknowledgements
 
 This work has been supported by the European Research Council through
 Starting Grant No. 805031 (EPOQUE).
+
+# Open points of discussion
+
+The following are open points for discussion.
+The corresponding Github issues will be linked.
+
+## Authentication concerns for client authentication requests.
+
+Tracked by [Issue #16](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+
+The certificate request message from the server can not be authenticated by the AuthKEM mechanism.
+This is already somewhat discussed above and under security considerations.
+We might want to allow clients to refuse client auth for scenarios where this is a concern.
+
+## Interaction with signing certificates
+
+Tracked by [Issue #20](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/20).
+
+In the current state of the draft, we have not yet discussed combining
+traditional signature-based authentication with KEM-based authentication.
+One might imagine that the Client has a sigining certificate and the server has
+a KEM public key.
+
+In the current draft, clients MUST use a KEM certificate algorithm if the server negotiated AuthKEM.
