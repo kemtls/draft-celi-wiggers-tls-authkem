@@ -847,7 +847,7 @@ In particular, this includes any alerts sent by the server in response to client
 
 * The client's certificate is kept secret from active observers by the
   derivation of the `client_authenticated_handshake_secret`, which ensures that
-  only the intended server can read the client's identity.]
+  only the intended server can read the client's identity.
 
 * When the client opportunistically sends its certificate, it is not encrypted
   under a forward-secure key.  This has similar considerations and trade-offs as
