@@ -1,51 +1,35 @@
 ---
 title: AuthKEM abridged
 authors:
- - Thom Wiggers
- - Sofía Celi
+ - thom
+ - sofiaceli
 description: |
   High-level introduction to the AuthKEM proposal for TLS.
+
+
+date: 2022-03-15
 
 # Formatting
 breaks: false
 toc: true
 
 
-header-includes: |
-  <style>
-    div.info, div.warning {
-      padding: 5px 15px 5px 15px;
-      margin-bottom: 20px;
-      border: 1px solid transparent;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    div.info {
-      color: #31708f;
-      background-color: #d9edf7;
-      border-color: #bce8f1;
-    }
-    div.warning {
-      color: #8a6d3b;
-      background-color: #fcf8e3;
-      border-color: #faebcc;
-    }
-  </style>
+# See rendered at https://wggrs.nl/docs/authkem-abridged/
 ---
 This serves as a high-level overview and introduction to [`draft-celi-wiggers-authkem`][draft-celi-wiggers-authkem]. We're trying to go for clarity here, not the most compact or complete description. We will try to answer all of your questions.
 
-[draft-celi-wiggers-authkem]: https://www.ietf.org/id/draft-celi-wiggers-tls-authkem-00.html "draft-celi-wiggers-authkem"
+[draft-celi-wiggers-authkem]: https://www.ietf.org/id/draft-celi-wiggers-tls-authkem-01.html "draft-celi-wiggers-authkem"
 
-::: info
+{{% callout note %}}
 Anything should be made more clear? Please send us an email.
-:::
+{{% /callout %}}
 
 ## Authentication via KEM
 
 Our proposal is to allow authentication via Key Encapsulation Mechanisms (KEMs). This requires a certificate or [delegated credential][] that advertises a KEM public key. We will later show how you can also use previously cached or pre-installed KEM public keys for more efficient mechanisms, without the downsides of PSK resumption.
 <!-- like having to store secret keys, etc. write later -->
 
-[delegated credential]: https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-11 "draft-ietf-tls-subcerts-11"
+[delegated credential]: https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-12 "draft-ietf-tls-subcerts-12"
 
 ### What is a KEM?
 
@@ -59,10 +43,10 @@ KEM public keys _can't sign messages_; they're only suitable for _key exchange_.
 ### What KEMs are out there?
 
 Current key exchange algorithms, like (EC)DH, can normally be rewritten as KEMs.
-Our proposal is defined using the KEMs from [HPKE][]; this currently defines a few KEMs based on ECDH algorithms like P-256 and X25519.
+Our proposal is defined using the KEMs from [HPKE (RFC9180)][]; this currently defines a few KEMs based on ECDH algorithms like P-256 and X25519.
 [NIST is currently standardizing _Post-Quantum_ KEMs][nistpqc], which we expect will be added to HPKE.
 
-[HPKE]: https://datatracker.ietf.org/doc/draft-irtf-cfrg-hpke/ "draft-irtf-cfrg-hpke"
+[HPKE]: https://datatracker.ietf.org/doc/rfc9180/ "HPKE"
 [nistpqc]: https://nist.gov/pqcrypto
 
 ### Why consider KEMs for authentication?
@@ -91,11 +75,12 @@ Even though the main worry of a quantum computer existance is that an attacker c
 All Post-Quantum signature schemes currently being considered for standardization by NIST have some downsides compared to RSA and elliptic curves.
 Notably they're all quite a bit larger.
 [Experiments have shown][NDSS paper] only Dilithium and Falcon seem suitable for use in TLS at all.
-Both algorithms are based on structured lattices; Dilithium is quite big (and its smallest parameter set has gotten bigger since experiments were done); Falcon requires fast, constant-time 64-bit floating point arithmetic and is [complicated to implement correctly][falcon impl].
+Both algorithms are based on structured lattices; Dilithium is quite big (using only Dilithium-II in a web setting [might add 17 KB][sizing up]); Falcon requires fast, constant-time 64-bit floating point arithmetic and is [complicated to implement correctly][falcon impl].
 NIST has announced it expects to standardize **at most one** of these two schemes.
 
-[NDSS paper]: https://eprint.iacr.org/2020/071/ "Post-Quantum Authentication in TLS 1.3: A Performance Study"
-[falcon impl]: https://eprint.iacr.org/2019/893.pdf "New Efficient, Constant-Time Implementations of Falcon (See section 6)"
+[NDSS paper]: https://eprint.iacr.org/2020/071 "Post-Quantum Authentication in TLS 1.3: A Performance Study"
+[falcon impl]: https://eprint.iacr.org/2019/893 "New Efficient, Constant-Time Implementations of Falcon (See section 6)"
+[sizing up]: https://blog.cloudflare.com/sizing-up-post-quantum-signatures/ "Sizing up post-quantum signatures"
 
 Post-Quantum KEMs are also larger than the typical ECDH key exchange, but the sum of the sizes of a KEM public key and encapsulation message is significantly smaller than sum of the sizes of a Dilithium public key and signature. The sum of the sizes of a Falcon public key and signature is roughly the same size the public keys and ciphertexts of the post-quantum KEM finalists Kyber, NTRU and SABER, but the KEMs are much more computationally efficient. (Admittedly, Falcon is still quite fast with the correct hardware support (like AVX2)).
 
@@ -113,13 +98,13 @@ The transition to post-quantum cryptography will present a massive challenge to 
 
 1. To negotiate server authentication via AuthKEM, we extend the `signature_algorithms` with our supported KEMs. This way the client indicates support to the server.
 
-::: info
+{{% callout note %}}
 **Why extend `signature_algorithms`? It's not a signature scheme!**
 
 This extension really identifies *authentication* algorithms.
 And if we would add a new extension we would have to _ignore_ the
 `signature_algorithms`-indicated algorithms, which is also just messy.
-:::
+{{% /callout %}}
 
 2. The Client responds with `KemEncapsulation` message.
 3. The shared secret that the client obtained from the `Encapsulate` operation is combined with the existing handshake keys to derive a new "authenticated" handshake traffic secret (-AHS- This secret key will mostly be useful for client certificate authentication later).
@@ -159,9 +144,9 @@ This still allows a client to send its application data to the server in the sam
 We think that in almost any application, like in HTTP, a client will first have to indicate what action they want the server to perform or what data they need, before any useful non-public data can be sent by the server.
 KEMTLS allows both the request and the response to be sent in the same place.
 
-::: info
-**Note:** For applications like HTTP/2, which send mostly-public connection settings in this first message from the server, something like a server-side version of ALPN might be useful to avoid performance penalties when KEMTLS is used.
-:::
+{{% callout note %}}
+For applications like HTTP/2, which send mostly-public connection settings in this first message from the server, something like a server-side version of ALPN might be useful to avoid performance penalties when KEMTLS is used.
+{{% /callout %}}
 
 ### Why we think sending Client Data to the server early is fine
 
@@ -208,8 +193,8 @@ KEMTLS was originally proposed in [an academic paper](https://ia.cr/2020/534). T
 
 The mode where we use AuthKEM with known server long-term keys was discussed in [another paper](https://ia.cr.2021/779). This paper also contains a security proof.
 
-We are currently undertaking the formal analysis of the KEMTLS protocol (which should extend the AuthKEM one) in Tamarin, building on the existing TLS 1.3 model. There's still a lot to be done, but we hope to be able to back this draft proposal with some machine-checked analysis in the future.
-
+We are currently undertaking the formal analysis of the KEMTLS protocol (which should extend the AuthKEM one) in Tamarin, building on the existing TLS 1.3 model.
+This work is currently being written up.
 ## TLS Client authentication via KEM
 
 
@@ -217,9 +202,9 @@ Of course, TLS also has a mode where the client proves its identify through a cl
 For client authentication, we follow a similar mechanism.
 Unfortunately, we do suffer the full penalty of the additional round-trip necessary for authentication via key exchange here.
 
-::: info
+{{% callout note %}}
 We will later discuss how to avoid this penalty _if_ the client already knows the server's long-term public key _and_ knows that it will want to authenticate.
-:::
+{{% /callout %}}
 
 
 In the below picture we sketch the message flow of client authentication.
@@ -254,15 +239,14 @@ We added AHS to the key schedule earlier.
 This is necessary because the client certificate needs to be sent securely.
 TLS requires the client's identity (its certificate) to be protected against both passive and active attackers. Encrypting it with (keys derived from) AHS ensures that only the real server can read it.
 
-::: info
+{{% callout note %}}
 **What about server auth with AuthKEM and client auth with signatures?**
 
 Good question. The current design and proofs use the key schedule and that the client authentication result is mixed into the final handshake secrets.
 We can _probably_ prove the protocol correct still if the client uses signed key exchange, but it would  be good if this work is done.
-:::
+{{% /callout %}}
 
-
-::: warning
+{{% callout warning %}}
 **Does this mean the CertificateRequest isn't authenticated?**
 
 Although the client's certificate is protected, it is possible for an active attacker to try to trigger a client to attempt to authenticate.
@@ -270,7 +254,7 @@ They will not be able to read the certificate, but might learn that a client has
 If this is a concern in your application (web browsers?), we might need to consider allowing the client to indicate it will only allow post-handshake authentication.
 
 We're tracking this in [issue #16: Authentication concerns for the client authentication requests](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
-:::
+{{% /callout %}}
 
 ## More efficient AuthKEM if you've already got the keys
 
@@ -280,15 +264,15 @@ This means that these handshakes do not tie back to an original handshake's secu
 Clients do not need to manage a secret key, and servers do not need to keep track of secret keys per client.
 Also, because this just requires plain KEM public keys rather than (stateful) opaque session tickets, we expect fewer privacy or tracking concerns.
 
-::: info
-We call this "pre-distributed keys" (or PDK) because:
+{{% callout note %}}
+We sometimes call this "pre-distributed keys" (or PDK) because:
 
  * PSK is already taken
  * PSK typically refers to symmetric keys
  * Server public keys might be cached by clients, but they could also be installed (_i.e. pre-distributed_) through, for example, firmware.
-:::
+{{% /callout %}}
 
-### Server authentication with pre-distributed keys
+### Server authentication in the abbreviated handshake
 
 The idea is simple: if the client already has the server's long-term public key (typically their certificate), it can start the AuthKEM authentication process one step "early".
 
@@ -314,11 +298,11 @@ The idea is simple: if the client already has the server's long-term public key 
 To enable the client-authentication scenario that is to follow, we mix in the shared secret obtained by encapsulating to the server's long-term public key into the key schedule early: specifically, we derive the Early Secret (ES) key in TLS's handshake key schedule from it.
 This also mirrors that this key does not have any forward secrecy (which can only be obtained once the ephemeral key exchange is completed), just like ES in "normal" TLS 1.3.
 
-::: info
+{{% callout note %}}
 If the server rejects the `KEMEncapsulation` sent by the client in the `ClientHello` extension, the handshake can simply continue as usual; just ignoring the attempted "resumption".
-:::
+{{% /callout %}}
 
-### Client authentication with pre-distributed keys
+### Client authentication in the abbreviated handshake
 
 In many scenarios, the client might already know that they will need to authenticate.
 This could for example be the case in server-to-server or IoT applications of mutually-authenticated TLS.
