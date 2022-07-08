@@ -23,7 +23,7 @@ author:
  -
     ins: P. Schwabe
     name: Peter Schwabe
-    org: "Radboud University & MPI S&P"
+    org: "Radboud University and MPI-SP"
     email: peter@cryptojedi.org
 
  -
