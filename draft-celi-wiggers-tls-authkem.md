@@ -17,7 +17,9 @@ author:
  -
     ins: S. Celi
     name: Sofía Celi
-    org: Cloudflare
+    org: Brave Software
+    city: Lisbon
+    country: Portugal
     email: cherenkov@riseup.net
 
  -
