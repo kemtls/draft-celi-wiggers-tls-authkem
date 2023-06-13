@@ -1,11 +1,12 @@
 ---
 title: KEM-based Authentication for TLS 1.3
 abbrev: AuthKEM
-docname: draft-celi-wiggers-tls-authkem-01
+docname: draft-celi-wiggers-tls-authkem-latest
 category: info
 
 ipr: trust200902
-area: General
+submissiontype: IETF
+area: SECAREA
 workgroup: TLS Working Group
 keyword: Internet-Draft
 
@@ -32,6 +33,8 @@ author:
     ins: D. Stebila
     name: Douglas Stebila
     org: University of Waterloo
+    city: "Waterloo, ON"
+    country: Canada
     email: dstebila@uwaterloo.ca
 
  -
@@ -44,7 +47,15 @@ author:
     ins: T. Wiggers
     name: Thom Wiggers
     org: PQShield
+    city: Nijmgen
+    country: The Netherlands
     email: thom@thomwiggers.nl
+
+venue:
+  group: tlswg
+  type: Working Group
+  mail: tls@ietf.org
+  github: claucece/draft-celi-wiggers-tls-authkem
 
 normative:
   RFC8446:
@@ -211,10 +222,10 @@ def Encapsulate(pk, context_string):
   enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem " + context_string)
   ss = ctx.Export("", HKDF.Length)
   return (enc, ss)
-    
+
 def Decapsulate(enc, sk, context_string):
-  return HPKE.SetupBaseR(enc, 
-                         sk, 
+  return HPKE.SetupBaseR(enc,
+                         sk,
                          "tls13 auth-kem " + context_string)
              .Export("", HKDF.Length)
 ~~~
@@ -678,7 +689,7 @@ The notable differences are:
 
 * The addition of the ``Authenticated Handshake Secret`` and a new set of
   handshake traffic encryption keys.
-* The inclusion of the ``SSs`` and ``SSc`` shared secrets as IKM to 
+* The inclusion of the ``SSs`` and ``SSc`` shared secrets as IKM to
   ``Authenticated Handshake Secret`` and ``Main Secret``, respectively
 
 The full key schedule proceeds as follows:
@@ -745,7 +756,7 @@ SSc||0 * -> HKDF-Extract = Main Secret
                                ClientHello...client Finished)
                                = resumption_master_secret
 
-*: if client authentication was requested, the `SSc` value should 
+*: if client authentication was requested, the `SSc` value should
    be used. Otherwise, the `0` value is used.
 ~~~
 
@@ -913,10 +924,10 @@ Due to the implicit authentication of the server's messages during the
 full AuthKEM handshake, the ``CertificateRequest`` message can not be
 authenticated before the client received ``Finished``.
 
-The key schedule guarantees that the server can not read the client's 
-certificate message (as discussed above). An active adversary that 
-maliciously inserts a ``CertificateRequest`` message will also 
-result in a mismatch in transcript hashes, which will cause 
+The key schedule guarantees that the server can not read the client's
+certificate message (as discussed above). An active adversary that
+maliciously inserts a ``CertificateRequest`` message will also
+result in a mismatch in transcript hashes, which will cause
 the handshake to fail.
 
 However, there may be side effects. The adversary might learn that
