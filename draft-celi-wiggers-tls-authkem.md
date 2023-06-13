@@ -43,7 +43,7 @@ author:
  -
     ins: T. Wiggers
     name: Thom Wiggers
-    org: Radboud University
+    org: PQShield
     email: thom@thomwiggers.nl
 
 normative:
