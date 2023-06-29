@@ -1,4 +1,4 @@
 # License
 
 See the
-[guidelines for contributions](https://github.com/claucece/draft-celi-wiggers-tls-authkem/blob/master/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/blob/master/CONTRIBUTING.md).
