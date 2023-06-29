@@ -2,9 +2,9 @@
 
 This is the working area for the individual Internet-Draft, "KEM-based Authentication for TLS 1.3".
 
-* [Editor's Copy](https://claucece.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.html)
+* [Editor's Copy](https://kemtls.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.html)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem)
-* [Compare Editor's Copy to Individual Draft](https://claucece.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.diff)
+* [Compare Editor's Copy to Individual Draft](https://kemtls.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.diff)
 
 ## Building the Draft
 
@@ -21,4 +21,4 @@ This requires that you have the necessary software installed.  See
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/claucece/draft-celi-wiggers-tls-authkem/blob/master/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/blob/master/CONTRIBUTING.md).
