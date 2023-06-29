@@ -253,7 +253,7 @@ Although the client's certificate is protected, it is possible for an active att
 They will not be able to read the certificate, but might learn that a client has one or even just trigger confusing or annoying UI popups.
 If this is a concern in your application (web browsers?), we might need to consider allowing the client to indicate it will only allow post-handshake authentication.
 
-We're tracking this in [issue #16: Authentication concerns for the client authentication requests](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+We're tracking this in [issue #16: Authentication concerns for the client authentication requests](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16).
 {{% /callout %}}
 
 ## More efficient AuthKEM if you've already got the keys
