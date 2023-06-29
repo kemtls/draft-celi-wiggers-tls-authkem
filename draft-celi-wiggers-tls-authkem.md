@@ -55,7 +55,7 @@ venue:
   group: tlswg
   type: Working Group
   mail: tls@ietf.org
-  github: claucece/draft-celi-wiggers-tls-authkem
+  github: kemtls/draft-celi-wiggers-tls-authkem
 
 normative:
   RFC8446:
@@ -390,7 +390,7 @@ The ``CertificateRequest`` message can not be authenticated during the AuthKEM h
 only after the ``Finished`` message from the server has been processed, it can be
 proven as authentic. The security implications of this are discussed later.
 
-**This is dicussed in [Github issue #16](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+**This is dicussed in [Github issue #16](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16).
 We would welcome feedback there.**
 
 Clients MAY choose to only accept post-handshake authentication.
@@ -951,7 +951,7 @@ The corresponding Github issues will be linked.
 
 ## Authentication concerns for client authentication requests.
 
-Tracked by [Issue #16](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16).
+Tracked by [Issue #16](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16).
 
 The certificate request message from the server can not be authenticated by the AuthKEM mechanism.
 This is already somewhat discussed above and under security considerations.
@@ -959,7 +959,7 @@ We might want to allow clients to refuse client auth for scenarios where this is
 
 ## Interaction with signing certificates
 
-Tracked by [Issue #20](https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/20).
+Tracked by [Issue #20](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/20).
 
 In the current state of the draft, we have not yet discussed combining
 traditional signature-based authentication with KEM-based authentication.
