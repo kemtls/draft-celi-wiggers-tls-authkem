@@ -153,7 +153,7 @@ exchange protocol, using their long-term (KEM) public keys.
 DISCLAIMER: This is a work-in-progress draft.
 
 This document gives a construction for KEM-based authentication in TLS
-1.3. Authentication happens via asymmetric cryptography by the usage of
+1.3 {{!RFC8446}}. Authentication happens via asymmetric cryptography by the usage of
 KEMs advertised as the long-term KEM public keys in the Certificate.
 
 TLS 1.3 is in essence a signed key exchange protocol (if using certificate-based
@@ -166,8 +166,8 @@ and thus decrypt its peer's messages.
 
 This approach is appropriate for endpoints that have KEM public keys. Though
 this is currently rare, certificates can be issued with (EC)DH public keys as
-specified for instance in {{!RFC8410}}, or using a delegation
-mechanism, such as delegated credentials {{!I-D.ietf-tls-subcerts}}.
+specified for instance in {{?RFC8410}}, or using a delegation
+mechanism, such as delegated credentials {{?I-D.ietf-tls-subcerts}}.
 
 In this proposal, we use the DH-based KEMs from {{!RFC9180}}. We
 believe KEMs are especially worth discussing in the context of the TLS protocol
@@ -175,7 +175,7 @@ because NIST is in the process of standardizing post-quantum KEM algorithms to
 replace "classic" key exchange (based on elliptic curve or finite-field
 Diffie-Hellman) [NISTPQC].
 
-This proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}}, which is in
+This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is in
 turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
 require a non-interactive key exchange: they combine the client's public key with
 the server's long-term key. This imposes an extra requirement: the ephemeral and
@@ -634,8 +634,8 @@ SSc, encapsulation <- Encapsulate(public_key_client,
 
 ### Explicit Authentication Messages
 
-As discussed, AuthKEM upgrades implicit to explicit authentication through the
-`Finished` message. Note that in the full handshake, AuthKEM achieves explicit
+AuthKEM upgrades implicit to explicit authentication through the `Finished`
+message. Note that in the full handshake, AuthKEM achieves explicit
 authentication only when the server sends the final ``Finished`` message (the
 client is only implicitly authenticated when they send their ``Finished``
 message).
