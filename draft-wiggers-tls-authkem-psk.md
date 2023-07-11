@@ -62,9 +62,8 @@ normative:
   RFC9180:
 
 informative:
-  RFC5869:
 #  RFC5280:
-  KEMTLS:
+  SSW20:
     title: "Post-Quantum TLS without Handshake Signatures"
     date: 2020-11
     author:
@@ -81,7 +80,7 @@ informative:
       "ACM CCS 2020":
       DOI: 10.1145/3372297.3423350
       "IACR ePrint": https://ia.cr/2020/534
-  KEMTLSPDK:
+  SSW21:
     title: "More Efficient KEMTLS with Pre-Shared Keys"
     date: 2021-05
     author:
@@ -98,7 +97,7 @@ informative:
       "ESORICS 2021":
       DOI: 10.1007/978-3-030-88418-5_1
       "IACR ePrint": https://ia.cr/2021/779
-  KEMTLS-TAMARIN:
+  CHSW22:
     title: "A tale of two models: formal verification of KEMTLS in Tamarin"
     date: 2022-08
     author:
@@ -125,19 +124,32 @@ informative:
       - ins: NIST
         org: National Institute for Standards and Technology
   KW16:
-       title: "The OPTLS Protocol and TLS 1.3"
-       date: 2016
-       seriesinfo: Proceedings of Euro S&P 2016
-       target: https://ia.cr/2015/978
-       author:
-       -
-         ins: H. Krawczyk
-         name: Hugo Krawczyk
-         org: IBM Research
-       -
-         ins: H. Wee
-         name: Hoeteck Wee
-         org: ENS, CNRS, INRIA and Columbia University
+    title: "The OPTLS Protocol and TLS 1.3"
+    date: 2016
+    seriesinfo: Proceedings of Euro S&P 2016
+    target: https://ia.cr/2015/978
+    author:
+    -
+      ins: H. Krawczyk
+      name: Hugo Krawczyk
+      org: IBM Research
+    -
+      ins: H. Wee
+      name: Hoeteck Wee
+      org: ENS, CNRS, INRIA and Columbia University
+  MX22:
+    title: Post-Quantum Anonymity of Kyber
+    date: 2022
+    author:
+      - ins: V. Maram
+        name: Varum Maram
+        org: ETH Zurich
+      - ins: K. Xagawa
+        name: Keita Xagawa
+        org: NTT Social Informatics Laboratories
+    seriesinfo:
+      "PKC": 2023
+      "IACR ePrint": https://ia.cr/2022/1696
 
 --- abstract
 
@@ -216,9 +228,9 @@ server:  The endpoint that responded to the initiation of the TLS connection.
 
 ## Key Encapsulation Mechanisms
 
-As this proposal relies heavily on KEMs, which are not originally
-used by TLS, we will provide a brief overview of this primitive.
-Other cryptographic operations will be discussed later.
+As this proposal relies heavily on KEMs, which are not originally used by TLS,
+we will provide a brief overview of this primitive. Other cryptographic
+operations will be discussed later.
 
 This definition matches the one from {{?I-D.draft-celi-wiggers-tls-authkem}}.
 
@@ -226,16 +238,19 @@ A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
 the methods ``Encapsulate`` and ``Decapsulate``. In this draft, we extend these
 operations with context separation strings:
 
-``Encapsulate(pkR, context_string)``:    Takes a public key, and produces a shared secret and encapsulation.
+``Encapsulate(pkR, context_string)``:  Takes a public key, and produces a shared
+secret and encapsulation.
 
-``Decapsulate(enc, skR, context_str)``:  Takes the encapsulation and the private key. Returns the shared secret.
+``Decapsulate(enc, skR, context_string)``:  Takes the encapsulation and the
+private key. Returns the shared secret.
 
-We implement these methods through the KEMs defined in {{!RFC9180}}
-to export shared secrets appropriate for using with key schedule in TLS 1.3:
+We implement these methods through the KEMs defined in {{!RFC9180}} to export
+shared secrets appropriate for using with key schedule in TLS 1.3:
 
 ~~~
 def Encapsulate(pk, context_string):
-  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem " + context_string)
+  enc, ctx = HPKE.SetupBaseS(pk,
+                             "tls13 auth-kem " + context_string)
   ss = ctx.Export("", HKDF.Length)
   return (enc, ss)
 
@@ -247,8 +262,9 @@ def Decapsulate(enc, sk, context_string):
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in {{!RFC9180}}.
+The values of `context_string` are defined in [Section XX](#kem-computations).
 
-# Abbreviated AuthKEM with pre-shared public KEM keys
+# Abbreviated AuthKEM with pre-shared public KEM keys {#psk-protocol}
 
 When the client already has the server's long-term public key, we can do a more
 efficient handshake.
@@ -258,7 +274,7 @@ An overview of the abbreviated AuthKEM handshake is given in Figure 3.
 A client that already knows the server, might also already know that it will be
 required to present a client certificate. This is expected to be especially
 useful in server-to-server scenarios. The abbreviated handshake allows to encrypt
-the certificate and send it like early data.
+the certificate and send it similarly to early data.
 
 ~~~~~
        Client                                        Server
@@ -269,9 +285,9 @@ Auth | + signature_algorithms
      | + early_auth*
      | + early_data*
      | (Certificate*)
-     | (Application Data*)    -------->        ServerHello  ^ Key
+     | (Application Data*)    -------->        ServerHello  ^
      |                                         + key_share  |
-     |                                   + stored_auth_key  |
+     |                                   + stored_auth_key  | Key
      |                                       + early_auth*  | Exch,
      |                                       + early_data*  | Auth &
      |                               {EncryptedExtensions}  | Server
@@ -304,16 +320,19 @@ Auth | + signature_algorithms
 
 ## Negotiation {#sec-authkem-pdk-negotiation}
 
-A client that knows a server's long-term KEM public key MAY choose to attempt the abbreviated AuthKEM handshake.
-If it does so, it MUST include the ``stored_auth_key`` extension in the ``ClientHello`` message.
-This message MUST contain the encapsulation against the long-term KEM public key.
-Details of the extension are described below.
-The shared secret resulting from the encapsulation is mixed in to the `EarlySecret` computation.
+**In an [appendix](#psk-variant), we sketch a variant based on the PSK extension.**
 
-The client MAY additionally choose to send a certificate to the server.
-It MUST know what ciphersuites the server accepts before it does so.
-If it chooses to do so, it MUST send the ``early_auth`` extension to the server.
-The ``Certificate`` is encrypted with the ``client_early_handshake_traffic_secret``.
+A client that knows a server's long-term KEM public key MAY choose to attempt
+the abbreviated AuthKEM handshake. If it does so, it MUST include the
+``stored_auth_key`` extension in the ``ClientHello`` message. This message MUST
+contain the encapsulation against the long-term KEM public key. Details of the
+extension are described below. The shared secret resulting from the
+encapsulation is mixed in to the `EarlySecret` computation.
+
+The client MAY additionally choose to send a certificate to the server. It MUST
+know what ciphersuites the server accepts before it does so. If it chooses to do
+so, it MUST send the ``early_auth`` extension to the server. The ``Certificate``
+is encrypted with the ``client_early_handshake_traffic_secret``.
 
 The server MAY accept the abbreviated AuthKEM handshake. If it does, it MUST
 reply with a ``stored_auth_key`` extension. If it does not accept the
@@ -327,8 +346,8 @@ If the client, who sent a ``stored_auth_key`` extension, receives a
 ``ServerHello`` without ``stored_auth_key`` extension, it MUST recompute
 ``EarlySecret`` without the encapsulated shared secret.
 
-If the client sent a ``Certificate`` message, it MUST drop that message from its transcript.
-The client MUST then continue with a full AuthKEM handshake.
+If the client sent a ``Certificate`` message, it MUST drop that message from its
+transcript. The client MUST then continue with a full AuthKEM handshake.
 
 ## 0-RTT, forward secrecy and replay protection
 
@@ -403,11 +422,11 @@ appear:
 ### Stored Auth Key
 
 To transmit the early authentication encapsulation in the abbreviated AuthKEM
-handshake, this document defines a new extension type (``stored_auth_key
-(TBD)``). It is used in ClientHello and ServerHello messages.
+handshake, this document defines a new extension type (``stored_auth_key (TBD)``).
+It is used in `ClientHello` and `ServerHello` messages.
 
-The extension_data field of this extension, when included in the
-ClientHello, MUST contain the `StoredInformation` structure.
+The `extension_data` field of this extension, when included in the
+`ClientHello`, MUST contain the `StoredInformation` structure.
 
 ~~~
 struct {
@@ -436,21 +455,22 @@ The fingerprint calculation proceeds this way:
     length information of the record layer).
 2.  Use the output of the SHA-256 hash.
 
-If this extension is not present, the client and the server MUST NOT negotiate the abbreviated AuthKEM handshake.
+If this extension is not present, the client and the server MUST NOT negotiate
+the abbreviated AuthKEM handshake.
 
-The presence of the fingerprint might reveal information about the identity of the server that the client has.
-This is discussed further under [Security Considerations](#sec-considerations).
+The presence of the fingerprint might reveal information about the identity of
+the server that the client has. This is discussed further under [Security
+Considerations](#sec-considerations).
 
 
 ### Early authentication
 
 To indicate the client will attempt client authentication in the abbreviated AuthKEM handshake, and for the server to indicate acceptance of attempting this authentication mechanism,
 we define the ```early_auth (TDB)`` extension.
-It is used in ClientHello and ServerHello messages.
+It is used in ``ClientHello`` and ``ServerHello`` messages.
 
 ~~~
-struct {
-} EarlyAuth
+struct {} EarlyAuth
 ~~~
 
 This is an empty extension.
@@ -475,8 +495,8 @@ enum {
   } HandshakeType;
 
 struct {
-    HandshakeType msg_type;    /* handshake type */
-    uint24 length;             /* remaining bytes in message */
+    HandshakeType msg_type;  /* handshake type */
+    uint24 length;           /* remaining bytes in message */
     select (Handshake.msg_type) {
         ...
         case kem_encapsulation:     KEMEncapsulation;
@@ -485,7 +505,7 @@ struct {
 } Handshake;
 ~~~
 
-Protocol messages MUST be sent in the order defined in Section 4.
+Protocol messages MUST be sent in the order defined in [Section 4](#psk-protocol).
 A peer which receives a handshake message in an unexpected order MUST
 abort the handshake with an "unexpected_message" alert.
 
@@ -498,7 +518,7 @@ struct {
 } KEMEncapsulation;
 ~~~
 
-The encapsulation field is the result of a `Encapsulate` function. The
+The encapsulation field is the result of a `Encapsulate()` function. The
 ``Encapsulate()`` function will also result in a shared secret (`ssS` or `ssC`,
 depending on the peer) which is used to derive the `AHS` or `MS` secrets.
 
@@ -515,11 +535,12 @@ field of the `signature_algorithms` extension in the
 In addition, the authentication algorithm MUST be compatible with the key(s)
 in the sender's end-entity certificate.
 
-The receiver of a `KEMEncapsulation` message MUST perform the `Decapsulate(enc, skR)`
+The receiver of a `KEMEncapsulation` message MUST perform the `Decapsulate()`
 operation by using the sent encapsulation and the private key of the public key
-advertised in the end-entity certificate sent. The `Decapsulate(enc, skR)` function
-will also result on a shared secret (`ssS` or `ssC`, depending on the Server or
-Client executing it respectively) which is used to derive the `AHS` or `MS` secrets.
+advertised in the end-entity certificate sent. The `Decapsulate()` function will
+also result on a shared secret (`ssS` or `ssC`, depending on the Server or
+Client executing it respectively) which is used to derive the `AHS` or `MS`
+secrets.
 
 `certificate_request_context` is included to allow the recipient to identify the
 certificate against which the encapsulation was generated. It MUST be set to the
@@ -572,7 +593,7 @@ SSc||0 * -> HKDF-Extract = Main Secret
 
 `SSc` is included if client authentication is used; otherwise, the value `0` is used.
 
-### Computations of KEM shared secrets
+### Computations of KEM shared secrets {#kem-computations}
 
 
 As in {{?I-D.draft-celi-wiggers-tls-authkem}}, operations to compute `SSs` or
@@ -640,14 +661,14 @@ In particular, this includes any alerts sent by the server in response to client
 
 * The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
   discussion of and a proof of the security of the handshake protocol without
-  client authentication [KEMTLS].
+  client authentication [SSW20].
 
-* The work proposing the variant protocol [KEMTLSPDK] with pre-distributed
+* The work proposing the variant protocol [SSW21] with pre-distributed
   public keys (the abbreviated AuthKEM handshake) has a proof for both
   unilaterally and mutually authenticated handshakes.
 
-* We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin.
-  [KEMTLS-TAMARIN]
+* We have machine-verified proofs of the security of KEMTLS and KEMTLS-PDK in
+  Tamarin. [CHSW22]
 
 * When the client opportunistically sends its certificate, it is not encrypted
   under a forward-secure key.  This has similar considerations and trade-offs as
@@ -659,13 +680,20 @@ In particular, this includes any alerts sent by the server in response to client
   encrypted with a ciphertext that it knows the server will accept. Otherwise,
   it will fail.
 
-* The PDK extension identifies the public key to which the client has
-  encapsulated via a hash. This reveals some information about which server
-  identity the client has. {{?I-D.ietf-tls-esni}} may help alleviate this.
-
 * If AuthKEM-PSK client authentication is used, the resulting shared secret is
   included in the key schedule. This ensures that both peers have a consistent
   view of the authentication status, unlike {{!RFC8446}}.
+
+## Server Anonymity
+
+The PDK extension identifies the public key to which the client has encapsulated
+via a hash. This reveals some information about which server identity the client
+has. {{?I-D.ietf-tls-esni}} may help alleviate this.
+
+An alternative approach could be the use of trial decryption. If the KEM used
+has anonymity, the ciphertext that the client sends is not linkable to the
+server public key. Kyber offers post-quantum anonymity [MX22].
+
 
 --- back
 
@@ -678,6 +706,66 @@ Starting Grant No. 805031 (EPOQUE).
 
 The following are open points for discussion.
 The corresponding GitHub issues will be linked.
+
+## Alternative implementation based on the `pre_shared_key` extension {#psk-variant}
+
+**This is discussed in [Issue #25](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/25).**
+
+{{!RFC8446}} defines a PSK handshake that can be used with symmetric keys from e.g. session tickets.
+In this section, we sketch an alternative approach to AuthKEM-PSK based on the `pre_shared_key` extension.
+
+A client needs to be set up with the following information:
+
+~~~
+struct {
+    uint32 authkem_psk_config_version;
+    uint32 config_lifetime;
+    opaque KEMPublicKey;
+} AuthKEMPSKConfig;
+~~~
+
+The client computes a KEM ciphertext and shared secret as follows:
+
+~~~
+SSs, encapsulation <- Encapsulate(public_key_server,
+                                  "server authentication")
+~~~
+
+`SSs` is used in place of `PSK` in the TLS 1.3 key schedule, and `binder_key` is derived as follows:
+
+~~~
+          0
+          |
+          v
+SSc ->  HKDF-Extract = Early Secret
+          |
+          +-----> Derive-Secret(., "ext binder" | "res binder", "")
+          |                     = binder_key
+          ...
+~~~
+
+
+In the `pre_shared_key` extension's `identities`, the client sends the following data:
+
+~~~
+struct {
+  uint32 authkem_psk_config_version;
+  opaque KEMCiphertext;
+} AuthKEMPSKIdentity
+~~~
+
+The server computes the shared secret `SSs` from `AuthKEMPSKIdentity.KEMCiphertext` as follows:
+
+~~~
+SSs <- Decapsulate(encapsulation,
+                   private_key_server
+                   "server authentication")
+~~~
+
+The PSK binder value is computed as specified in {{!RFC8446}}, section 4.2.11.2.
+The server MUST verify the binder before continuing and abort the handshake if verification fails.
+
+**To be determined: how to handle immediate client authentication.**
 
 ## Interactions with DTLS
 
