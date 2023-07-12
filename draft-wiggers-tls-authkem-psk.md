@@ -160,7 +160,8 @@ exchange protocol, using their long-term (KEM) public keys.
 
 # Introduction
 
-DISCLAIMER: This is a work-in-progress draft.
+**Note:** This is a work-in-progress draft. We welcome discussion, feedback and
+contributions through the IETF TLS working group mailing list or directly on GitHub.
 
 This document gives a construction for KEM-based, PSK-style abbreviated TLS 1.3
 {{!RFC8446}} handshakes. It is similar in spirit to {{?I-D.draft-celi-wiggers-tls-authkem}},
@@ -174,11 +175,13 @@ mechanism, such as delegated credentials {{?I-D.ietf-tls-subcerts}}.
 The public keys need not necessarily be certificates, however.
 The client might be provided with the public key as a matter of configuration.
 
-In this proposal, we use the DH-based KEMs from {{!RFC9180}}. We
-believe KEMs are especially worth discussing in the context of the TLS protocol
-because NIST is in the process of standardizing post-quantum KEM algorithms to
-replace "classic" key exchange (based on elliptic curve or finite-field
-Diffie-Hellman) [NISTPQC].
+In this proposal, we build on {{!RFC9180}}. This standard currently only covers
+Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
+been put forward {{?I-D.draft-westerbaan-cfrg-hpke-xyber768d00}}. This proposal
+uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected algorithm for key exchange in the NIST
+post-quantum standardization project [NISTPQC].
+
+## Related work
 
 This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is in
 turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
@@ -196,11 +199,11 @@ and its opportunistic client authentication mechanism. In the remainder of the
 draft, we will discuss the necessary implementation mechanics, such as code
 points, extensions, new protocol messages and the new key schedule.
 
-# Requirements Notation
+# Conventions and definitions
 
 {::boilerplate bcp14}
 
-# Terminology
+## Terminology
 
 The following terms are used as they are in {{!RFC8446}}
 
@@ -261,7 +264,7 @@ def Decapsulate(enc, sk, context_string):
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in {{!RFC9180}}.
-The values of `context_string` are defined in [Section XX](#kem-computations).
+The values of `context_string` are defined in [](#kem-computations).
 
 # Abbreviated AuthKEM with pre-shared public KEM keys {#psk-protocol}
 
@@ -319,7 +322,7 @@ Auth | + signature_algorithms
 
 ## Negotiation {#sec-authkem-pdk-negotiation}
 
-**In an [appendix](#psk-variant), we sketch a variant based on the PSK extension.**
+**In an [](#psk-variant), we sketch a variant based on the PSK extension.**
 
 A client that knows a server's long-term KEM public key MAY choose to attempt
 the abbreviated AuthKEM handshake. If it does so, it MUST include the
@@ -505,7 +508,7 @@ struct {
 } Handshake;
 ~~~
 
-Protocol messages MUST be sent in the order defined in [Section 4](#psk-protocol).
+Protocol messages MUST be sent in the order defined in [](#psk-protocol).
 A peer which receives a handshake message in an unexpected order MUST
 abort the handshake with an "unexpected_message" alert.
 
@@ -651,7 +654,7 @@ server/client_verify_data =
 
 These computations match {{?I-D.draft-celi-wiggers-tls-authkem}}.
 
-See the [abbreviated AuthKEM handshake negotiation section](#sec-authkem-pdk-negotiation) for special considerations for the abbreviated AuthKEM handshake.
+See [](#sec-authkem-pdk-negotiation) for special considerations for the abbreviated AuthKEM handshake.
 
 Any records following a Finished message MUST be encrypted under the appropriate application traffic key as described in TLS 1.3.
 In particular, this includes any alerts sent by the server in response to client ``Certificate`` and ``KEMEncapsulation`` messages.

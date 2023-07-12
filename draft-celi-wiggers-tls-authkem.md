@@ -277,7 +277,7 @@ proposals to reduce transmission sizes of the certificate chain in the WebPKI
 context are implemented, the space savings of AuthKEM naturally become
 relatively larger and more significant. We discuss this in [](#cert-compression).
 
-## Relation to other proposals
+## Related work
 
 ### OPTLS
 This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is in
@@ -294,7 +294,24 @@ way.
 AuthKEM reduces the amount of data required for authentication in TLS. In
 recognition of the large increase in handshake size that a naive adoption of
 post-quantum signatures would affect, several proposals have been put forward
-that aim to reduce the size of certificates in the TLS handshake.
+that aim to reduce the size of certificates in the TLS handshake. {{?RFC8879}}
+proposes a certificate compression mechanism based on compression algorithms,
+but this is not very helpful to reduce the size of high-entropy public keys and
+signatures. Proposals that offer more significant reductions of sizes of
+certificate chains, such as {{?I-D.draft-jackson-tls-cert-abridge}},
+{{?I-D.ietf-tls-ctls}}, {{?I-D.draft-kampanakis-tls-scas-latest}}, and
+{{?I-D.draft-davidben-tls-merkle-tree-certs}} all mainly rely on some form of
+out-of-band distribution of intermediate certificates or other trust anchors in
+a way that requires a robust update mechanism. This makes these proposals mainly
+suitable for the WebPKI setting; although this is also the setting that has the
+largest number of certificates due to the inclusion of SCT statements
+{{?RFC6962}} and OSCP staples {{?RFC6960}}.
+
+AuthKEM complements these approaches in the WebPKI setting. On its own the gains
+that AuthKEM offers may be modest compared to the large sizes of certificate
+chains. But when combined with compression or certificate suppression mechanisms
+such as those proposed in the referenced drafts, the reduction in handshake size
+when replacing Dilithium-2 by Kyber-768 becomes significant again.
 
 ## Organization
 
@@ -304,11 +321,11 @@ separately. In the remainder of the draft, we will discuss the necessary
 implementation mechanics, such as code points, extensions, new protocol messages
 and the new key schedule.
 
-# Requirements Notation
+# Conventions and definitions
 
 {::boilerplate bcp14}
 
-# Terminology
+## Terminology
 
 The following terms are used as they are in {{!RFC8446}}
 
@@ -378,7 +395,7 @@ def Decapsulate(enc, sk, context_string):
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in {{!RFC9180}}.
-The values of `context_string` are defined in [Section XX](#kem-computations).
+The values of `context_string` are defined in [](#kem-computations).
 
 # Full 1.5-RTT AuthKEM Handshake Protocol
 
@@ -619,7 +636,7 @@ struct {
 The encapsulation field is the result of a `Encapsulate` function. The
 ``Encapsulate()`` function will also result in a shared secret (`ssS` or `ssC`,
 depending on the peer) which is used to derive the `AHS` or `MS` secrets (See
-the [key schedule](#key-schedule)).
+[](#key-schedule)).
 
 If the `KEMEncapsulation` message is sent by a server, the authentication
 algorithm MUST be one offered in the client's `signature_algorithms` extension.
