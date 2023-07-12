@@ -174,7 +174,20 @@ informative:
       - ins: G. Seiler
       - ins: D. Stehlé
     date: 2021
-
+  FALCON:
+    target: https://falcon-sign.info
+    title: Falcon
+    author:
+      - ins: P.-A. Fouque
+      - ins: J. Hoffstein
+      - ins: P. Kirchner
+      - ins: V. Lyubashevsky
+      - ins: T. Pornin
+      - ins: T. Ricosset
+      - ins: G. Seiler
+      - ins: W. Whyte
+      - ins: Z. Zhang
+    date: 2021
 
 --- abstract
 
@@ -187,10 +200,11 @@ exchange protocol, using their long-term (KEM) public keys.
 # Introduction
 
 **Note:** This is a work-in-progress draft. We welcome discussion, feedback and
-contributions through the IETF TLS working group mailing list or directly on GitHub.
+contributions through the IETF TLS working group mailing list or directly on
+GitHub.
 
-This document gives a construction for KEM-based authentication in TLS
-1.3 {{!RFC8446}}. Authentication happens via asymmetric cryptography by the usage of
+This document gives a construction for KEM-based authentication in TLS 1.3
+{{!RFC8446}}. Authentication happens via asymmetric cryptography by the usage of
 KEMs advertised as the long-term KEM public keys in the Certificate.
 
 TLS 1.3 is in essence a signed key exchange protocol (if using certificate-based
@@ -203,14 +217,15 @@ and thus decrypt its peer's messages.
 
 This approach is appropriate for endpoints that have KEM public keys. Though
 this is currently rare, certificates can be issued with (EC)DH public keys as
-specified for instance in {{?RFC8410}}, or using a delegation
-mechanism, such as delegated credentials {{?I-D.ietf-tls-subcerts}}.
+specified for instance in {{?RFC8410}}, or using a delegation mechanism, such as
+delegated credentials {{?I-D.ietf-tls-subcerts}}.
 
 In this proposal, we build on {{!RFC9180}}. This standard currently only covers
 Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
 been put forward {{?I-D.draft-westerbaan-cfrg-hpke-xyber768d00}}. This proposal
-uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected algorithm for key exchange in the NIST
-post-quantum standardization project [NISTPQC].
+uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected
+algorithm for key exchange in the NIST post-quantum standardization project
+[NISTPQC].
 
 ## Using key exchange instead of signatures for authentication
 
@@ -233,7 +248,8 @@ exchanged for handshake authentication. It also allows to re-use the
 implementation that is used for ephemeral key exchange for authentication, as
 KEM operations replace signing. This decreases the code size requirements, which
 is especially relevant to protected implementations. Finally, KEM operations may
-be more efficient than signing, which might especially affect embedded platforms.
+be more efficient than signing, which might especially affect embedded
+platforms.
 
 ### Comparison of data sizes
 **Should probably be removed before publishing**
@@ -245,7 +261,10 @@ public key and signature + root CA signature). For clarity, we are not listing
 post-quantum/traditional hybrid algorithms; we also omit mechanisms such as
 Certificate Transparency {{?RFC6962}} or OCSP stapling {{?RFC6960}}. We use
 Kyber-768 instead of the smaller Kyber-512 parameterset, as the former is
-currently used in experimental deployments.
+currently used in experimental deployments. For signatures, we use Dilithium,
+the "primary" algorithm selected by NIST for post-quantum signatures, as well as
+Falcon [FALCON], the algorithm that offers smaller public key and signature sizes, but
+which NIST indicates can be used if the implementation requirements can be met.
 
 | Handshake | HS auth algorithm | HS Auth bytes | Certificate chain bytes | Sum  |
 | TLS 1.3   | RSA-2048          | 528           | 784  (RSA-2048)         | 1312 |
@@ -275,19 +294,20 @@ handshake, especially if Certificate Transparency SCT statements are included,
 which is relevant in the context of the WebPKI. However, we believe that if
 proposals to reduce transmission sizes of the certificate chain in the WebPKI
 context are implemented, the space savings of AuthKEM naturally become
-relatively larger and more significant. We discuss this in [](#cert-compression).
+relatively larger and more significant. We discuss this in
+[](#cert-compression).
 
 ## Related work
 
 ### OPTLS
-This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is in
-turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
-require a non-interactive key exchange: they combine the client's public key with
-the server's long-term key. This imposes an extra requirement: the ephemeral and
-static keys MUST use the same algorithm, which this proposal does not require.
-Additionally, there are no post-quantum proposals for a non-interactive key
-exchange currently considered for standardization, while several KEMs are on the
-way.
+This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is
+in turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
+require a non-interactive key exchange: they combine the client's public key
+with the server's long-term key. This imposes an extra requirement: the
+ephemeral and static keys MUST use the same algorithm, which this proposal does
+not require. Additionally, there are no post-quantum proposals for a
+non-interactive key exchange currently considered for standardization, while
+several KEMs are on the way.
 
 ### Compressing certificates and certificate chains {#cert-compression}
 
@@ -319,7 +339,8 @@ After a brief introduction to KEMs, we will introduce the AuthKEM authentication
 mechanism. For clarity, we discuss unilateral and mutual authentication
 separately. In the remainder of the draft, we will discuss the necessary
 implementation mechanics, such as code points, extensions, new protocol messages
-and the new key schedule.
+and the new key schedule. The draft concludes with ah extensive discussion of
+relevant security considerations.
 
 # Conventions and definitions
 
@@ -339,14 +360,12 @@ endpoint:
 : Either the client or server of the connection.
 
 handshake:
-: An initial negotiation between client and server that
-  establishes the parameters of their subsequent interactions
-  within TLS.
+: An initial negotiation between client and server that establishes the
+parameters of their subsequent interactions within TLS.
 
 peer:
-: An endpoint.  When discussing a particular endpoint, "peer"
-refers to the endpoint that is not the primary subject of
-discussion.
+: An endpoint.  When discussing a particular endpoint, "peer" refers to the
+endpoint that is not the primary subject of discussion.
 
 receiver:
 : An endpoint that is receiving records.
@@ -355,14 +374,14 @@ sender:
 : An endpoint that is transmitting records.
 
 server:
-: The endpoint that responded to the initiation of the TLS connection.
-i.e. the peer of the client.
+: The endpoint that responded to the initiation of the TLS connection. i.e. the
+peer of the client.
 
 ## Key Encapsulation Mechanisms
 
-As this proposal relies heavily on KEMs, which are not originally
-used by TLS, we will provide a brief overview of this primitive.
-Other cryptographic operations will be discussed later.
+As this proposal relies heavily on KEMs, which are not originally used by TLS,
+we will provide a brief overview of this primitive. Other cryptographic
+operations will be discussed later.
 
 A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
 the methods ``Encapsulate`` and ``Decapsulate``. In this draft, we extend these
@@ -370,16 +389,14 @@ operations with context separation strings, per HPKE {{!RFC9180}}:
 
 {:vspace}
 ``Encapsulate(pkR, context_string)``:
-: Takes a public key, and produces a
-shared secret and encapsulation.
+: Takes a public key, and produces a shared secret and encapsulation.
 
 {:vspace}
 ``Decapsulate(enc, skR, context_string)``:
-: Takes the encapsulation and the
-private key. Returns the shared secret.
+: Takes the encapsulation and the private key. Returns the shared secret.
 
-We implement these methods through the KEMs defined in {{!RFC9180}}
-to export shared secrets appropriate for using with the HKDF in TLS 1.3:
+We implement these methods through the KEMs defined in {{!RFC9180}} to export
+shared secrets appropriate for using with the HKDF in TLS 1.3:
 
 ~~~
 def Encapsulate(pk, context_string):
@@ -394,13 +411,14 @@ def Decapsulate(enc, sk, context_string):
              .Export("", HKDF.Length)
 ~~~
 
-Keys are generated and encoded for transmission following the conventions in {{!RFC9180}}.
-The values of `context_string` are defined in [](#kem-computations).
+Keys are generated and encoded for transmission following the conventions in
+{{!RFC9180}}. The values of `context_string` are defined in
+[](#kem-computations).
 
 # Full 1.5-RTT AuthKEM Handshake Protocol
 
-Figure 1 below shows the basic KEM-authentication (AuthKEM) handshake,
-without client authentication:
+Figure 1 below shows the basic KEM-authentication (AuthKEM) handshake, without
+client authentication:
 
 ~~~~~
        Client                                     Server
@@ -444,7 +462,8 @@ The client knows that its message can only be decrypted if the server was able
 to derive the authentication shared secret encapsulated in the
 ``KEMEncapsulation`` message.
 
-``Finished`` messages are sent as in TLS 1.3, and achieve full explicit authentication.
+``Finished`` messages are sent as in TLS 1.3, and achieve full explicit
+authentication.
 
 ## Client authentication
 
@@ -502,19 +521,21 @@ If the server is not satisfied with the client's certificates, it MAY, at its
 discretion, decide to continue or terminate the handshake. If it decides to
 continue, it MUST NOT send back a ``KEMEncapsulation`` message and the client
 and server MUST compute the encryption keys as in the server-only authenticated
-AuthKEM handshake. The `Certificate` remains included in the transcript.
-The client MUST NOT assume it has been authenticated.
+AuthKEM handshake. The `Certificate` remains included in the transcript. The
+client MUST NOT assume it has been authenticated.
 
 Unfortunately, AuthKEM client authentication requires an extra round-trip.
-Clients that know the server's long-term public KEM key MAY choose to use the abbreviated AuthKEM handshake and opportunistically send the client certificate as a 0-RTT-like message.
-This mechanism is discussed in `I-D.draft-wiggers-authkem-psk-latest` (TODO: Link).
+Clients that know the server's long-term public KEM key MAY choose to use the
+abbreviated AuthKEM handshake and opportunistically send the client certificate
+as a 0-RTT-like message. This mechanism is discussed in
+`I-D.draft-wiggers-authkem-psk-latest` (TODO: Link).
 
 ## Relevant handshake messages
 
 After the Key Exchange and Server Parameters phase of TLS 1.3 handshake, the
-client and server exchange implicitly authenticated messages.
-KEM-based authentication uses the same set of messages every time that
-certificate-based authentication is needed.  Specifically:
+client and server exchange implicitly authenticated messages. KEM-based
+authentication uses the same set of messages every time that certificate-based
+authentication is needed.  Specifically:
 
 * ``Certificate``:  The certificate of the endpoint and any per-certificate
   extensions.  This message MUST be omitted by the client if the server did not
@@ -529,8 +550,8 @@ certificate-based authentication is needed.  Specifically:
 ## Overview of key differences with RFC8446 TLS 1.3
 
 * New types of ``signature_algorithms`` for KEMs.
-* Public keys in certificates are KEM algorithms
-* New handshake message ``KEMEncapsulation``
+* Public keys in certificates are KEM algorithms.
+* New handshake message ``KEMEncapsulation``.
 * The key schedule mixes in the shared secrets from the authentication.
 * The ``Certificate`` is sent encrypted with a new handshake encryption key.
 * The client sends ``Finished`` before the server.
@@ -551,15 +572,16 @@ the server's ``Finished`` message, the client achieves explicit authentication.
 Receiving this message retroactively confirms the server's cryptographic
 parameter choices.
 
-## Authenticating CertificateRequest
+## Authenticating ``CertificateRequest``
 
 The ``CertificateRequest`` message can not be authenticated during the AuthKEM
 handshake; only after the ``Finished`` message from the server has been
 processed, it can be proven as authentic. The security implications of this are
 discussed later.
 
-**This is discussed in [GitHub issue #16](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16).
-We would welcome feedback there.**
+**This is discussed in [GitHub issue
+#16](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16). We
+would welcome feedback there.**
 
 Clients MAY choose to only accept post-handshake authentication.
 
@@ -572,11 +594,11 @@ and key schedule.
 
 ## Negotiation of AuthKEM
 
-Clients will indicate support for this mode by negotiating it as if
-it were a signature scheme (part of the `signature_algorithms` extension). We thus
-add these new signature scheme values (even though, they are not signature
-schemes) for the KEMs defined in {{!RFC9180}} Section 7.1. Note that
-we will be only using their internal KEM's API defined there.
+Clients will indicate support for this mode by negotiating it as if it were a
+signature scheme (part of the `signature_algorithms` extension). We thus add
+these new signature scheme values (even though, they are not signature schemes)
+for the KEMs defined in {{!RFC9180}} Section 7.1. Note that we will be only
+using their internal KEM's API defined there.
 
 ~~~
 enum {
@@ -591,15 +613,16 @@ enum {
 
 **Please give feedback on which KEMs should be included**
 
-When present in the `signature_algorithms` extension, these values indicate AuthKEM support with the specified key exchange mode.
-These values MUST NOT appear in `signature_algorithms_cert`, as this extension specifies the signing algorithms by which certificates are signed.
+When present in the `signature_algorithms` extension, these values indicate
+AuthKEM support with the specified key exchange mode. These values MUST NOT
+appear in `signature_algorithms_cert`, as this extension specifies the signing
+algorithms by which certificates are signed.
 
 ## Protocol messages
 
-The handshake protocol is used to negotiate the security parameters
-of a connection, as in TLS 1.3. It uses the same messages, expect
-for the addition of a `KEMEncapsulation` message and does not use
-the `CertificateVerify` one.
+The handshake protocol is used to negotiate the security parameters of a
+connection, as in TLS 1.3. It uses the same messages, expect for the addition of
+a `KEMEncapsulation` message and does not use the `CertificateVerify` one.
 
 ~~~
 enum {
@@ -620,9 +643,9 @@ struct {
 } Handshake;
 ~~~
 
-Protocol messages MUST be sent in the order defined in Section 4.
-A peer which receives a handshake message in an unexpected order MUST
-abort the handshake with a "`unexpected_message`" alert.
+Protocol messages MUST be sent in the order defined in Section 4. A peer which
+receives a handshake message in an unexpected order MUST abort the handshake
+with a "`unexpected_message`" alert.
 
 The `KEMEncapsulation` message is defined as follows:
 
@@ -647,8 +670,8 @@ If sent by a client, the authentication algorithm used in the signature MUST be
 one of those present in the `supported_signature_algorithms` field of the
 `signature_algorithms` extension in the `CertificateRequest` message.
 
-In addition, the authentication algorithm MUST be compatible with the key(s)
-in the sender's end-entity certificate.
+In addition, the authentication algorithm MUST be compatible with the key(s) in
+the sender's end-entity certificate.
 
 The receiver of a `KEMEncapsulation` message MUST perform the `Decapsulate()`
 operation by using the sent encapsulation and the private key of the public key
@@ -663,12 +686,12 @@ value in the `Certificate` message to which the encapsulation was computed.
 
 ## Cryptographic computations
 
-The AuthKEM handshake establishes three input secrets which are
-combined to create the actual working keying material, as detailed below. The
-key derivation process incorporates both the input secrets and the handshake
-transcript.  Note that because the handshake transcript includes the random
-values from the Hello messages, any given handshake will have different traffic
-secrets, even if the same input secrets are used.
+The AuthKEM handshake establishes three input secrets which are combined to
+create the actual working keying material, as detailed below. The key derivation
+process incorporates both the input secrets and the handshake transcript.  Note
+that because the handshake transcript includes the random values from the Hello
+messages, any given handshake will have different traffic secrets, even if the
+same input secrets are used.
 
 ### Key schedule for full AuthKEM handshakes {#key-schedule}
 
@@ -676,9 +699,9 @@ AuthKEM uses the same `HKDF-Extract` and `HKDF-Expand` functions as defined by
 TLS 1.3, in turn defined by {{RFC5869}}.
 
 Keys are derived from two input secrets using the `HKDF-Extract` and
-`Derive-Secret` functions.  The general pattern for adding a new secret
-is to use `HKDF-Extract` with the Salt being the current secret state
-and the Input Keying Material (IKM) being the new secret to be added.
+`Derive-Secret` functions.  The general pattern for adding a new secret is to
+use `HKDF-Extract` with the Salt being the current secret state and the Input
+Keying Material (IKM) being the new secret to be added.
 
 The notable differences are:
 
@@ -817,8 +840,10 @@ server/client_verify_data =
    includes the other party's Finished message.
 ~~~
 
-Any records following a `Finished` message MUST be encrypted under the appropriate application traffic key as described in {{!RFC8446}}.
-In particular, this includes any alerts sent by the server in response to client ``Certificate`` and ``KEMEncapsulation`` messages.
+Any records following a `Finished` message MUST be encrypted under the
+appropriate application traffic key as described in {{!RFC8446}}. In particular,
+this includes any alerts sent by the server in response to client
+``Certificate`` and ``KEMEncapsulation`` messages.
 
 See [SSW20] for a full treatment of implicit and explicit authentication.
 
@@ -826,16 +851,16 @@ See [SSW20] for a full treatment of implicit and explicit authentication.
 
 ## Implicit authentication
 
-Because preserving a 1/1.5RTT handshake in KEM-Auth requires the client to
-send its request in the same flight when the `ServerHello` message is received,
-it can not yet have explicitly authenticated the server. However,
-through the inclusion of the key encapsulated to the server's long-term
-secret, only an authentic server should be able to decrypt these messages.
+Because preserving a 1/1.5RTT handshake in KEM-Auth requires the client to send
+its request in the same flight when the `ServerHello` message is received, it
+can not yet have explicitly authenticated the server. However, through the
+inclusion of the key encapsulated to the server's long-term secret, only an
+authentic server should be able to decrypt these messages.
 
-However, the client can not have received confirmation that the server's
-choices for symmetric encryption, as specified in the `ServerHello` message,
-were authentic. These are not authenticated until the `Finished` message from
-the server arrived. This may allow an adversary to downgrade the symmetric
+However, the client can not have received confirmation that the server's choices
+for symmetric encryption, as specified in the `ServerHello` message, were
+authentic. These are not authenticated until the `Finished` message from the
+server arrived. This may allow an adversary to downgrade the symmetric
 algorithms, but only to what the client is willing to accept. If such an attack
 occurs, the handshake will also never successfully complete and no data can be
 sent back.
@@ -844,32 +869,30 @@ If the client trusts the symmetric algorithms advertised in its `ClientHello`
 message, this should not be a concern. A client MUST NOT accept any
 cryptographic parameters it does not include in its own `ClientHello` message.
 
-If client authentication is used, explicit authentication is reached before
-any application data, on either client or server side, is transmitted.
+If client authentication is used, explicit authentication is reached before any
+application data, on either client or server side, is transmitted.
 
-Application Data MUST NOT be sent prior to sending the Finished
-message, except as specified in Section 2.3 of {{!RFC8446}}.  Note that
-while the client MAY send Application Data prior to receiving the server's
-last explicit Authentication message, any data sent at that point is,
-being sent to an implicitly authenticated peer.
+Application Data MUST NOT be sent prior to sending the Finished message, except
+as specified in Section 2.3 of {{!RFC8446}}.  Note that while the client MAY
+send Application Data prior to receiving the server's last explicit
+Authentication message, any data sent at that point is, being sent to an
+implicitly authenticated peer.
 
 ## Authentication of Certificate Request
 
-Due to the implicit authentication of the server's messages during the
-full AuthKEM handshake, the ``CertificateRequest`` message can not be
-authenticated before the client received ``Finished``.
+Due to the implicit authentication of the server's messages during the full
+AuthKEM handshake, the ``CertificateRequest`` message can not be authenticated
+before the client received ``Finished``.
 
 The key schedule guarantees that the server can not read the client's
-certificate message (as discussed above). An active adversary that
-maliciously inserts a ``CertificateRequest`` message will also
-result in a mismatch in transcript hashes, which will cause
-the handshake to fail.
+certificate message (as discussed above). An active adversary that maliciously
+inserts a ``CertificateRequest`` message will also result in a mismatch in
+transcript hashes, which will cause the handshake to fail.
 
-However, there may be side effects. The adversary might learn that
-the client has a certificate by observing the length of the messages
-sent. There may also be side effects, especially in situations where
-the client is prompted to e.g. approve use or unlock a certificate
-stored encrypted or on a smart card.
+However, there may be side effects. The adversary might learn that the client
+has a certificate by observing the length of the messages sent. There may also
+be side effects, especially in situations where the client is prompted to e.g.
+approve use or unlock a certificate stored encrypted or on a smart card.
 
 ## Other security considerations
 
@@ -878,9 +901,9 @@ stored encrypted or on a smart card.
   discussion of and a proof of the security of the handshake protocol without
   client authentication [SSW20].
 
-* The work proposing the variant protocol [SSW21] with pre-distributed
-  public keys (the abbreviated AuthKEM handshake) has a proof for both
-  unilaterally and mutually authenticated handshakes.
+* The work proposing the variant protocol [SSW21] with pre-distributed public
+  keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
+  mutually authenticated handshakes.
 
 * We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin. [CHSW22]
 
@@ -903,30 +926,34 @@ stored encrypted or on a smart card.
 
 # Open points of discussion
 
-The following are open points for discussion.
-The corresponding Github issues will be linked.
+The following are open points for discussion. The corresponding Github issues
+will be linked.
 
 ## Authentication concerns for client authentication requests.
 
-Tracked by [Issue #16](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16).
+Tracked by [Issue
+#16](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/16).
 
-The certificate request message from the server can not be authenticated by the AuthKEM mechanism.
-This is already somewhat discussed above and under security considerations.
-We might want to allow clients to refuse client auth for scenarios where this is a concern.
+The certificate request message from the server can not be authenticated by the
+AuthKEM mechanism. This is already somewhat discussed above and under security
+considerations. We might want to allow clients to refuse client auth for
+scenarios where this is a concern.
 
 ## Interaction with signing certificates
 
-Tracked by [Issue #20](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/20).
+Tracked by [Issue
+#20](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/20).
 
 In the current state of the draft, we have not yet discussed combining
-traditional signature-based authentication with KEM-based authentication.
-One might imagine that the Client has a sigining certificate and the server has
-a KEM public key.
+traditional signature-based authentication with KEM-based authentication. One
+might imagine that the Client has a sigining certificate and the server has a
+KEM public key.
 
-In the current draft, clients MUST use a KEM certificate algorithm if the server negotiated AuthKEM.
+In the current draft, clients MUST use a KEM certificate algorithm if the server
+negotiated AuthKEM.
 
 # Acknowledgements
 {: numbered="no"}
 
-This work has been supported by the European Research Council through
-Starting Grant No. 805031 (EPOQUE).
+This work has been supported by the European Research Council through Starting
+Grant No. 805031 (EPOQUE).
