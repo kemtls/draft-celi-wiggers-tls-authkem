@@ -137,6 +137,43 @@ informative:
          ins: H. Wee
          name: Hoeteck Wee
          org: ENS, CNRS, INRIA and Columbia University
+  K22:
+    title: Polynomial Multiplication for Post-Quantum Cryptography
+    author:
+      - ins: M. J. Kannwischer
+        name: Matthias J. Kannwischer
+        org: Radboud University
+    target: https://kannwischer.eu/thesis/
+    date: 2022-04-22
+    seriesinfo:
+      "Ph.D.": thesis
+  KYBER:
+    target: https://pq-crystals.org/kyber/
+    title: CRYSTALS-Kyber
+    author:
+      - ins: R. Avanzi
+      - ins: J. Bos
+      - ins: L. Ducas
+      - ins: E. Kiltz
+      - ins: T. Lepoint
+      - ins: V. Lyubashevsky
+      - ins: J. Schanck
+      - ins: P. Schwabe
+      - ins: G. Seiler
+      - ins: D. Stehlé
+    date: 2021
+  DILITHIUM:
+    target: https://pq-crystals.org/dilithium/
+    title: CRYSTALS-Dilithium
+    author:
+      - ins: L. Ducas
+      - ins: E. Kiltz
+      - ins: T. Lepoint
+      - ins: V. Lyubashevsky
+      - ins: P. Schwabe
+      - ins: G. Seiler
+      - ins: D. Stehlé
+    date: 2021
 
 
 --- abstract
@@ -149,7 +186,8 @@ exchange protocol, using their long-term (KEM) public keys.
 
 # Introduction
 
-DISCLAIMER: This is a work-in-progress draft.
+**Note:** This is a work-in-progress draft. We welcome discussion, feedback and
+contributions through the IETF TLS working group mailing list or directly on GitHub.
 
 This document gives a construction for KEM-based authentication in TLS
 1.3 {{!RFC8446}}. Authentication happens via asymmetric cryptography by the usage of
@@ -168,12 +206,80 @@ this is currently rare, certificates can be issued with (EC)DH public keys as
 specified for instance in {{?RFC8410}}, or using a delegation
 mechanism, such as delegated credentials {{?I-D.ietf-tls-subcerts}}.
 
-In this proposal, we use the DH-based KEMs from {{!RFC9180}}. We
-believe KEMs are especially worth discussing in the context of the TLS protocol
-because NIST is in the process of standardizing post-quantum KEM algorithms to
-replace "classic" key exchange (based on elliptic curve or finite-field
-Diffie-Hellman) [NISTPQC].
+In this proposal, we build on {{!RFC9180}}. This standard currently only covers
+Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
+been put forward {{?I-D.draft-westerbaan-cfrg-hpke-xyber768d00}}. This proposal
+uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected algorithm for key exchange in the NIST
+post-quantum standardization project [NISTPQC].
 
+## Using key exchange instead of signatures for authentication
+
+The elliptic-curve and finite-field-based key exchange and signature algorithms
+that are currently widely used are very similar in sizes for public keys,
+ciphertexts and signatures. As an example, RSA signatures are famously "just"
+RSA encryption backwards.
+
+This changes in the post-quantum setting. Post-quantum key exchange and
+signature algorithms have significant differences in implementation, performance
+characteristics, and key and signature sizes.
+
+This also leads to increases in code size: For example, implementing highly
+efficient polynomial multiplication for post-quantum KEM Kyber and signature
+scheme Dilithium [DILITHIUM] requires significantly different approaches, even
+though the algorithms are related [K22].
+
+Using the protocol proposed in this draft allows to reduce the amount of data
+exchanged for handshake authentication. It also allows to re-use the
+implementation that is used for ephemeral key exchange for authentication, as
+KEM operations replace signing. This decreases the code size requirements, which
+is especially relevant to protected implementations. Finally, KEM operations may
+be more efficient than signing, which might especially affect embedded platforms.
+
+### Comparison of data sizes
+**Should probably be removed before publishing**
+
+In the following table, we compare the sizes of TLS 1.3- and AuthKEM-based
+handshakes. We give the transmission requirements for handshake authentication
+(public key + signature), and certificate chain (intermediate CA certificate
+public key and signature + root CA signature). For clarity, we are not listing
+post-quantum/traditional hybrid algorithms; we also omit mechanisms such as
+Certificate Transparency {{?RFC6962}} or OCSP stapling {{?RFC6960}}. We use
+Kyber-768 instead of the smaller Kyber-512 parameterset, as the former is
+currently used in experimental deployments.
+
+| Handshake | HS auth algorithm | HS Auth bytes | Certificate chain bytes | Sum  |
+| TLS 1.3   | RSA-2048          | 528           | 784  (RSA-2048)         | 1312 |
+| TLS 1.3   | Dilithium-2       | 3732          | 6152 (Dilithium-2)      | 9884 |
+| TLS 1.3   | Falcon-512        | 1563          | 2229 (Falcon-512)       | 3792 |
+| TLS 1.3   | Dilithium-2       | 3732          | 2229 (Falcon-512)       | 5961 |
+| AuthKEM   | Kyber-768         | 2272          | 6152 (Dilithium-2)      | 8424 |
+| AuthKEM   | Kyber-768         | 2272          | 2229 (Falcon-512)       | 4564 |
+{: title="Size comparison of public-key cryptography in TLS 1.3 and AuthKEM handshakes." }
+
+Note that although TLS 1.3 with Falcon-512 is the smallest instantiation.
+However, Falcon is very challenging to implement: it requires (emulation of)
+64-bit floating point operations in constant time. It is also very difficult to
+protect against other side-channel attacks, as there are no known methods of
+masking Falcon. In light of these difficulties, use of Falcon-512 in online
+handshake signatures may not be wise.
+
+Using AuthKEM with Falcon-512 in the certificate chain remains an attractive
+option, however: the certificate issuance process, because it is mostly offline,
+could perhaps be set up in a way to protect the Falcon implementation against
+attacks. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
+of the signature verification routines, i.e., Dilithium and Falcon, on top of
+the key exchange algorithm.
+
+In all examples, the size of the certificate chain still dominates the TLS
+handshake, especially if Certificate Transparency SCT statements are included,
+which is relevant in the context of the WebPKI. However, we believe that if
+proposals to reduce transmission sizes of the certificate chain in the WebPKI
+context are implemented, the space savings of AuthKEM naturally become
+relatively larger and more significant. We discuss this in [](#cert-compression).
+
+## Relation to other proposals
+
+### OPTLS
 This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is in
 turn based on the OPTLS proposal for TLS 1.3 [KW16]. However, these proposals
 require a non-interactive key exchange: they combine the client's public key with
@@ -182,6 +288,13 @@ static keys MUST use the same algorithm, which this proposal does not require.
 Additionally, there are no post-quantum proposals for a non-interactive key
 exchange currently considered for standardization, while several KEMs are on the
 way.
+
+### Compressing certificates and certificate chains {#cert-compression}
+
+AuthKEM reduces the amount of data required for authentication in TLS. In
+recognition of the large increase in handshake size that a naive adoption of
+post-quantum signatures would affect, several proposals have been put forward
+that aim to reduce the size of certificates in the TLS handshake.
 
 ## Organization
 
@@ -199,26 +312,34 @@ and the new key schedule.
 
 The following terms are used as they are in {{!RFC8446}}
 
-client:  The endpoint initiating the TLS connection.
+client:
+: The endpoint initiating the TLS connection.
 
-connection:  A transport-layer connection between two endpoints.
+connection:
+: A transport-layer connection between two endpoints.
 
-endpoint:  Either the client or server of the connection.
+endpoint:
+: Either the client or server of the connection.
 
-handshake:  An initial negotiation between client and server that
+handshake:
+: An initial negotiation between client and server that
   establishes the parameters of their subsequent interactions
   within TLS.
 
-peer:  An endpoint.  When discussing a particular endpoint, "peer"
-  refers to the endpoint that is not the primary subject of
-  discussion.
+peer:
+: An endpoint.  When discussing a particular endpoint, "peer"
+refers to the endpoint that is not the primary subject of
+discussion.
 
-receiver:  An endpoint that is receiving records.
+receiver:
+: An endpoint that is receiving records.
 
-sender:  An endpoint that is transmitting records.
+sender:
+: An endpoint that is transmitting records.
 
-server:  The endpoint that responded to the initiation of the TLS connection.
-  i.e. the peer of the client.
+server:
+: The endpoint that responded to the initiation of the TLS connection.
+i.e. the peer of the client.
 
 ## Key Encapsulation Mechanisms
 
@@ -230,10 +351,14 @@ A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
 the methods ``Encapsulate`` and ``Decapsulate``. In this draft, we extend these
 operations with context separation strings, per HPKE {{!RFC9180}}:
 
-``Encapsulate(pkR, context_string)``:    Takes a public key, and produces a
+{:vspace}
+``Encapsulate(pkR, context_string)``:
+: Takes a public key, and produces a
 shared secret and encapsulation.
 
-``Decapsulate(enc, skR, context_string)``:  Takes the encapsulation and the
+{:vspace}
+``Decapsulate(enc, skR, context_string)``:
+: Takes the encapsulation and the
 private key. Returns the shared secret.
 
 We implement these methods through the KEMs defined in {{!RFC9180}}
@@ -758,10 +883,6 @@ stored encrypted or on a smart card.
 
 --- back
 
-# Acknowledgements
-
-This work has been supported by the European Research Council through
-Starting Grant No. 805031 (EPOQUE).
 
 # Open points of discussion
 
@@ -786,3 +907,9 @@ One might imagine that the Client has a sigining certificate and the server has
 a KEM public key.
 
 In the current draft, clients MUST use a KEM certificate algorithm if the server negotiated AuthKEM.
+
+# Acknowledgements
+{: numbered="no"}
+
+This work has been supported by the European Research Council through
+Starting Grant No. 805031 (EPOQUE).

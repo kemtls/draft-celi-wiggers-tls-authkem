@@ -697,11 +697,6 @@ server public key. Kyber offers post-quantum anonymity [MX22].
 
 --- back
 
-# Acknowledgements
-
-This work has been supported by the European Research Council through
-Starting Grant No. 805031 (EPOQUE).
-
 # Open points of discussion
 
 The following are open points for discussion.
@@ -782,3 +777,9 @@ One might imagine that the Client has a sigining certificate and the server has
 a KEM public key.
 
 In the current draft, clients MUST use a KEM certificate algorithm if the server negotiated AuthKEM.
+
+# Acknowledgements
+{: numbered="no"}
+
+This work has been supported by the European Research Council through
+Starting Grant No. 805031 (EPOQUE).
