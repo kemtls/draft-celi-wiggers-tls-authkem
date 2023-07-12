@@ -19,7 +19,7 @@ author:
     ins: T. Wiggers
     name: Thom Wiggers
     org: PQShield
-    city: Nijmgen
+    city: Nijmegen
     country: The Netherlands
     email: thom@thomwiggers.nl
 
@@ -48,8 +48,7 @@ author:
  -
     ins: N. Sullivan
     name: Nick Sullivan
-    org: Cloudflare
-    email: nick@cloudflare.com
+    email: nicholas.sullivan+ietf@gmail.com
 
 venue:
   group: tlswg

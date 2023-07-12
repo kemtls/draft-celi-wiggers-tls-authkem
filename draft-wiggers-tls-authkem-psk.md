@@ -19,7 +19,7 @@ author:
     ins: T. Wiggers
     name: Thom Wiggers
     org: PQShield
-    city: Nijmgen
+    city: Nijmegen
     country: The Netherlands
     email: thom@thomwiggers.nl
 
@@ -48,8 +48,7 @@ author:
  -
     ins: N. Sullivan
     name: Nick Sullivan
-    org: Cloudflare, Inc
-    email: nick@cloudflare.com
+    email: nicholas.sullivan+ietf@gmail.com
 
 venue:
   group: tlswg
@@ -354,8 +353,9 @@ transcript. The client MUST then continue with a full AuthKEM handshake.
 The client MAY send 0-RTT data, as in {{!RFC8446}} 0-RTT mode.
 The ``Certificate`` MUST be sent before the 0-RTT data.
 
-As the ``EarlySecret`` is derived only from a key encapsulated to a long-term secret, it does not have forward secrecy.
-Clients MUST take this into consideration before transmitting 0-RTT data or opting in to early client auth.
+As the ``EarlySecret`` is derived only from a key encapsulated to a long-term
+secret, it does not have forward secrecy. Clients MUST take this into
+consideration before transmitting 0-RTT data or opting in to early client auth.
 Certificates and 0-RTT data may also be replayed.
 
 This will be discussed in full under Security Considerations.
