@@ -1,0 +1,858 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2021-08-05T01:06:26.440252+00:00",
+  "repo": "claucece/draft-celi-wiggers-tls-authkem",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 4,
+      "id": "MDU6SXNzdWU5MzkwNzQ4NDU=",
+      "title": "Split out KEX",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/4",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-07T16:43:36Z",
+      "updatedAt": "2021-07-12T17:33:53Z",
+      "closedAt": "2021-07-12T17:33:53Z",
+      "comments": [
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "KEXs shoud be gone now.",
+          "createdAt": "2021-07-12T17:33:53Z",
+          "updatedAt": "2021-07-12T17:33:53Z"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "MDU6SXNzdWU5MzkwNzUwOTI=",
+      "title": "Relation to OPTLS/semistatic",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/5",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-07T16:43:57Z",
+      "updatedAt": "2021-07-12T16:08:19Z",
+      "closedAt": "2021-07-12T16:08:19Z",
+      "comments": [
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "A comparison text should be put in place.",
+          "createdAt": "2021-07-12T14:06:36Z",
+          "updatedAt": "2021-07-12T14:06:36Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Maybe something like this.\r\n\r\n```\r\nThis proposal draws inspiration from {{!I-D.ietf-tls-semistatic-dh}} which is in\r\nturn based on the OPTLS proposal for TLS 1.3 [KW16].  However, these proposals\r\nrequires non-interactive key exchange: they combine the client's public key with\r\nthe server's long-term key.  This does impose a requirement that the ephemeral and\r\nstatic keys use the same algorithm, which this proposal does not require. Additionally,\r\nthere are no post-quantum proposals for non-interactive key exchange currently \r\nconsidered for standardization, while several KEMs are on the way.\r\n```",
+          "createdAt": "2021-07-12T14:28:00Z",
+          "updatedAt": "2021-07-12T14:31:29Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "There's something in the introduction now.",
+          "createdAt": "2021-07-12T16:08:19Z",
+          "updatedAt": "2021-07-12T16:08:19Z"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "id": "MDU6SXNzdWU5MzkwODEwODE=",
+      "title": "Move DC to appendix",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/6",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-07T16:52:13Z",
+      "updatedAt": "2021-07-12T21:06:28Z",
+      "closedAt": "2021-07-12T21:06:28Z",
+      "comments": [
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "The DC section is kinda separate from the draft right now and has no text, so we can easily move it. \r\n\r\nThere is a section talking about a Certificate to deliver the public key (which could contain a  X509 cert or a raw public key): https://github.com/claucece/draft-celi-wiggers-tls-kemtls/blob/master/draft-celi-wiggers-tls-kemtls.md#certificate\r\n\r\nIs there some other modifications you want there @chris-wood ?",
+          "createdAt": "2021-07-07T18:57:07Z",
+          "updatedAt": "2021-07-07T18:57:07Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "Should be done now.",
+          "createdAt": "2021-07-12T21:06:28Z",
+          "updatedAt": "2021-07-12T21:06:28Z"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "id": "MDU6SXNzdWU5MzkwODQ1MTE=",
+      "title": "Drop PQ KEMs",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/7",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-07T16:56:58Z",
+      "updatedAt": "2021-07-12T17:34:03Z",
+      "closedAt": "2021-07-12T17:34:02Z",
+      "comments": [
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Probably keep the motivation that PQ KEMs are coming?",
+          "createdAt": "2021-07-07T17:03:03Z",
+          "updatedAt": "2021-07-07T17:03:03Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "Removed.",
+          "createdAt": "2021-07-12T17:34:02Z",
+          "updatedAt": "2021-07-12T17:34:02Z"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "MDU6SXNzdWU5MzkwODUyMzQ=",
+      "title": "Relation with HPKE",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/8",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "HPKE already registers a bunch of KEMs",
+      "createdAt": "2021-07-07T16:57:59Z",
+      "updatedAt": "2021-07-12T17:34:12Z",
+      "closedAt": "2021-07-12T17:34:12Z",
+      "comments": [
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Worked it in a little bit, still need to add the DHKEM code points to the list of algorithms (see also https://datatracker.ietf.org/doc/html/draft-ietf-tls-semistatic-dh#section-3)",
+          "createdAt": "2021-07-12T16:05:32Z",
+          "updatedAt": "2021-07-12T16:05:32Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "Added now.",
+          "createdAt": "2021-07-12T17:34:12Z",
+          "updatedAt": "2021-07-12T17:34:12Z"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "MDU6SXNzdWU5MzkwODk1NDM=",
+      "title": "Is cached_info the right extension for conveying the public key?",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/9",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "If we deliver the KEM public key via something that is not a certificate, should we use cached_info for conveying the public key digest/fingerprint?",
+      "createdAt": "2021-07-07T17:03:37Z",
+      "updatedAt": "2021-07-12T21:06:38Z",
+      "closedAt": "2021-07-12T21:06:38Z",
+      "comments": [
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "In the context of KEMTLS with predistributed keys, you kinda want to send `(key identifier, ciphertext)`, so a separate extension might just be better even for confusion reasons.",
+          "createdAt": "2021-07-07T17:09:59Z",
+          "updatedAt": "2021-07-07T17:09:59Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "We don't use the cached_info extension as defined by rfc7924. We defined our own over here:\r\n\r\nhttps://github.com/claucece/draft-celi-wiggers-tls-kemtls/blob/master/draft-celi-wiggers-tls-kemtls.md#cached-information\r\n\r\nSo, we can modify that paragraph to accept only the public key. ",
+          "createdAt": "2021-07-07T18:54:07Z",
+          "updatedAt": "2021-07-07T18:54:15Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "we might want to avoid \"cached_info\" just to prevent any confusion...",
+          "createdAt": "2021-07-08T06:35:23Z",
+          "updatedAt": "2021-07-08T06:35:23Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "Fixed now.",
+          "createdAt": "2021-07-12T21:06:38Z",
+          "updatedAt": "2021-07-12T21:06:38Z"
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "id": "MDU6SXNzdWU5NDIwOTg0NjQ=",
+      "title": "Add motivation",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/11",
+      "state": "CLOSED",
+      "author": "claucece",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "We should add a section or discuss why will someone use kem-based auth.\r\n\r\ncc./ @thomwiggers @chris-wood ",
+      "createdAt": "2021-07-12T14:03:12Z",
+      "updatedAt": "2021-07-12T21:33:31Z",
+      "closedAt": "2021-07-12T21:33:31Z",
+      "comments": []
+    },
+    {
+      "number": 12,
+      "id": "MDU6SXNzdWU5NDI0NDkyNzY=",
+      "title": "Should we encrypt the Client's Certificate in PDK with psk?",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/12",
+      "state": "OPEN",
+      "author": "claucece",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-12T21:07:26Z",
+      "updatedAt": "2021-07-12T22:33:46Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "As opposed to encrypting it with the key derived from the shared secret encapsulated to the server's long-term key, as is done now, right?",
+          "createdAt": "2021-07-12T21:10:46Z",
+          "updatedAt": "2021-07-12T21:10:46Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "yes, Or a concatenation of both. ",
+          "createdAt": "2021-07-12T22:33:46Z",
+          "updatedAt": "2021-07-12T22:33:46Z"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "id": "MDU6SXNzdWU5NDI1MDU5Njk=",
+      "title": "Should we use the functions of the high-level API of HPKE?",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/13",
+      "state": "OPEN",
+      "author": "claucece",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Like using `SetupBaseS/R` followed by a `Export()`.",
+      "createdAt": "2021-07-12T22:34:48Z",
+      "updatedAt": "2021-07-13T06:56:42Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "Or using an internal API is ok/encouraged?",
+          "createdAt": "2021-07-12T23:08:40Z",
+          "updatedAt": "2021-07-12T23:08:40Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "We should probably write a redefinition of\r\n\r\n```\r\ndef Encapsulate(pk):\r\n   enc, ctx = HPKE.SetupBaseS(pk, \"\")\r\n   ss = ctx.Export(\"\", HKDF.Length)\r\n   return (enc, ss)\r\n    \r\nDecapsulate(enc, sk) = HPKE.SetupBaseR(enc, sk, \"\").Export(\"\", HKDF.Length)\r\n```",
+          "createdAt": "2021-07-13T06:47:27Z",
+          "updatedAt": "2021-07-13T06:56:42Z"
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "id": "MDU6SXNzdWU5NDM2NDYwNTk=",
+      "title": "Fix Douglas Stebila last name",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/15",
+      "state": "CLOSED",
+      "author": "claucece",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "For some reason, Douglas Stebila's name got changed to 'Douglas Steblia' in the data tracker.\r\nWe should fix it in a new release of the draft.",
+      "createdAt": "2021-07-13T17:07:10Z",
+      "updatedAt": "2021-07-14T14:56:58Z",
+      "closedAt": "2021-07-14T14:39:07Z",
+      "comments": [
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I think this is just @dstebila's datatracker account that has the misspelling, and it's out of our control... (they're matched by email address)",
+          "createdAt": "2021-07-14T07:35:25Z",
+          "updatedAt": "2021-07-14T07:35:25Z"
+        },
+        {
+          "author": "dstebila",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Ah, indeed that was the case. I didn't set up a datatracker account but there was another draft with my name misspelled linked to my email address. I've fixed it now. Sorry for the hassle.",
+          "createdAt": "2021-07-14T14:39:07Z",
+          "updatedAt": "2021-07-14T14:39:07Z"
+        },
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "No worries! Thank you for checking @dstebila ",
+          "createdAt": "2021-07-14T14:56:58Z",
+          "updatedAt": "2021-07-14T14:56:58Z"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "id": "MDU6SXNzdWU5NTUyMjE3MDQ=",
+      "title": "Authentication concerns for the client authentication requests",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/16",
+      "state": "OPEN",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Came up during the IETF meeting:\r\n\r\nDavid Benjamin:\r\n>  I'm concerned about authenticating the server's request to the client. Client certificate decisions can result in interesting side effects, like unlocking smartcards or prompting the user. Having something so visible not be authenticated is pretty scary.",
+      "createdAt": "2021-07-28T20:47:35Z",
+      "updatedAt": "2021-07-28T20:47:35Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 17,
+      "id": "MDU6SXNzdWU5NTkxMDIxMDE=",
+      "title": "Add `certificate_request_context` to KemEncapsulation message",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/issues/17",
+      "state": "OPEN",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "For handshake authentication the value is hard-coded (null) but this value is used to distinguish post-handshake auth requests (of which there can be multiple existing in parallel because of _reasons_). It's probably good future-proofing if we don't omit this distinguisher.",
+      "createdAt": "2021-08-03T13:11:02Z",
+      "updatedAt": "2021-08-03T13:11:02Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjgzNDU1OTQ3",
+      "title": "Delete .circleci directory",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/pull/1",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "I don't think this is used (unless you set it up Sof\u00eda?)",
+      "createdAt": "2021-07-05T07:56:34Z",
+      "updatedAt": "2021-07-05T10:12:52Z",
+      "baseRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "master",
+      "baseRefOid": "a51db8ef9f43519c573ff4ce5a73f25e1314676c",
+      "headRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "headRefName": "thomwiggers-patch-1",
+      "headRefOid": "4ad50ae1b207b9d61a637407f2aff5ca7837330c",
+      "closedAt": "2021-07-05T10:11:49Z",
+      "mergedAt": "2021-07-05T10:11:49Z",
+      "mergedBy": "claucece",
+      "mergeCommit": {
+        "oid": "6b2427321001e8ab926bff79b3730e96c72226cf"
+      },
+      "comments": [
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "I didn't ;) It was the tool for creating an IETF draft. ",
+          "createdAt": "2021-07-05T10:11:44Z",
+          "updatedAt": "2021-07-05T10:11:44Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Yeah AIUI you could've logged into circlci to set up using that config.  I couldn't tell if you'd done that obviously.",
+          "createdAt": "2021-07-05T10:12:50Z",
+          "updatedAt": "2021-07-05T10:12:50Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 2,
+      "id": "MDExOlB1bGxSZXF1ZXN0NjgzNDkxMTkz",
+      "title": "Terminology and add some text about KEMs",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/pull/2",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "* I've added some terminology from the TLS 1.3 draft.\n* I've written a little bit about KEMs\n* I've added the intuition about authentication to the introduction.",
+      "createdAt": "2021-07-05T08:41:20Z",
+      "updatedAt": "2021-07-05T19:45:27Z",
+      "baseRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "master",
+      "baseRefOid": "f67409dda873e025bdd5523f7529620832fe44e5",
+      "headRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "headRefName": "kem-text",
+      "headRefOid": "a9d55a0fc5a17705ffc928a0e4bec24b0677b785",
+      "closedAt": "2021-07-05T19:45:27Z",
+      "mergedAt": "2021-07-05T19:45:27Z",
+      "mergedBy": "claucece",
+      "mergeCommit": {
+        "oid": "5731068cc5974c36dec03c4afbc411c77886a006"
+      },
+      "comments": [
+        {
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "body": "Looking good!",
+          "createdAt": "2021-07-05T19:45:23Z",
+          "updatedAt": "2021-07-05T19:45:23Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 3,
+      "id": "MDExOlB1bGxSZXF1ZXN0Njg0NTI0NzAy",
+      "title": "Remove self as author",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/pull/3",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-06T16:36:41Z",
+      "updatedAt": "2021-07-06T19:07:29Z",
+      "baseRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "master",
+      "baseRefOid": "5731068cc5974c36dec03c4afbc411c77886a006",
+      "headRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "headRefName": "remove-self",
+      "headRefOid": "b22831ffa8eb54af3df9bfb72a7fb7f89f87290e",
+      "closedAt": "2021-07-06T19:07:29Z",
+      "mergedAt": "2021-07-06T19:07:29Z",
+      "mergedBy": "claucece",
+      "mergeCommit": {
+        "oid": "134b7ed1ea4557fd9e8888d51f5e42b65ef512fb"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 10,
+      "id": "MDExOlB1bGxSZXF1ZXN0Njg3ODA4NTMw",
+      "title": "write about security considerations",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/pull/10",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2021-07-12T12:41:39Z",
+      "updatedAt": "2021-07-12T16:04:51Z",
+      "baseRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "master",
+      "baseRefOid": "986dd2cb2badce489b4d52d96d2943fd85105c41",
+      "headRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "headRefName": "secconsid",
+      "headRefOid": "cae56bac66acb3d3e8cecc3139bbcaccbfe6dd63",
+      "closedAt": "2021-07-12T16:04:51Z",
+      "mergedAt": "2021-07-12T16:04:51Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "cca4183291bc2a5079748d605f864e6b245b135a"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 14,
+      "id": "MDExOlB1bGxSZXF1ZXN0Njg4NTU0NjA4",
+      "title": "Redefine Encap and Decap based on HPKE",
+      "url": "https://github.com/claucece/draft-celi-wiggers-tls-authkem/pull/14",
+      "state": "OPEN",
+      "author": "thomwiggers",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #13 ",
+      "createdAt": "2021-07-13T07:02:15Z",
+      "updatedAt": "2021-07-27T20:38:10Z",
+      "baseRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "master",
+      "baseRefOid": "9f5b1b864f5c8c45560eb1a9961fb66e7cf9f5cc",
+      "headRepository": "claucece/draft-celi-wiggers-tls-authkem",
+      "headRefName": "fix-hpke-use",
+      "headRefOid": "18e3360e2bd602193e5522159b713140b76301e1",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTA4NzMz",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:16:14Z",
+          "updatedAt": "2021-07-13T12:17:57Z",
+          "comments": [
+            {
+              "originalPosition": 24,
+              "body": "```suggestion\r\n  enc, ctx = HPKE.SetupBaseS(pk, \"tls13 auth-kem\")\r\n```",
+              "createdAt": "2021-07-13T12:16:14Z",
+              "updatedAt": "2021-07-13T12:17:57Z"
+            },
+            {
+              "originalPosition": 29,
+              "body": "```suggestion\r\n  HPKE.SetupBaseR(enc, sk, \"tls13 auth-kem\").Export(\"\", HKDF.Length)\r\n```",
+              "createdAt": "2021-07-13T12:16:26Z",
+              "updatedAt": "2021-07-13T12:17:57Z"
+            },
+            {
+              "originalPosition": 23,
+              "body": "I might also pass in an info string here that's fed to the Export() API (for Encap/Decap separation when used multiple times in a single flow).",
+              "createdAt": "2021-07-13T12:17:27Z",
+              "updatedAt": "2021-07-13T12:17:57Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTI5NDEx",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:37:33Z",
+          "updatedAt": "2021-07-13T12:37:33Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "I purposefully _didn't_ allow that, because otherwise you'll be stuck with having to decide on Kyber+which KDF all over again when we want to move to post-quantum KEMs, which seems unnecessary.",
+              "createdAt": "2021-07-13T12:37:33Z",
+              "updatedAt": "2021-07-13T12:37:33Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTMyMjIx",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:40:24Z",
+          "updatedAt": "2021-07-13T12:40:24Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "Eh? I don't mean to suggest that the _algorithms_ be fed into the info parameter. Rather, when when `Encapsulate` is called on the server-side, it might be called with the \"tls13 server\" info parameter. (And likewise for the client.) ",
+              "createdAt": "2021-07-13T12:40:24Z",
+              "updatedAt": "2021-07-13T12:40:24Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTM5NDM2",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:47:28Z",
+          "updatedAt": "2021-07-13T12:47:28Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "I meant that it's not possible to pass \"tls13 server\" to e.g. Kyber512, so if we ever want to replace Encapsulate() by for example straight-up \"Kyber.Encapsulate\", you can't anymore; you'll always need HKDF to be able to still feed in this label.",
+              "createdAt": "2021-07-13T12:47:28Z",
+              "updatedAt": "2021-07-13T12:49:56Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTQwNjgz",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:48:40Z",
+          "updatedAt": "2021-07-13T12:48:40Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "I... don't understand. You're not passing this to Kyber, you're passing it to HPKE, which takes care of that. If you're saying that Kyber can't fit underneath the HPKE API, that's a very different thing.",
+              "createdAt": "2021-07-13T12:48:40Z",
+              "updatedAt": "2021-07-13T12:48:41Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTQzMTYw",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:50:58Z",
+          "updatedAt": "2021-07-13T12:50:58Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "Although I guess that if we want to keep using HPKE even in a post-quantum setting, then it's possible. I'm just not sure that extra complexity is warranted.",
+              "createdAt": "2021-07-13T12:50:58Z",
+              "updatedAt": "2021-07-13T12:50:58Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTQ0NjU3",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:52:24Z",
+          "updatedAt": "2021-07-13T12:52:24Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "No, I mean ditching HPKE as soon as we have standardized post-quantum, non-HPKE KEMs.",
+              "createdAt": "2021-07-13T12:52:24Z",
+              "updatedAt": "2021-07-13T12:52:24Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTQ3MDgx",
+          "commit": {
+            "abbreviatedOid": "5fab826"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:54:39Z",
+          "updatedAt": "2021-07-13T12:54:39Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "My concern is that using the labels locks you into HPKE while the PQ KEM don't need the KDF in the same way that DH g^xy does (the NIST-competition KEMs already produce the result from a hash).",
+              "createdAt": "2021-07-13T12:54:39Z",
+              "updatedAt": "2021-07-13T12:55:34Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTUzMTM0",
+          "commit": {
+            "abbreviatedOid": "18e3360"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T12:59:57Z",
+          "updatedAt": "2021-07-13T12:59:57Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "The point of this change, to me, was specifically to introduce an HPKE dependency specifically to avoid yet another KEM algorithm registry and to build on the work that HPKE did to make KEM usage easy. \"Standardized post-quantum\" KEMs will find their way into HPKE's registry when available.",
+              "createdAt": "2021-07-13T12:59:57Z",
+              "updatedAt": "2021-07-13T13:00:24Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MTgxOTM0",
+          "commit": {
+            "abbreviatedOid": "18e3360"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T13:24:07Z",
+          "updatedAt": "2021-07-13T13:24:07Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "Right; to me HPKE was mainly a way to avoid having to define a DH-based KEM while we use it as a placeholder for anything post-quantum.  While the post-quantum KEMs are likely to be added to HPKE, don't you also expect them to be registered separately as \"bare\" algorithms? ",
+              "createdAt": "2021-07-13T13:24:07Z",
+              "updatedAt": "2021-07-13T13:24:07Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MzUzMjg3",
+          "commit": {
+            "abbreviatedOid": "18e3360"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T15:39:13Z",
+          "updatedAt": "2021-07-13T15:39:14Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "> While the post-quantum KEMs are likely to be added to HPKE, don't you also expect them to be registered separately as \"bare\" algorithms?\r\n\r\nI don't really see that happening. You'd not only need the algorithm registry, but then also define (yet another) way to implement domain separation. (It's true that the NIST KEMs don't need to KDF the output absent separation, but that doesn't seem to hold if you nee domain separation.)",
+              "createdAt": "2021-07-13T15:39:14Z",
+              "updatedAt": "2021-07-13T15:39:14Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1MzgxMjU5",
+          "commit": {
+            "abbreviatedOid": "18e3360"
+          },
+          "author": "claucece",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T16:04:01Z",
+          "updatedAt": "2021-07-13T16:04:01Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "I agree with @thomwiggers on all. The PQ KEM don't need the usage of KDF in the same way that DH does. For me, this was a placeholder as well.",
+              "createdAt": "2021-07-13T16:04:01Z",
+              "updatedAt": "2021-07-13T16:04:01Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzA1Mzg5NDcz",
+          "commit": {
+            "abbreviatedOid": "18e3360"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-13T16:11:52Z",
+          "updatedAt": "2021-07-13T16:11:53Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "What about domain separation? Are we punting on that entirely here?",
+              "createdAt": "2021-07-13T16:11:53Z",
+              "updatedAt": "2021-07-13T16:11:53Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NzE2MzU1NjAx",
+          "commit": {
+            "abbreviatedOid": "18e3360"
+          },
+          "author": "thomwiggers",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-07-27T20:37:47Z",
+          "updatedAt": "2021-07-27T20:37:47Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "As pointed out elsewhere by Chris:\r\n> From https://datatracker.ietf.org/doc/html/rfc8446#section-4.4.3:\r\nThe context string for a server signature is \"TLS 1.3, server CertificateVerify\".  The context string for a client signature is \"TLS 1.3, client CertificateVerify\". \r\n\r\nI don't think we considered this domain separation being present in the TLS CertificateVerify messages; this might be a good reason to include the domain separation feature of HPKE.",
+              "createdAt": "2021-07-27T20:37:47Z",
+              "updatedAt": "2021-07-27T20:37:47Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
