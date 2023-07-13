@@ -1,0 +1,3 @@
+{"rule":"SENTENCE_WHITESPACE","sentence":"I-D"}
+{"rule":"EN_A_VS_AN","sentence":"^\\QOtherwise, the server MUST terminate the handshake with an \"\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q\" alert.\\E$"}
+{"rule":"SCENT_SENT","sentence":"^\\QThe receiver of a \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q message MUST perform the \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q operation by using the sent encapsulation and the private key of the public key advertised in the end-entity certificate sent.\\E$"}
