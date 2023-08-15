@@ -896,6 +896,10 @@ approve use or unlock a certificate stored encrypted or on a smart card.
 
 ## Other security considerations
 
+* Because the Main Secret is derived from both the ephemeral key exchange,
+  as well as from the key exchanges completed for server and (optionally) client
+  authentication, the MS secret always reflects the peers' views of the authentication
+  status correctly. This is an improvement over TLS 1.3 for client authentication.
 
 * The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
   discussion of and a proof of the security of the handshake protocol without
