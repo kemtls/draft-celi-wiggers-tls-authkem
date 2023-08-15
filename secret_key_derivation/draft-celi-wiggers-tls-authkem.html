@@ -15,18 +15,18 @@
 authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
 exchange protocol, using their long-term (KEM) public keys. 
     " name="description">
-<meta content="xml2rfc 3.17.4" name="generator">
+<meta content="xml2rfc 3.17.5" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-celi-wiggers-tls-authkem-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.17.4
+  xml2rfc 3.17.5
     Python 3.11.4
     ConfigArgParse 1.5.3
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
-    lxml 4.9.2
-    platformdirs 3.8.0
+    lxml 4.9.3
+    platformdirs 3.10.0
     pycountry 22.3.5
     PyYAML 6.0
     requests 2.31.0
@@ -1053,11 +1053,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">AuthKEM</td>
-<td class="right">July 2023</td>
+<td class="right">August 2023</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Wiggers, et al.</td>
-<td class="center">Expires 13 January 2024</td>
+<td class="center">Expires 16 February 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1070,12 +1070,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-celi-wiggers-tls-authkem-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-07-12" class="published">12 July 2023</time>
+<time datetime="2023-08-15" class="published">15 August 2023</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-01-13">13 January 2024</time></dd>
+<dd class="expires"><time datetime="2024-02-16">16 February 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1141,7 +1141,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 13 January 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 February 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2162,28 +2162,33 @@ approve use or unlock a certificate stored encrypted or on a smart card.<a href=
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-other-security-consideratio" class="section-name selfRef">Other security considerations</a>
         </h3>
 <ul class="normal">
-<li class="normal" id="section-5.3-1.1">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
+<li class="normal" id="section-5.3-1.1">Because the Main Secret is derived from both the ephemeral key exchange,
+as well as from the key exchanges completed for server and (optionally) client
+authentication, the MS secret always reflects the peers' views of the authentication
+status correctly. This is an improvement over TLS 1.3 for client authentication.<a href="#section-5.3-1.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-5.3-1.2">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
 discussion of and a proof of the security of the handshake protocol without
-client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5.3-1.1" class="pilcrow">¶</a>
+client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5.3-1.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.2">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
+          <li class="normal" id="section-5.3-1.3">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
 keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
-mutually authenticated handshakes.<a href="#section-5.3-1.2" class="pilcrow">¶</a>
+mutually authenticated handshakes.<a href="#section-5.3-1.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.3">We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5.3-1.3" class="pilcrow">¶</a>
+          <li class="normal" id="section-5.3-1.4">We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5.3-1.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.4">Application Data sent prior to receiving the server's last explicit
+          <li class="normal" id="section-5.3-1.5">Application Data sent prior to receiving the server's last explicit
 authentication message (the Finished message) can be subject to a client
 certificate suite downgrade attack. Full downgrade resilience and forward
-secrecy is achieved once the handshake completes.<a href="#section-5.3-1.4" class="pilcrow">¶</a>
+secrecy is achieved once the handshake completes.<a href="#section-5.3-1.5" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.5">The client's certificate is kept secret from active observers by the
+          <li class="normal" id="section-5.3-1.6">The client's certificate is kept secret from active observers by the
 derivation of the <code>client_authenticated_handshake_secret</code>, which ensures that
-only the intended server can read the client's identity.<a href="#section-5.3-1.5" class="pilcrow">¶</a>
+only the intended server can read the client's identity.<a href="#section-5.3-1.6" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.6">If AuthKEM client authentication is used, the resulting shared secret is
+          <li class="normal" id="section-5.3-1.7">If AuthKEM client authentication is used, the resulting shared secret is
 included in the key schedule. This ensures that both peers have a consistent
-view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5.3-1.6" class="pilcrow">¶</a>
+view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5.3-1.7" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
@@ -2264,7 +2269,7 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-subcerts">[I-D.ietf-tls-subcerts]</dt>
         <dd>
-<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Iyengar, S.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">E. Rescorla</span>, <span class="refTitle">"Delegated Credentials for (D)TLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-subcerts-15</span>, <time datetime="2022-06-30" class="refDate">30 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15">https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15</a>&gt;</span>. </dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Iyengar, S.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">E. Rescorla</span>, <span class="refTitle">"Delegated Credentials for TLS and DTLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-subcerts-15</span>, <time datetime="2022-06-30" class="refDate">30 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15">https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="K22">[K22]</dt>
         <dd>

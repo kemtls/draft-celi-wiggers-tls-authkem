@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 13 January 2024                                  Brave Software
+Expires: 16 February 2024                                 Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                            12 July 2023
+                                                          15 August 2023
 
 
                   KEM-based Authentication for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 January 2024.
+   This Internet-Draft will expire on 16 February 2024.
 
 Copyright Notice
 
@@ -849,6 +849,12 @@ enum {
 
 5.3.  Other security considerations
 
+   *  Because the Main Secret is derived from both the ephemeral key
+      exchange, as well as from the key exchanges completed for server
+      and (optionally) client authentication, the MS secret always
+      reflects the peers' views of the authentication status correctly.
+      This is an improvement over TLS 1.3 for client authentication.
+
    *  The academic works proposing AuthKEM (KEMTLS) contains an in-depth
       technical discussion of and a proof of the security of the
       handshake protocol without client authentication [SSW20].
@@ -966,10 +972,10 @@ enum {
 
    [I-D.ietf-tls-subcerts]
               Barnes, R., Iyengar, S., Sullivan, N., and E. Rescorla,
-              "Delegated Credentials for (D)TLS", Work in Progress,
-              Internet-Draft, draft-ietf-tls-subcerts-15, 30 June 2022,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
-              subcerts-15>.
+              "Delegated Credentials for TLS and DTLS", Work in
+              Progress, Internet-Draft, draft-ietf-tls-subcerts-15, 30
+              June 2022, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-tls-subcerts-15>.
 
    [K22]      Kannwischer, M. J., "Polynomial Multiplication for Post-
               Quantum Cryptography", Ph.D. thesis, 22 April 2022,
