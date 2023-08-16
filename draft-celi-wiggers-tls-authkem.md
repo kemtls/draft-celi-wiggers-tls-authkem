@@ -251,7 +251,7 @@ is especially relevant to protected implementations. Finally, KEM operations may
 be more efficient than signing, which might especially affect embedded
 platforms.
 
-### Comparison of data sizes
+## Evaluation of handshake sizes
 **Should probably be removed before publishing**
 
 In the following table, we compare the sizes of TLS 1.3- and AuthKEM-based
@@ -275,8 +275,8 @@ which NIST indicates can be used if the implementation requirements can be met.
 | AuthKEM   | Kyber-768         | 2272          | 2229 (Falcon-512)       | 4564 |
 {: title="Size comparison of public-key cryptography in TLS 1.3 and AuthKEM handshakes." }
 
-Note that although TLS 1.3 with Falcon-512 is the smallest instantiation.
-However, Falcon is very challenging to implement: it requires (emulation of)
+Note that although TLS 1.3 with Falcon-512 is the smallest instantiation,
+Falcon is very challenging to implement: signature generation requires (emulation of)
 64-bit floating point operations in constant time. It is also very difficult to
 protect against other side-channel attacks, as there are no known methods of
 masking Falcon. In light of these difficulties, use of Falcon-512 in online
@@ -285,7 +285,8 @@ handshake signatures may not be wise.
 Using AuthKEM with Falcon-512 in the certificate chain remains an attractive
 option, however: the certificate issuance process, because it is mostly offline,
 could perhaps be set up in a way to protect the Falcon implementation against
-attacks. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
+attacks. Falcon signature verification is fast and does not require floating-point
+arithmetic. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
 of the signature verification routines, i.e., Dilithium and Falcon, on top of
 the key exchange algorithm.
 
@@ -341,6 +342,8 @@ separately. In the remainder of the draft, we will discuss the necessary
 implementation mechanics, such as code points, extensions, new protocol messages
 and the new key schedule. The draft concludes with ah extensive discussion of
 relevant security considerations.
+
+A related mechanism for KEM-based PSK-style handshakes is discussed in {{?I-D.draft-wiggers-tls-authkem-psk}}.
 
 # Conventions and definitions
 
@@ -528,7 +531,7 @@ Unfortunately, AuthKEM client authentication requires an extra round-trip.
 Clients that know the server's long-term public KEM key MAY choose to use the
 abbreviated AuthKEM handshake and opportunistically send the client certificate
 as a 0-RTT-like message. This mechanism is discussed in
-`I-D.draft-wiggers-authkem-psk-latest` (TODO: Link).
+{{?I-D.draft-wiggers-authkem-psk-latest}}.
 
 ## Relevant handshake messages
 
@@ -955,5 +958,5 @@ negotiated AuthKEM.
 # Acknowledgements
 {: numbered="no"}
 
-This work has been supported by the European Research Council through Starting
+Early versions of this work were supported by the European Research Council through Starting
 Grant No. 805031 (EPOQUE).
