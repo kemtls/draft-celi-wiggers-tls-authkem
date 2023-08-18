@@ -1888,30 +1888,35 @@ any alerts sent by the server in response to client <code>Certificate</code> and
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
 <ul class="normal">
-<li class="normal" id="section-5-1.1">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
+<li class="normal" id="section-5-1.1">Because the Main Secret is derived from both the ephemeral key exchange,
+as well as from the key exchanges completed for server and (optionally) client
+authentication, the MS secret always reflects the peers' views of the authentication
+status correctly. This is an improvement over TLS 1.3 for client authentication.<a href="#section-5-1.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-5-1.2">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
 discussion of and a proof of the security of the handshake protocol without
-client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5-1.1" class="pilcrow">¶</a>
+client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5-1.2" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-5-1.2">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
+        <li class="normal" id="section-5-1.3">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
 keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
-mutually authenticated handshakes.<a href="#section-5-1.2" class="pilcrow">¶</a>
+mutually authenticated handshakes.<a href="#section-5-1.3" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-5-1.3">We have machine-verified proofs of the security of KEMTLS and KEMTLS-PDK in
-Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5-1.3" class="pilcrow">¶</a>
+        <li class="normal" id="section-5-1.4">We have machine-verified proofs of the security of KEMTLS and KEMTLS-PDK in
+Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5-1.4" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-5-1.4">When the client opportunistically sends its certificate, it is not encrypted
+        <li class="normal" id="section-5-1.5">When the client opportunistically sends its certificate, it is not encrypted
 under a forward-secure key.  This has similar considerations and trade-offs as
 0-RTT data.  If it is a replayed message, there are no expected consequences
 for security as the malicious replayer will not be able to decapsulate the
-shared secret.<a href="#section-5-1.4" class="pilcrow">¶</a>
+shared secret.<a href="#section-5-1.5" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-5-1.5">A client that opportunistically sends its certificate, SHOULD send it
+        <li class="normal" id="section-5-1.6">A client that opportunistically sends its certificate, SHOULD send it
 encrypted with a ciphertext that it knows the server will accept. Otherwise,
-it will fail.<a href="#section-5-1.5" class="pilcrow">¶</a>
+it will fail.<a href="#section-5-1.6" class="pilcrow">¶</a>
 </li>
-        <li class="normal" id="section-5-1.6">If AuthKEM-PSK client authentication is used, the resulting shared secret is
+        <li class="normal" id="section-5-1.7">If AuthKEM-PSK client authentication is used, the resulting shared secret is
 included in the key schedule. This ensures that both peers have a consistent
-view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5-1.6" class="pilcrow">¶</a>
+view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5-1.7" class="pilcrow">¶</a>
 </li>
       </ul>
 <div id="server-anonymity">

@@ -2162,28 +2162,33 @@ approve use or unlock a certificate stored encrypted or on a smart card.<a href=
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-other-security-consideratio" class="section-name selfRef">Other security considerations</a>
         </h3>
 <ul class="normal">
-<li class="normal" id="section-5.3-1.1">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
+<li class="normal" id="section-5.3-1.1">Because the Main Secret is derived from both the ephemeral key exchange,
+as well as from the key exchanges completed for server and (optionally) client
+authentication, the MS secret always reflects the peers' views of the authentication
+status correctly. This is an improvement over TLS 1.3 for client authentication.<a href="#section-5.3-1.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-5.3-1.2">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
 discussion of and a proof of the security of the handshake protocol without
-client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5.3-1.1" class="pilcrow">¶</a>
+client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5.3-1.2" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.2">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
+          <li class="normal" id="section-5.3-1.3">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
 keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
-mutually authenticated handshakes.<a href="#section-5.3-1.2" class="pilcrow">¶</a>
+mutually authenticated handshakes.<a href="#section-5.3-1.3" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.3">We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5.3-1.3" class="pilcrow">¶</a>
+          <li class="normal" id="section-5.3-1.4">We have proofs of the security of KEMTLS and KEMTLS-PDK in Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5.3-1.4" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.4">Application Data sent prior to receiving the server's last explicit
+          <li class="normal" id="section-5.3-1.5">Application Data sent prior to receiving the server's last explicit
 authentication message (the Finished message) can be subject to a client
 certificate suite downgrade attack. Full downgrade resilience and forward
-secrecy is achieved once the handshake completes.<a href="#section-5.3-1.4" class="pilcrow">¶</a>
+secrecy is achieved once the handshake completes.<a href="#section-5.3-1.5" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.5">The client's certificate is kept secret from active observers by the
+          <li class="normal" id="section-5.3-1.6">The client's certificate is kept secret from active observers by the
 derivation of the <code>client_authenticated_handshake_secret</code>, which ensures that
-only the intended server can read the client's identity.<a href="#section-5.3-1.5" class="pilcrow">¶</a>
+only the intended server can read the client's identity.<a href="#section-5.3-1.6" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-5.3-1.6">If AuthKEM client authentication is used, the resulting shared secret is
+          <li class="normal" id="section-5.3-1.7">If AuthKEM client authentication is used, the resulting shared secret is
 included in the key schedule. This ensures that both peers have a consistent
-view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5.3-1.6" class="pilcrow">¶</a>
+view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5.3-1.7" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>
