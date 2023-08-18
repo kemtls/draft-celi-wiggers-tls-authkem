@@ -15,18 +15,18 @@
 authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
 exchange protocol, using their long-term (KEM) public keys. 
     " name="description">
-<meta content="xml2rfc 3.17.4" name="generator">
+<meta content="xml2rfc 3.18.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-celi-wiggers-tls-authkem-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.17.4
+  xml2rfc 3.18.0
     Python 3.11.4
     ConfigArgParse 1.5.3
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
-    lxml 4.9.2
-    platformdirs 3.8.0
+    lxml 4.9.3
+    platformdirs 3.10.0
     pycountry 22.3.5
     PyYAML 6.0
     requests 2.31.0
@@ -1053,11 +1053,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">AuthKEM</td>
-<td class="right">July 2023</td>
+<td class="right">August 2023</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Wiggers, et al.</td>
-<td class="center">Expires 14 January 2024</td>
+<td class="center">Expires 19 February 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1070,12 +1070,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-celi-wiggers-tls-authkem-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-07-13" class="published">13 July 2023</time>
+<time datetime="2023-08-18" class="published">18 August 2023</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-01-14">14 January 2024</time></dd>
+<dd class="expires"><time datetime="2024-02-19">19 February 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1141,7 +1141,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 14 January 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 19 February 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1175,25 +1175,23 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
                 <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-using-key-exchange-instead-" class="internal xref">Using key exchange instead of signatures for authentication</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.1">
-                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-comparison-of-data-sizes" class="internal xref">Comparison of data sizes</a></p>
-</li>
-                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
-                <p id="section-toc.1-1.1.2.2.1"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-related-work" class="internal xref">Related work</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2.2.1">
-                    <p id="section-toc.1-1.1.2.2.2.1.1" class="keepWithNext"><a href="#section-1.2.1" class="auto internal xref">1.2.1</a>.  <a href="#name-optls" class="internal xref">OPTLS</a></p>
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-evaluation-of-handshake-siz" class="internal xref">Evaluation of handshake sizes</a></p>
 </li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2.2.2">
-                    <p id="section-toc.1-1.1.2.2.2.2.1"><a href="#section-1.2.2" class="auto internal xref">1.2.2</a>.  <a href="#name-compressing-certificates-an" class="internal xref">Compressing certificates and certificate chains</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-related-work" class="internal xref">Related work</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3.2.1">
+                    <p id="section-toc.1-1.1.2.3.2.1.1" class="keepWithNext"><a href="#section-1.3.1" class="auto internal xref">1.3.1</a>.  <a href="#name-optls" class="internal xref">OPTLS</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3.2.2">
+                    <p id="section-toc.1-1.1.2.3.2.2.1"><a href="#section-1.3.2" class="auto internal xref">1.3.2</a>.  <a href="#name-compressing-certificates-an" class="internal xref">Compressing certificates and certificate chains</a></p>
 </li>
                 </ul>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
-                <p id="section-toc.1-1.1.2.3.1"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-organization" class="internal xref">Organization</a></p>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.4">
+                <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="auto internal xref">1.4</a>.  <a href="#name-organization" class="internal xref">Organization</a></p>
 </li>
             </ul>
 </li>
@@ -1350,13 +1348,15 @@ KEM operations replace signing. This decreases the code size requirements, which
 is especially relevant to protected implementations. Finally, KEM operations may
 be more efficient than signing, which might especially affect embedded
 platforms.<a href="#section-1.1-4" class="pilcrow">¶</a></p>
-<div id="comparison-of-data-sizes">
-<section id="section-1.1.1">
-          <h4 id="name-comparison-of-data-sizes">
-<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-comparison-of-data-sizes" class="section-name selfRef">Comparison of data sizes</a>
-          </h4>
-<p id="section-1.1.1-1"><strong>Should probably be removed before publishing</strong><a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1.1-2">In the following table, we compare the sizes of TLS 1.3- and AuthKEM-based
+</section>
+</div>
+<div id="evaluation-of-handshake-sizes">
+<section id="section-1.2">
+        <h3 id="name-evaluation-of-handshake-siz">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-evaluation-of-handshake-siz" class="section-name selfRef">Evaluation of handshake sizes</a>
+        </h3>
+<p id="section-1.2-1"><strong>Should probably be removed before publishing</strong><a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">In the following table, we compare the sizes of TLS 1.3- and AuthKEM-based
 handshakes. We give the transmission requirements for handshake authentication
 (public key + signature), and certificate chain (intermediate CA certificate
 public key and signature + root CA signature). For clarity, we are not listing
@@ -1366,115 +1366,114 @@ Kyber-768 instead of the smaller Kyber-512 parameterset, as the former is
 currently used in experimental deployments. For signatures, we use Dilithium,
 the "primary" algorithm selected by NIST for post-quantum signatures, as well as
 Falcon <span>[<a href="#FALCON" class="cite xref">FALCON</a>]</span>, the algorithm that offers smaller public key and signature sizes, but
-which NIST indicates can be used if the implementation requirements can be met.<a href="#section-1.1.1-2" class="pilcrow">¶</a></p>
+which NIST indicates can be used if the implementation requirements can be met.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 <span id="name-size-comparison-of-public-k"></span><table class="center" id="table-1">
-            <caption>
+          <caption>
 <a href="#table-1" class="selfRef">Table 1</a>:
 <a href="#name-size-comparison-of-public-k" class="selfRef">Size comparison of public-key cryptography in TLS 1.3 and AuthKEM handshakes.</a>
-            </caption>
+          </caption>
 <thead>
-              <tr>
-                <th class="text-left" rowspan="1" colspan="1">Handshake</th>
-                <th class="text-left" rowspan="1" colspan="1">HS auth algorithm</th>
-                <th class="text-left" rowspan="1" colspan="1">HS Auth bytes</th>
-                <th class="text-left" rowspan="1" colspan="1">Certificate chain bytes</th>
-                <th class="text-left" rowspan="1" colspan="1">Sum</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
-                <td class="text-left" rowspan="1" colspan="1">RSA-2048</td>
-                <td class="text-left" rowspan="1" colspan="1">528</td>
-                <td class="text-left" rowspan="1" colspan="1">784  (RSA-2048)</td>
-                <td class="text-left" rowspan="1" colspan="1">1312</td>
-              </tr>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
-                <td class="text-left" rowspan="1" colspan="1">Dilithium-2</td>
-                <td class="text-left" rowspan="1" colspan="1">3732</td>
-                <td class="text-left" rowspan="1" colspan="1">6152 (Dilithium-2)</td>
-                <td class="text-left" rowspan="1" colspan="1">9884</td>
-              </tr>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
-                <td class="text-left" rowspan="1" colspan="1">Falcon-512</td>
-                <td class="text-left" rowspan="1" colspan="1">1563</td>
-                <td class="text-left" rowspan="1" colspan="1">2229 (Falcon-512)</td>
-                <td class="text-left" rowspan="1" colspan="1">3792</td>
-              </tr>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
-                <td class="text-left" rowspan="1" colspan="1">Dilithium-2</td>
-                <td class="text-left" rowspan="1" colspan="1">3732</td>
-                <td class="text-left" rowspan="1" colspan="1">2229 (Falcon-512)</td>
-                <td class="text-left" rowspan="1" colspan="1">5961</td>
-              </tr>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">AuthKEM</td>
-                <td class="text-left" rowspan="1" colspan="1">Kyber-768</td>
-                <td class="text-left" rowspan="1" colspan="1">2272</td>
-                <td class="text-left" rowspan="1" colspan="1">6152 (Dilithium-2)</td>
-                <td class="text-left" rowspan="1" colspan="1">8424</td>
-              </tr>
-              <tr>
-                <td class="text-left" rowspan="1" colspan="1">AuthKEM</td>
-                <td class="text-left" rowspan="1" colspan="1">Kyber-768</td>
-                <td class="text-left" rowspan="1" colspan="1">2272</td>
-                <td class="text-left" rowspan="1" colspan="1">2229 (Falcon-512)</td>
-                <td class="text-left" rowspan="1" colspan="1">4564</td>
-              </tr>
-            </tbody>
-          </table>
-<p id="section-1.1.1-4">Note that although TLS 1.3 with Falcon-512 is the smallest instantiation.
-However, Falcon is very challenging to implement: it requires (emulation of)
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Handshake</th>
+              <th class="text-left" rowspan="1" colspan="1">HS auth algorithm</th>
+              <th class="text-left" rowspan="1" colspan="1">HS Auth bytes</th>
+              <th class="text-left" rowspan="1" colspan="1">Certificate chain bytes</th>
+              <th class="text-left" rowspan="1" colspan="1">Sum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
+              <td class="text-left" rowspan="1" colspan="1">RSA-2048</td>
+              <td class="text-left" rowspan="1" colspan="1">528</td>
+              <td class="text-left" rowspan="1" colspan="1">784  (RSA-2048)</td>
+              <td class="text-left" rowspan="1" colspan="1">1312</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
+              <td class="text-left" rowspan="1" colspan="1">Dilithium-2</td>
+              <td class="text-left" rowspan="1" colspan="1">3732</td>
+              <td class="text-left" rowspan="1" colspan="1">6152 (Dilithium-2)</td>
+              <td class="text-left" rowspan="1" colspan="1">9884</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
+              <td class="text-left" rowspan="1" colspan="1">Falcon-512</td>
+              <td class="text-left" rowspan="1" colspan="1">1563</td>
+              <td class="text-left" rowspan="1" colspan="1">2229 (Falcon-512)</td>
+              <td class="text-left" rowspan="1" colspan="1">3792</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">TLS 1.3</td>
+              <td class="text-left" rowspan="1" colspan="1">Dilithium-2</td>
+              <td class="text-left" rowspan="1" colspan="1">3732</td>
+              <td class="text-left" rowspan="1" colspan="1">2229 (Falcon-512)</td>
+              <td class="text-left" rowspan="1" colspan="1">5961</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">AuthKEM</td>
+              <td class="text-left" rowspan="1" colspan="1">Kyber-768</td>
+              <td class="text-left" rowspan="1" colspan="1">2272</td>
+              <td class="text-left" rowspan="1" colspan="1">6152 (Dilithium-2)</td>
+              <td class="text-left" rowspan="1" colspan="1">8424</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">AuthKEM</td>
+              <td class="text-left" rowspan="1" colspan="1">Kyber-768</td>
+              <td class="text-left" rowspan="1" colspan="1">2272</td>
+              <td class="text-left" rowspan="1" colspan="1">2229 (Falcon-512)</td>
+              <td class="text-left" rowspan="1" colspan="1">4564</td>
+            </tr>
+          </tbody>
+        </table>
+<p id="section-1.2-4">Note that although TLS 1.3 with Falcon-512 is the smallest instantiation,
+Falcon is very challenging to implement: signature generation requires (emulation of)
 64-bit floating point operations in constant time. It is also very difficult to
 protect against other side-channel attacks, as there are no known methods of
 masking Falcon. In light of these difficulties, use of Falcon-512 in online
-handshake signatures may not be wise.<a href="#section-1.1.1-4" class="pilcrow">¶</a></p>
-<p id="section-1.1.1-5">Using AuthKEM with Falcon-512 in the certificate chain remains an attractive
+handshake signatures may not be wise.<a href="#section-1.2-4" class="pilcrow">¶</a></p>
+<p id="section-1.2-5">Using AuthKEM with Falcon-512 in the certificate chain remains an attractive
 option, however: the certificate issuance process, because it is mostly offline,
 could perhaps be set up in a way to protect the Falcon implementation against
-attacks. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
+attacks. Falcon signature verification is fast and does not require floating-point
+arithmetic. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
 of the signature verification routines, i.e., Dilithium and Falcon, on top of
-the key exchange algorithm.<a href="#section-1.1.1-5" class="pilcrow">¶</a></p>
-<p id="section-1.1.1-6">In all examples, the size of the certificate chain still dominates the TLS
+the key exchange algorithm.<a href="#section-1.2-5" class="pilcrow">¶</a></p>
+<p id="section-1.2-6">In all examples, the size of the certificate chain still dominates the TLS
 handshake, especially if Certificate Transparency SCT statements are included,
 which is relevant in the context of the WebPKI. However, we believe that if
 proposals to reduce transmission sizes of the certificate chain in the WebPKI
 context are implemented, the space savings of AuthKEM naturally become
 relatively larger and more significant. We discuss this in
-<a href="#cert-compression" class="auto internal xref">Section 1.2.2</a>.<a href="#section-1.1.1-6" class="pilcrow">¶</a></p>
-</section>
-</div>
+<a href="#cert-compression" class="auto internal xref">Section 1.3.2</a>.<a href="#section-1.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="related-work">
-<section id="section-1.2">
+<section id="section-1.3">
         <h3 id="name-related-work">
-<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-related-work" class="section-name selfRef">Related work</a>
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-related-work" class="section-name selfRef">Related work</a>
         </h3>
 <div id="optls">
-<section id="section-1.2.1">
+<section id="section-1.3.1">
           <h4 id="name-optls">
-<a href="#section-1.2.1" class="section-number selfRef">1.2.1. </a><a href="#name-optls" class="section-name selfRef">OPTLS</a>
+<a href="#section-1.3.1" class="section-number selfRef">1.3.1. </a><a href="#name-optls" class="section-name selfRef">OPTLS</a>
           </h4>
-<p id="section-1.2.1-1">This proposal draws inspiration from <span>[<a href="#I-D.ietf-tls-semistatic-dh" class="cite xref">I-D.ietf-tls-semistatic-dh</a>]</span>, which is
+<p id="section-1.3.1-1">This proposal draws inspiration from <span>[<a href="#I-D.ietf-tls-semistatic-dh" class="cite xref">I-D.ietf-tls-semistatic-dh</a>]</span>, which is
 in turn based on the OPTLS proposal for TLS 1.3 <span>[<a href="#KW16" class="cite xref">KW16</a>]</span>. However, these proposals
 require a non-interactive key exchange: they combine the client's public key
 with the server's long-term key. This imposes an extra requirement: the
 ephemeral and static keys MUST use the same algorithm, which this proposal does
 not require. Additionally, there are no post-quantum proposals for a
 non-interactive key exchange currently considered for standardization, while
-several KEMs are on the way.<a href="#section-1.2.1-1" class="pilcrow">¶</a></p>
+several KEMs are on the way.<a href="#section-1.3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cert-compression">
-<section id="section-1.2.2">
+<section id="section-1.3.2">
           <h4 id="name-compressing-certificates-an">
-<a href="#section-1.2.2" class="section-number selfRef">1.2.2. </a><a href="#name-compressing-certificates-an" class="section-name selfRef">Compressing certificates and certificate chains</a>
+<a href="#section-1.3.2" class="section-number selfRef">1.3.2. </a><a href="#name-compressing-certificates-an" class="section-name selfRef">Compressing certificates and certificate chains</a>
           </h4>
-<p id="section-1.2.2-1">AuthKEM reduces the amount of data required for authentication in TLS. In
+<p id="section-1.3.2-1">AuthKEM reduces the amount of data required for authentication in TLS. In
 recognition of the large increase in handshake size that a naive adoption of
 post-quantum signatures would affect, several proposals have been put forward
 that aim to reduce the size of certificates in the TLS handshake. <span>[<a href="#RFC8879" class="cite xref">RFC8879</a>]</span>
@@ -1488,27 +1487,28 @@ out-of-band distribution of intermediate certificates or other trust anchors in
 a way that requires a robust update mechanism. This makes these proposals mainly
 suitable for the WebPKI setting; although this is also the setting that has the
 largest number of certificates due to the inclusion of SCT statements
-<span>[<a href="#RFC6962" class="cite xref">RFC6962</a>]</span> and OSCP staples <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.<a href="#section-1.2.2-1" class="pilcrow">¶</a></p>
-<p id="section-1.2.2-2">AuthKEM complements these approaches in the WebPKI setting. On its own the gains
+<span>[<a href="#RFC6962" class="cite xref">RFC6962</a>]</span> and OSCP staples <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>.<a href="#section-1.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.3.2-2">AuthKEM complements these approaches in the WebPKI setting. On its own the gains
 that AuthKEM offers may be modest compared to the large sizes of certificate
 chains. But when combined with compression or certificate suppression mechanisms
 such as those proposed in the referenced drafts, the reduction in handshake size
-when replacing Dilithium-2 by Kyber-768 becomes significant again.<a href="#section-1.2.2-2" class="pilcrow">¶</a></p>
+when replacing Dilithium-2 by Kyber-768 becomes significant again.<a href="#section-1.3.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="organization">
-<section id="section-1.3">
+<section id="section-1.4">
         <h3 id="name-organization">
-<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-organization" class="section-name selfRef">Organization</a>
+<a href="#section-1.4" class="section-number selfRef">1.4. </a><a href="#name-organization" class="section-name selfRef">Organization</a>
         </h3>
-<p id="section-1.3-1">After a brief introduction to KEMs, we will introduce the AuthKEM authentication
+<p id="section-1.4-1">After a brief introduction to KEMs, we will introduce the AuthKEM authentication
 mechanism. For clarity, we discuss unilateral and mutual authentication
 separately. In the remainder of the draft, we will discuss the necessary
 implementation mechanics, such as code points, extensions, new protocol messages
 and the new key schedule. The draft concludes with ah extensive discussion of
-relevant security considerations.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+relevant security considerations.<a href="#section-1.4-1" class="pilcrow">¶</a></p>
+<p id="section-1.4-2">A related mechanism for KEM-based PSK-style handshakes is discussed in <span>[<a href="#I-D.draft-wiggers-tls-authkem-psk" class="cite xref">I-D.draft-wiggers-tls-authkem-psk</a>]</span>.<a href="#section-1.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1738,7 +1738,7 @@ client MUST NOT assume it has been authenticated.<a href="#section-3.1-5" class=
 Clients that know the server's long-term public KEM key MAY choose to use the
 abbreviated AuthKEM handshake and opportunistically send the client certificate
 as a 0-RTT-like message. This mechanism is discussed in
-<code>I-D.draft-wiggers-authkem-psk-latest</code> (TODO: Link).<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<span>[<a href="#I-D.draft-wiggers-authkem-psk-latest" class="cite xref">I-D.draft-wiggers-authkem-psk-latest</a>]</span>.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="relevant-handshake-messages">
@@ -2254,6 +2254,14 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
         <dd>
 <span class="refAuthor">Westerbaan, B.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"X25519Kyber768Draft00 hybrid post-quantum KEM for HPKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-02</span>, <time datetime="2023-05-04" class="refDate">4 May 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-02">https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="I-D.draft-wiggers-authkem-psk-latest">[I-D.draft-wiggers-authkem-psk-latest]</dt>
+        <dd>
+<span class="refTitle">"*** BROKEN REFERENCE ***"</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.draft-wiggers-tls-authkem-psk">[I-D.draft-wiggers-tls-authkem-psk]</dt>
+        <dd>
+<span class="refTitle">"*** BROKEN REFERENCE ***"</span>. </dd>
+<dd class="break"></dd>
 <dt id="I-D.ietf-tls-ctls">[I-D.ietf-tls-ctls]</dt>
         <dd>
 <span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Tschofenig, H.</span>, and <span class="refAuthor">B. M. Schwartz</span>, <span class="refTitle">"Compact TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-ctls-08</span>, <time datetime="2023-03-13" class="refDate">13 March 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-ctls-08">https://datatracker.ietf.org/doc/html/draft-ietf-tls-ctls-08</a>&gt;</span>. </dd>
@@ -2264,7 +2272,7 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-subcerts">[I-D.ietf-tls-subcerts]</dt>
         <dd>
-<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Iyengar, S.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">E. Rescorla</span>, <span class="refTitle">"Delegated Credentials for (D)TLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-subcerts-15</span>, <time datetime="2022-06-30" class="refDate">30 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15">https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15</a>&gt;</span>. </dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Iyengar, S.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">E. Rescorla</span>, <span class="refTitle">"Delegated Credentials for TLS and DTLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-subcerts-15</span>, <time datetime="2022-06-30" class="refDate">30 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15">https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="K22">[K22]</dt>
         <dd>
@@ -2355,7 +2363,7 @@ negotiated AuthKEM.<a href="#appendix-A.2-3" class="pilcrow">¶</a></p>
       <h2 id="name-acknowledgements">
 <a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
       </h2>
-<p id="appendix-B-1">This work has been supported by the European Research Council through Starting
+<p id="appendix-B-1">Early versions of this work were supported by the European Research Council through Starting
 Grant No. 805031 (EPOQUE).<a href="#appendix-B-1" class="pilcrow">¶</a></p>
 </section>
 </div>

@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 14 January 2024                                  Brave Software
+Expires: 19 February 2024                                 Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                            13 July 2023
+                                                          18 August 2023
 
 
                   KEM-based Authentication for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 January 2024.
+   This Internet-Draft will expire on 19 February 2024.
 
 Copyright Notice
 
@@ -74,11 +74,11 @@ Table of Contents
 
    1.  Introduction
      1.1.  Using key exchange instead of signatures for authentication
-       1.1.1.  Comparison of data sizes
-     1.2.  Related work
-       1.2.1.  OPTLS
-       1.2.2.  Compressing certificates and certificate chains
-     1.3.  Organization
+     1.2.  Evaluation of handshake sizes
+     1.3.  Related work
+       1.3.1.  OPTLS
+       1.3.2.  Compressing certificates and certificate chains
+     1.4.  Organization
    2.  Conventions and definitions
      2.1.  Terminology
      2.2.  Key Encapsulation Mechanisms
@@ -167,7 +167,7 @@ Table of Contents
    implementations.  Finally, KEM operations may be more efficient than
    signing, which might especially affect embedded platforms.
 
-1.1.1.  Comparison of data sizes
+1.2.  Evaluation of handshake sizes
 
    *Should probably be removed before publishing*
 
@@ -212,20 +212,21 @@ Table of Contents
                          and AuthKEM handshakes.
 
    Note that although TLS 1.3 with Falcon-512 is the smallest
-   instantiation.  However, Falcon is very challenging to implement: it
-   requires (emulation of) 64-bit floating point operations in constant
-   time.  It is also very difficult to protect against other side-
-   channel attacks, as there are no known methods of masking Falcon.  In
-   light of these difficulties, use of Falcon-512 in online handshake
-   signatures may not be wise.
+   instantiation, Falcon is very challenging to implement: signature
+   generation requires (emulation of) 64-bit floating point operations
+   in constant time.  It is also very difficult to protect against other
+   side-channel attacks, as there are no known methods of masking
+   Falcon.  In light of these difficulties, use of Falcon-512 in online
+   handshake signatures may not be wise.
 
    Using AuthKEM with Falcon-512 in the certificate chain remains an
    attractive option, however: the certificate issuance process, because
    it is mostly offline, could perhaps be set up in a way to protect the
-   Falcon implementation against attacks.  Avoiding online usage of
-   Falcon in TLS 1.3 requires two implementations of the signature
-   verification routines, i.e., Dilithium and Falcon, on top of the key
-   exchange algorithm.
+   Falcon implementation against attacks.  Falcon signature verification
+   is fast and does not require floating-point arithmetic.  Avoiding
+   online usage of Falcon in TLS 1.3 requires two implementations of the
+   signature verification routines, i.e., Dilithium and Falcon, on top
+   of the key exchange algorithm.
 
    In all examples, the size of the certificate chain still dominates
    the TLS handshake, especially if Certificate Transparency SCT
@@ -233,11 +234,11 @@ Table of Contents
    WebPKI.  However, we believe that if proposals to reduce transmission
    sizes of the certificate chain in the WebPKI context are implemented,
    the space savings of AuthKEM naturally become relatively larger and
-   more significant.  We discuss this in Section 1.2.2.
+   more significant.  We discuss this in Section 1.3.2.
 
-1.2.  Related work
+1.3.  Related work
 
-1.2.1.  OPTLS
+1.3.1.  OPTLS
 
    This proposal draws inspiration from [I-D.ietf-tls-semistatic-dh],
    which is in turn based on the OPTLS proposal for TLS 1.3 [KW16].
@@ -249,7 +250,7 @@ Table of Contents
    interactive key exchange currently considered for standardization,
    while several KEMs are on the way.
 
-1.2.2.  Compressing certificates and certificate chains
+1.3.2.  Compressing certificates and certificate chains
 
    AuthKEM reduces the amount of data required for authentication in
    TLS.  In recognition of the large increase in handshake size that a
@@ -277,7 +278,7 @@ Table of Contents
    referenced drafts, the reduction in handshake size when replacing
    Dilithium-2 by Kyber-768 becomes significant again.
 
-1.3.  Organization
+1.4.  Organization
 
    After a brief introduction to KEMs, we will introduce the AuthKEM
    authentication mechanism.  For clarity, we discuss unilateral and
@@ -286,6 +287,9 @@ Table of Contents
    points, extensions, new protocol messages and the new key schedule.
    The draft concludes with ah extensive discussion of relevant security
    considerations.
+
+   A related mechanism for KEM-based PSK-style handshakes is discussed
+   in [I-D.draft-wiggers-tls-authkem-psk].
 
 2.  Conventions and definitions
 
@@ -470,7 +474,7 @@ Table of Contents
    trip.  Clients that know the server's long-term public KEM key MAY
    choose to use the abbreviated AuthKEM handshake and opportunistically
    send the client certificate as a 0-RTT-like message.  This mechanism
-   is discussed in I-D.draft-wiggers-authkem-psk-latest (TODO: Link).
+   is discussed in [I-D.draft-wiggers-authkem-psk-latest].
 
 3.2.  Relevant handshake messages
 
@@ -950,6 +954,12 @@ enum {
               4 May 2023, <https://datatracker.ietf.org/doc/html/draft-
               westerbaan-cfrg-hpke-xyber768d00-02>.
 
+   [I-D.draft-wiggers-authkem-psk-latest]
+              "*** BROKEN REFERENCE ***".
+
+   [I-D.draft-wiggers-tls-authkem-psk]
+              "*** BROKEN REFERENCE ***".
+
    [I-D.ietf-tls-ctls]
               Rescorla, E., Barnes, R., Tschofenig, H., and B. M.
               Schwartz, "Compact TLS 1.3", Work in Progress, Internet-
@@ -966,10 +976,10 @@ enum {
 
    [I-D.ietf-tls-subcerts]
               Barnes, R., Iyengar, S., Sullivan, N., and E. Rescorla,
-              "Delegated Credentials for (D)TLS", Work in Progress,
-              Internet-Draft, draft-ietf-tls-subcerts-15, 30 June 2022,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
-              subcerts-15>.
+              "Delegated Credentials for TLS and DTLS", Work in
+              Progress, Internet-Draft, draft-ietf-tls-subcerts-15, 30
+              June 2022, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-tls-subcerts-15>.
 
    [K22]      Kannwischer, M. J., "Polynomial Multiplication for Post-
               Quantum Cryptography", Ph.D. thesis, 22 April 2022,
@@ -1054,8 +1064,8 @@ A.2.  Interaction with signing certificates
 
 Acknowledgements
 
-   This work has been supported by the European Research Council through
-   Starting Grant No. 805031 (EPOQUE).
+   Early versions of this work were supported by the European Research
+   Council through Starting Grant No. 805031 (EPOQUE).
 
 Authors' Addresses
 
