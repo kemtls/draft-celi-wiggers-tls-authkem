@@ -2,9 +2,15 @@
 
 This is the working area for the individual Internet-Draft, "KEM-based Authentication for TLS 1.3".
 
+## AuthKEM
 * [Editor's Copy](https://kemtls.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.html)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem)
 * [Compare Editor's Copy to Individual Draft](https://kemtls.github.io/draft-celi-wiggers-tls-authkem/#go.draft-celi-wiggers-tls-authkem.diff)
+
+## AuthKEM-PSK
+* [Editor's Copy](https://kemtls.github.io/draft-celi-wiggers-tls-authkem/#go.draft-wiggers-tls-authkem-psk.html)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-wiggers-tls-authkem-psk)
+* [Compare Editor's Copy to Individual Draft](https://kemtls.github.io/draft-celi-wiggers-tls-authkem/#go.draft-wiggers-tls-authkem-psk.diff)
 
 ## Building the Draft
 
