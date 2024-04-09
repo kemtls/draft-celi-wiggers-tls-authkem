@@ -352,9 +352,7 @@ Table of Contents
      return (enc, ss)
 
    def Decapsulate(enc, sk, context_string):
-     return HPKE.SetupBaseR(enc,
-                            sk,
-                            "tls13 auth-kem")
+     return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
                 .Export(context_string, HKDF.Length)
 
    Keys are generated and encoded for transmission following the
