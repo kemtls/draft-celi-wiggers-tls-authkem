@@ -117,7 +117,7 @@ informative:
       "ESORICS 2022":
       DOI: 10.1007/978-3-031-17143-7_4
       "IACR ePrint": https://ia.cr/2022/1111
-  Wig4:
+  Wig24:
     title: "Post-Quantum TLS"
     date: 2024-01-09
     author:
@@ -352,7 +352,8 @@ implementation mechanics, such as code points, extensions, new protocol messages
 and the new key schedule. The draft concludes with ah extensive discussion of
 relevant security considerations.
 
-A related mechanism for KEM-based PSK-style handshakes is discussed in {{?I-D.draft-wiggers-tls-authkem-psk}}.
+A related mechanism for KEM-based PSK-style handshakes is discussed in
+{{?I-D.draft-wiggers-tls-authkem-psk}}.
 
 # Conventions and definitions
 
@@ -540,7 +541,7 @@ Unfortunately, AuthKEM client authentication requires an extra round-trip.
 Clients that know the server's long-term public KEM key MAY choose to use the
 abbreviated AuthKEM handshake and opportunistically send the client certificate
 as a 0-RTT-like message. This mechanism is discussed in
-{{?I-D.draft-wiggers-authkem-psk-latest}}.
+{{?I-D.draft-wiggers-tls-authkem-psk}}.
 
 ## Relevant handshake messages
 
