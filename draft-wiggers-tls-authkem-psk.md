@@ -288,21 +288,22 @@ shared secrets appropriate for using with key schedule in TLS 1.3:
 
 ~~~
 def Encapsulate(pk, context_string):
-  enc, ctx = HPKE.SetupBaseS(pk,
-                             "tls13 auth-kem " + context_string)
-  ss = ctx.Export("", HKDF.Length)
+  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
+  ss = ctx.Export(context_string, HKDF.Length)
   return (enc, ss)
 
 def Decapsulate(enc, sk, context_string):
-  return HPKE.SetupBaseR(enc,
-                         sk,
-                         "tls13 auth-kem " + context_string)
-             .Export("", HKDF.Length)
+  return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
+             .Export(context_string, HKDF.Length)
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in
 {{!RFC9180}}. The values of `context_string` are defined in
 [](#kem-computations).
+
+**Open question:** Should we keep using HPKE, or just use "plain" KEMs, as in
+the original KEMTLS works? Please see the discussion at [Issue
+#32](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/32).
 
 # Abbreviated AuthKEM with pre-shared public KEM keys {#psk-protocol}
 
