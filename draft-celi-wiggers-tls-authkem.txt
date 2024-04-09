@@ -474,7 +474,7 @@ Table of Contents
    trip.  Clients that know the server's long-term public KEM key MAY
    choose to use the abbreviated AuthKEM handshake and opportunistically
    send the client certificate as a 0-RTT-like message.  This mechanism
-   is discussed in [I-D.draft-wiggers-authkem-psk-latest].
+   is discussed in [I-D.draft-wiggers-tls-authkem-psk].
 
 3.2.  Relevant handshake messages
 
@@ -861,9 +861,9 @@ enum {
 
    *  The academic works proposing AuthKEM (KEMTLS) contains an in-depth
       technical discussion of and a proof of the security of the
-      handshake protocol without client authentication [SSW20] [Wig24].
+      handshake protocol without client authentication SSW20 [Wig24].
 
-   *  The work proposing the variant protocol [SSW21] [Wig24] with pre-
+   *  The work proposing the variant protocol SSW21 [Wig24] with pre-
       distributed public keys (the abbreviated AuthKEM handshake) has a
       proof for both unilaterally and mutually authenticated handshakes.
 
@@ -960,9 +960,6 @@ enum {
               4 May 2023, <https://datatracker.ietf.org/doc/html/draft-
               westerbaan-cfrg-hpke-xyber768d00-02>.
 
-   [I-D.draft-wiggers-authkem-psk-latest]
-              "*** BROKEN REFERENCE ***".
-
    [I-D.draft-wiggers-tls-authkem-psk]
               Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
               Sullivan, "KEM-based pre-shared-key handshakes for TLS
@@ -1044,7 +1041,7 @@ enum {
               ePrint https://ia.cr/2021/779, May 2021,
               <https://doi.org/10.1007/978-3-030-88418-5_1>.
 
-   [Wig4]     Wiggers, T., "Post-Quantum TLS", PhD
+   [Wig24]    Wiggers, T., "Post-Quantum TLS", PhD
               thesis https://thomwiggers.nl/publication/thesis/, 9
               January 2024.
 
