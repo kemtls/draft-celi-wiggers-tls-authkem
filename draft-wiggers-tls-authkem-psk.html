@@ -15,24 +15,24 @@
 authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
 exchange protocol, using their long-term (KEM) public keys. 
     " name="description">
-<meta content="xml2rfc 3.18.0" name="generator">
+<meta content="xml2rfc 3.20.1" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-wiggers-tls-authkem-psk-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.18.0
-    Python 3.11.4
-    ConfigArgParse 1.5.3
+  xml2rfc 3.20.1
+    Python 3.11.8
+    ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 3.10.0
+    platformdirs 4.2.0
     pycountry 22.3.5
-    PyYAML 6.0
+    PyYAML 6.0.1
     requests 2.31.0
-    setuptools 67.7.2
+    setuptools 68.2.2
     six 1.16.0
-    wcwidth 0.2.6
+    wcwidth 0.2.13
 -->
 <link href="draft-wiggers-tls-authkem-psk.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -655,7 +655,7 @@ sub, sup {
 }
 #toc nav li {
   line-height: 1.3em;
-  margin: 0.75em 0;
+  margin: 2px 0;
   padding-left: 1.2em;
   text-indent: -1.2em;
 }
@@ -748,7 +748,7 @@ hr.addr {
     z-index: 2;
     top: 0;
     right: 0;
-    padding: 0;
+    padding: 1px 0 0 0;
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
@@ -872,16 +872,13 @@ hr.addr {
     border-top: none;
     padding-top: 0;
   }
-  figure, pre {
+  figure, pre, .vcard {
     page-break-inside: avoid;
-  }
-  figure {
-    overflow: scroll;
   }
   h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
   }
-  h2+*, h3+*, h4+*, h5+*, h6+* {
+  :is(h2, h3, h4, h5, h6)+*, dd {
     page-break-before: avoid;
   }
   pre {
@@ -894,6 +891,9 @@ hr.addr {
   }
   td {
     border-top: 1px solid #ddd;
+  }
+  .toplink {
+    display: none;
   }
 }
 
@@ -995,28 +995,6 @@ address div.right {
   text-align: right;
 }
 
-/* Give the table caption label the same styling as the figcaption */
-
-@media print {
-  .toplink {
-    display: none;
-  }
-
-  /* avoid overwriting the top border line with the ToC header */
-  #toc {
-    padding-top: 1px;
-  }
-
-  /* Avoid page breaks inside dl and author address entries */
-  dd {
-    page-break-before: avoid;
-  }
-  .vcard {
-    page-break-inside: avoid;
-  }
-
-}
-
 /* Dark mode. */
 @media (prefers-color-scheme: dark) {
 :root {
@@ -1053,11 +1031,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">AuthKEM-PSK</td>
-<td class="right">August 2023</td>
+<td class="right">April 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Wiggers, et al.</td>
-<td class="center">Expires 19 February 2024</td>
+<td class="center">Expires 11 October 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1070,12 +1048,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-wiggers-tls-authkem-psk-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-08-18" class="published">18 August 2023</time>
+<time datetime="2024-04-09" class="published">9 April 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-02-19">19 February 2024</time></dd>
+<dd class="expires"><time datetime="2024-10-11">11 October 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1141,7 +1119,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 19 February 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 11 October 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1150,7 +1128,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2023 IETF Trust and the persons identified as the
+            Copyright (c) 2024 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1645,20 +1623,24 @@ struct {
 <p id="section-4.2.1-4">This extension MUST contain the following information when included in
 <code>ClientHello</code> messages:<a href="#section-4.2.1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.1-5.1">The client indicates the public key encapsulated to by its fingerprint<a href="#section-4.2.1-5.1" class="pilcrow">¶</a>
+<li class="normal" id="section-4.2.1-5.1">
+              <p id="section-4.2.1-5.1.1">The client indicates the public key encapsulated to by its fingerprint<a href="#section-4.2.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.1-5.2">The client submits the ciphertext<a href="#section-4.2.1-5.2" class="pilcrow">¶</a>
+            <li class="normal" id="section-4.2.1-5.2">
+              <p id="section-4.2.1-5.2.1">The client submits the ciphertext<a href="#section-4.2.1-5.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-4.2.1-6">The server MUST send the extension back as an acknowledgement, if and only if it
 wishes to negotiate the abbreviated AuthKEM handshake.<a href="#section-4.2.1-6" class="pilcrow">¶</a></p>
 <p id="section-4.2.1-7">The fingerprint calculation proceeds this way:<a href="#section-4.2.1-7" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-4.2.1-8">
-<li id="section-4.2.1-8.1">Compute the SHA-256 hash of the input data. Note that the computed hash only
+<li id="section-4.2.1-8.1">
+              <p id="section-4.2.1-8.1.1">Compute the SHA-256 hash of the input data. Note that the computed hash only
 covers the input data structure (and not any type and length information of
-the record layer).<a href="#section-4.2.1-8.1" class="pilcrow">¶</a>
+the record layer).<a href="#section-4.2.1-8.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-4.2.1-8.2">Use the output of the SHA-256 hash.<a href="#section-4.2.1-8.2" class="pilcrow">¶</a>
+            <li id="section-4.2.1-8.2">
+              <p id="section-4.2.1-8.2.1">Use the output of the SHA-256 hash.<a href="#section-4.2.1-8.2.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <p id="section-4.2.1-9">If this extension is not present, the client and the server MUST NOT negotiate
@@ -1888,35 +1870,42 @@ any alerts sent by the server in response to client <code>Certificate</code> and
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
 <ul class="normal">
-<li class="normal" id="section-5-1.1">Because the Main Secret is derived from both the ephemeral key exchange,
+<li class="normal" id="section-5-1.1">
+          <p id="section-5-1.1.1">Because the Main Secret is derived from both the ephemeral key exchange,
 as well as from the key exchanges completed for server and (optionally) client
 authentication, the MS secret always reflects the peers' views of the authentication
-status correctly. This is an improvement over TLS 1.3 for client authentication.<a href="#section-5-1.1" class="pilcrow">¶</a>
+status correctly. This is an improvement over TLS 1.3 for client authentication.<a href="#section-5-1.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-1.2">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
+        <li class="normal" id="section-5-1.2">
+          <p id="section-5-1.2.1">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
 discussion of and a proof of the security of the handshake protocol without
-client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5-1.2" class="pilcrow">¶</a>
+client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5-1.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-1.3">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
+        <li class="normal" id="section-5-1.3">
+          <p id="section-5-1.3.1">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
 keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
-mutually authenticated handshakes.<a href="#section-5-1.3" class="pilcrow">¶</a>
+mutually authenticated handshakes.<a href="#section-5-1.3.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-1.4">We have machine-verified proofs of the security of KEMTLS and KEMTLS-PDK in
-Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5-1.4" class="pilcrow">¶</a>
+        <li class="normal" id="section-5-1.4">
+          <p id="section-5-1.4.1">We have machine-verified proofs of the security of KEMTLS and KEMTLS-PDK in
+Tamarin. <span>[<a href="#CHSW22" class="cite xref">CHSW22</a>]</span><a href="#section-5-1.4.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-1.5">When the client opportunistically sends its certificate, it is not encrypted
+        <li class="normal" id="section-5-1.5">
+          <p id="section-5-1.5.1">When the client opportunistically sends its certificate, it is not encrypted
 under a forward-secure key.  This has similar considerations and trade-offs as
 0-RTT data.  If it is a replayed message, there are no expected consequences
 for security as the malicious replayer will not be able to decapsulate the
-shared secret.<a href="#section-5-1.5" class="pilcrow">¶</a>
+shared secret.<a href="#section-5-1.5.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-1.6">A client that opportunistically sends its certificate, SHOULD send it
+        <li class="normal" id="section-5-1.6">
+          <p id="section-5-1.6.1">A client that opportunistically sends its certificate, SHOULD send it
 encrypted with a ciphertext that it knows the server will accept. Otherwise,
-it will fail.<a href="#section-5-1.6" class="pilcrow">¶</a>
+it will fail.<a href="#section-5-1.6.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-5-1.7">If AuthKEM-PSK client authentication is used, the resulting shared secret is
+        <li class="normal" id="section-5-1.7">
+          <p id="section-5-1.7.1">If AuthKEM-PSK client authentication is used, the resulting shared secret is
 included in the key schedule. This ensures that both peers have a consistent
-view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5-1.7" class="pilcrow">¶</a>
+view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>.<a href="#section-5-1.7.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <div id="server-anonymity">
@@ -1938,6 +1927,7 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
       <h2 id="name-references">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
+<div id="sec-normative-references">
 <section id="section-6.1">
         <h3 id="name-normative-references">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
@@ -1965,6 +1955,8 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
 <dd class="break"></dd>
 </dl>
 </section>
+</div>
+<div id="sec-informative-references">
 <section id="section-6.2">
         <h3 id="name-informative-references">
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
@@ -1980,11 +1972,11 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
 <dd class="break"></dd>
 <dt id="I-D.draft-celi-wiggers-tls-authkem">[I-D.draft-celi-wiggers-tls-authkem]</dt>
         <dd>
-<span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Stebila, D.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">T. Wiggers</span>, <span class="refTitle">"KEM-based Authentication for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-celi-wiggers-tls-authkem-01</span>, <time datetime="2022-03-07" class="refDate">7 March 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem-01">https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem-01</a>&gt;</span>. </dd>
+<span class="refAuthor">Wiggers, T.</span>, <span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Stebila, D.</span>, and <span class="refAuthor">N. Sullivan</span>, <span class="refTitle">"KEM-based Authentication for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-celi-wiggers-tls-authkem-02</span>, <time datetime="2023-08-18" class="refDate">18 August 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem-02">https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.draft-cfrg-schwabe-kyber">[I-D.draft-cfrg-schwabe-kyber]</dt>
         <dd>
-<span class="refAuthor">Schwabe, P.</span> and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"Kyber Post-Quantum KEM"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-cfrg-schwabe-kyber-02</span>, <time datetime="2023-03-31" class="refDate">31 March 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-02">https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-02</a>&gt;</span>. </dd>
+<span class="refAuthor">Schwabe, P.</span> and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"Kyber Post-Quantum KEM"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-cfrg-schwabe-kyber-04</span>, <time datetime="2024-01-02" class="refDate">2 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-04">https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-04</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.draft-westerbaan-cfrg-hpke-xyber768d00">[I-D.draft-westerbaan-cfrg-hpke-xyber768d00]</dt>
         <dd>
@@ -1992,7 +1984,7 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-esni">[I-D.ietf-tls-esni]</dt>
         <dd>
-<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Oku, K.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"TLS Encrypted Client Hello"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-esni-16</span>, <time datetime="2023-04-06" class="refDate">6 April 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-16">https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-16</a>&gt;</span>. </dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Oku, K.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"TLS Encrypted Client Hello"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-esni-18</span>, <time datetime="2024-03-04" class="refDate">4 March 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18">https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-semistatic-dh">[I-D.ietf-tls-semistatic-dh]</dt>
         <dd>
@@ -2028,6 +2020,7 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
 <dd class="break"></dd>
 </dl>
 </section>
+</div>
 </section>
 <div id="open-points-of-discussion">
 <section id="appendix-A">
