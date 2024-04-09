@@ -210,7 +210,8 @@ exchange protocol, using their long-term (KEM) public keys.
 
 **Note:** This is a work-in-progress draft. We welcome discussion, feedback and
 contributions through the IETF TLS working group mailing list or directly on
-GitHub.
+GitHub. Any code points indicated by this draft are for experiments only, and
+should not be expected to be stable.
 
 This document gives a construction for KEM-based authentication in TLS 1.3
 {{!RFC8446}}. Authentication happens via asymmetric cryptography by the usage of
@@ -618,7 +619,7 @@ enum {
   dhkem_p256_sha256   => TBD,
   dhkem_p384_sha384   => TBD,
   dhkem_p521_sha512   => TBD,
-  dhkem_x25519_sha256 => TBD,
+  dhkem_x25519_sha256 => 0xFE01,
   dhkem_x448_sha512   => TBD,
   kem_x25519kyber768  => TBD, /*draft-westerbaan-cfrg-hpke-xyber768d00*/
 }
