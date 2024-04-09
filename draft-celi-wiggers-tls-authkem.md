@@ -117,6 +117,15 @@ informative:
       "ESORICS 2022":
       DOI: 10.1007/978-3-031-17143-7_4
       "IACR ePrint": https://ia.cr/2022/1111
+  Wig4:
+    title: "Post-Quantum TLS"
+    date: 2024-01-09
+    author:
+      - ins: T. Wiggers
+        name: Thom Wiggers
+        org: Radboud University
+    seriesinfo:
+      "PhD thesis": "https://thomwiggers.nl/publication/thesis/"
   NISTPQC:
     title: Post-Quantum Cryptography Standardization
     date: 2020
@@ -260,7 +269,7 @@ handshakes. We give the transmission requirements for handshake authentication
 public key and signature + root CA signature). For clarity, we are not listing
 post-quantum/traditional hybrid algorithms; we also omit mechanisms such as
 Certificate Transparency {{?RFC6962}} or OCSP stapling {{?RFC6960}}. We use
-Kyber-768 instead of the smaller Kyber-512 parameterset, as the former is
+Kyber-768 instead of the smaller Kyber-512 parameter set, as the former is
 currently used in experimental deployments. For signatures, we use Dilithium,
 the "primary" algorithm selected by NIST for post-quantum signatures, as well as
 Falcon [FALCON], the algorithm that offers smaller public key and signature sizes, but
@@ -630,7 +639,7 @@ a `KEMEncapsulation` message and does not use the `CertificateVerify` one.
 ~~~
 enum {
     ...
-    kem_encapsulation(tbd),
+    kem_encapsulation(30),
     ...
     (255)
   } HandshakeType;
@@ -906,9 +915,9 @@ approve use or unlock a certificate stored encrypted or on a smart card.
 
 * The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
   discussion of and a proof of the security of the handshake protocol without
-  client authentication [SSW20].
+  client authentication [SSW20] [Wig24].
 
-* The work proposing the variant protocol [SSW21] with pre-distributed public
+* The work proposing the variant protocol [SSW21] [Wig24] with pre-distributed public
   keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
   mutually authenticated handshakes.
 
