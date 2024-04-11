@@ -846,3 +846,6 @@ negotiated AuthKEM.
 
 This work has been supported by the European Research Council through Starting
 Grant No. 805031 (EPOQUE).
+
+Part of this work was supported by the NLNet NGI Assure theme fund project
+["Standardizing KEMTLS"](https://nlnet.nl/project/KEMTLS/)
