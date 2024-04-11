@@ -414,20 +414,22 @@ shared secrets appropriate for using with the HKDF in TLS 1.3:
 
 ~~~
 def Encapsulate(pk, context_string):
-  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem " + context_string)
-  ss = ctx.Export("", HKDF.Length)
+  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
+  ss = ctx.Export(context_string, HKDF.Length)
   return (enc, ss)
 
 def Decapsulate(enc, sk, context_string):
-  return HPKE.SetupBaseR(enc,
-                         sk,
-                         "tls13 auth-kem " + context_string)
-             .Export("", HKDF.Length)
+  return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
+             .Export(context_string, HKDF.Length)
 ~~~
 
 Keys are generated and encoded for transmission following the conventions in
 {{!RFC9180}}. The values of `context_string` are defined in
 [](#kem-computations).
+
+**Open question:** Should we keep using HPKE, or just use "plain" KEMs, as in
+the original KEMTLS works? Please see the discussion at [Issue
+#32](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/32).
 
 # Full 1.5-RTT AuthKEM Handshake Protocol
 
@@ -917,9 +919,9 @@ approve use or unlock a certificate stored encrypted or on a smart card.
 
 * The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
   discussion of and a proof of the security of the handshake protocol without
-  client authentication [SSW20] [Wig24].
+  client authentication [SSW20], [Wig24].
 
-* The work proposing the variant protocol [SSW21] [Wig24] with pre-distributed public
+* The work proposing the variant protocol [SSW21], [Wig24] with pre-distributed public
   keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
   mutually authenticated handshakes.
 
