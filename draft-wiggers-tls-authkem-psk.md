@@ -122,6 +122,15 @@ informative:
     author:
       - ins: NIST
         org: National Institute for Standards and Technology
+  Wig24:
+    title: "Post-Quantum TLS"
+    date: 2024-01-09
+    author:
+      - ins: T. Wiggers
+        name: Thom Wiggers
+        org: Radboud University
+    seriesinfo:
+      "PhD thesis": "https://thomwiggers.nl/publication/thesis/"
   KW16:
     title: "The OPTLS Protocol and TLS 1.3"
     date: 2016
@@ -164,24 +173,16 @@ informative:
       - ins: G. Seiler
       - ins: D. Stehlé
     date: 2021
-  DILITHIUM:
-    target: https://pq-crystals.org/dilithium/
-    title: CRYSTALS-Dilithium
-    author:
-      - ins: L. Ducas
-      - ins: E. Kiltz
-      - ins: T. Lepoint
-      - ins: V. Lyubashevsky
-      - ins: P. Schwabe
-      - ins: G. Seiler
-      - ins: D. Stehlé
-    date: 2021
 
 --- abstract
 
-This document gives a construction for a Key Encapsulation Mechanism (KEM)-based
-authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
-exchange protocol, using their long-term (KEM) public keys.
+This document gives a construction in which (long-term) KEM public keys are
+used in the place of TLS PSK keys, avoiding concerns that may affect
+systems that use symmetric-key-based PSK, such as requiring key diversification
+and protection of symmetric-keys' confidentiality.
+
+This mechanism is inspired by AuthKEM (and could use AuthKEM certificate public
+keys for resumption), but can be independently implemented.
 
 --- middle
 
@@ -715,9 +716,9 @@ any alerts sent by the server in response to client ``Certificate`` and
 
 * The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
   discussion of and a proof of the security of the handshake protocol without
-  client authentication [SSW20].
+  client authentication ([SSW20], [Wig24]).
 
-* The work proposing the variant protocol [SSW21] with pre-distributed public
+* The work proposing the variant protocol ([SSW21], [Wig24]) with pre-distributed public
   keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
   mutually authenticated handshakes.
 
@@ -824,7 +825,7 @@ verification fails.
 
 ## Interactions with DTLS
 
-It is currently open if there need te be made modifications to better support
+It is currently open if there need to be made modifications to better support
 integration with DTLS. Discussion is at [Issue
 #23](https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/23).
 
