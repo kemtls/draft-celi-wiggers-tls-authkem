@@ -1282,8 +1282,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
       </h2>
 <p id="section-1-1"><strong>Note:</strong> This is a work-in-progress draft. We welcome discussion, feedback and
 contributions through the IETF TLS working group mailing list or directly on
-GitHub. Any code points indicated by this draft are for experiments only, and
-should not be expected to be stable.<a href="#section-1-1" class="pilcrow">¶</a></p>
+GitHub.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">This document gives a construction for KEM-based authentication in TLS 1.3
 <span>[<a href="#RFC8446" class="cite xref">RFC8446</a>]</span>. Authentication happens via asymmetric cryptography by the usage of
 KEMs advertised as the long-term KEM public keys in the Certificate.<a href="#section-1-2" class="pilcrow">¶</a></p>
@@ -1586,21 +1585,20 @@ shared secrets appropriate for using with the HKDF in TLS 1.3:<a href="#section-
 <div class="alignLeft art-text artwork" id="section-2.2-5">
 <pre>
 def Encapsulate(pk, context_string):
-  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
-  ss = ctx.Export(context_string, HKDF.Length)
+  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem " + context_string)
+  ss = ctx.Export("", HKDF.Length)
   return (enc, ss)
 
 def Decapsulate(enc, sk, context_string):
-  return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
-             .Export(context_string, HKDF.Length)
+  return HPKE.SetupBaseR(enc,
+                         sk,
+                         "tls13 auth-kem " + context_string)
+             .Export("", HKDF.Length)
 </pre><a href="#section-2.2-5" class="pilcrow">¶</a>
 </div>
 <p id="section-2.2-6">Keys are generated and encoded for transmission following the conventions in
 <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>. The values of <code>context_string</code> are defined in
 <a href="#kem-computations" class="auto internal xref">Section 4.3.2</a>.<a href="#section-2.2-6" class="pilcrow">¶</a></p>
-<p id="section-2.2-7"><strong>Open question:</strong> Should we keep using HPKE, or just use "plain" KEMs, as in
-the original KEMTLS works? Please see the discussion at <a href="https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/32">Issue
-#32</a>.<a href="#section-2.2-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1836,7 +1834,7 @@ enum {
   dhkem_p256_sha256   =&gt; TBD,
   dhkem_p384_sha384   =&gt; TBD,
   dhkem_p521_sha512   =&gt; TBD,
-  dhkem_x25519_sha256 =&gt; 0xFE01,
+  dhkem_x25519_sha256 =&gt; TBD,
   dhkem_x448_sha512   =&gt; TBD,
   kem_x25519kyber768  =&gt; TBD, /*draft-westerbaan-cfrg-hpke-xyber768d00*/
 }
@@ -1995,7 +1993,7 @@ handshake traffic encryption keys.<a href="#section-4.3.1-4.1.1" class="pilcrow"
 SSc||0 * -&gt; HKDF-Extract = Main Secret
             |
             +--&gt; Derive-Secret(., "c ap traffic",
-            |                  ClientHello...client Finished)
+            |                  ClientHello...server Finished)
             |                  = client_application_traffic_secret_0
             |
             +--&gt; Derive-Secret(., "s ap traffic",
@@ -2007,7 +2005,7 @@ SSc||0 * -&gt; HKDF-Extract = Main Secret
             |                  = exporter_master_secret
             |
             +--&gt; Derive-Secret(., "res master",
-                               ClientHello...server Finished)
+                               ClientHello...client Finished)
                                = resumption_master_secret
 
 *: if client authentication was requested, the `SSc` value should
@@ -2161,10 +2159,10 @@ status correctly. This is an improvement over TLS 1.3 for client authentication.
           <li class="normal" id="section-5.3-1.2">
             <p id="section-5.3-1.2.1">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
 discussion of and a proof of the security of the handshake protocol without
-client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>, <span>[<a href="#Wig24" class="cite xref">Wig24</a>]</span>.<a href="#section-5.3-1.2.1" class="pilcrow">¶</a></p>
+client authentication <span><a href="#Wig24" class="internal xref">SSW20</a> [<a href="#Wig24" class="cite xref">Wig24</a>]</span>.<a href="#section-5.3-1.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-5.3-1.3">
-            <p id="section-5.3-1.3.1">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span>, <span>[<a href="#Wig24" class="cite xref">Wig24</a>]</span> with pre-distributed public
+            <p id="section-5.3-1.3.1">The work proposing the variant protocol <span><a href="#Wig24" class="internal xref">SSW21</a> [<a href="#Wig24" class="cite xref">Wig24</a>]</span> with pre-distributed public
 keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
 mutually authenticated handshakes.<a href="#section-5.3-1.3.1" class="pilcrow">¶</a></p>
 </li>

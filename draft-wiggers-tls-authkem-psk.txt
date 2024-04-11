@@ -19,15 +19,10 @@ Expires: 13 October 2024                                  Brave Software
 
 Abstract
 
-   This document gives a construction in which (long-term) KEM public
-   keys are used in the place of TLS PSK keys, avoiding concerns that
-   may affect systems that use symmetric-key-based PSK, such as
-   requiring key diversification and protection of symmetric-keys'
-   confidentiality.
-
-   This mechanism is inspired by AuthKEM (and could use AuthKEM
-   certificate public keys for resumption), but can be independently
-   implemented.
+   This document gives a construction for a Key Encapsulation Mechanism
+   (KEM)-based authentication mechanism in TLS 1.3.  This proposal
+   authenticates peers via a key exchange protocol, using their long-
+   term (KEM) public keys.
 
 About This Document
 
@@ -216,22 +211,20 @@ Table of Contents
    1.3:
 
    def Encapsulate(pk, context_string):
-     enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
-     ss = ctx.Export(context_string, HKDF.Length)
+     enc, ctx = HPKE.SetupBaseS(pk,
+                                "tls13 auth-kem " + context_string)
+     ss = ctx.Export("", HKDF.Length)
      return (enc, ss)
 
    def Decapsulate(enc, sk, context_string):
-     return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
-                .Export(context_string, HKDF.Length)
+     return HPKE.SetupBaseR(enc,
+                            sk,
+                            "tls13 auth-kem " + context_string)
+                .Export("", HKDF.Length)
 
    Keys are generated and encoded for transmission following the
    conventions in [RFC9180].  The values of context_string are defined
    in Section 4.4.2.
-
-   *Open question:* Should we keep using HPKE, or just use "plain" KEMs,
-   as in the original KEMTLS works?  Please see the discussion at Issue
-   #32 (https://github.com/kemtls/draft-celi-wiggers-tls-authkem/
-   issues/32).
 
 3.  Abbreviated AuthKEM with pre-shared public KEM keys
 
@@ -634,13 +627,11 @@ enum {
 
    *  The academic works proposing AuthKEM (KEMTLS) contains an in-depth
       technical discussion of and a proof of the security of the
-      handshake protocol without client authentication ([SSW20],
-      [Wig24]).
+      handshake protocol without client authentication [SSW20].
 
-   *  The work proposing the variant protocol ([SSW21], [Wig24]) with
-      pre-distributed public keys (the abbreviated AuthKEM handshake)
-      has a proof for both unilaterally and mutually authenticated
-      handshakes.
+   *  The work proposing the variant protocol [SSW21] with pre-
+      distributed public keys (the abbreviated AuthKEM handshake) has a
+      proof for both unilaterally and mutually authenticated handshakes.
 
    *  We have machine-verified proofs of the security of KEMTLS and
       KEMTLS-PDK in Tamarin.  [CHSW22]
@@ -707,6 +698,11 @@ enum {
               Tamarin", ESORICS 2022 , DOI 10.1007/978-3-031-17143-7_4,
               IACR ePrint https://ia.cr/2022/1111, August 2022,
               <https://doi.org/10.1007/978-3-031-17143-7_4>.
+
+   [DILITHIUM]
+              Ducas, L., Kiltz, E., Lepoint, T., Lyubashevsky, V.,
+              Schwabe, P., Seiler, G., and D. Stehlé, "CRYSTALS-
+              Dilithium", 2021, <https://pq-crystals.org/dilithium/>.
 
    [I-D.draft-celi-wiggers-tls-authkem]
               Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
@@ -778,10 +774,6 @@ enum {
               ePrint https://ia.cr/2021/779, May 2021,
               <https://doi.org/10.1007/978-3-030-88418-5_1>.
 
-   [Wig24]    Wiggers, T., "Post-Quantum TLS", PhD
-              thesis https://thomwiggers.nl/publication/thesis/, 9
-              January 2024.
-
 Appendix A.  Open points of discussion
 
    The following are open points for discussion.  The corresponding
@@ -845,7 +837,7 @@ A.1.  Alternative implementation based on the pre_shared_key extension
 
 A.2.  Interactions with DTLS
 
-   It is currently open if there need to be made modifications to better
+   It is currently open if there need te be made modifications to better
    support integration with DTLS.  Discussion is at Issue #23
    (https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/23).
 
