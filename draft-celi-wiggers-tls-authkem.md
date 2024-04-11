@@ -773,7 +773,7 @@ The full key schedule proceeds as follows:
 SSc||0 * -> HKDF-Extract = Main Secret
             |
             +--> Derive-Secret(., "c ap traffic",
-            |                  ClientHello...server Finished)
+            |                  ClientHello...client Finished)
             |                  = client_application_traffic_secret_0
             |
             +--> Derive-Secret(., "s ap traffic",
@@ -785,7 +785,7 @@ SSc||0 * -> HKDF-Extract = Main Secret
             |                  = exporter_master_secret
             |
             +--> Derive-Secret(., "res master",
-                               ClientHello...client Finished)
+                               ClientHello...server Finished)
                                = resumption_master_secret
 
 *: if client authentication was requested, the `SSc` value should
