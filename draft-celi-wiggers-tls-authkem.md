@@ -237,6 +237,24 @@ uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected
 algorithm for key exchange in the NIST post-quantum standardization project
 [NISTPQC].
 
+## Revision history
+**This section should be removed prior to publication of a final version of this
+document.**
+
+* Revision draft-celi-wiggers-tls-authkem-03
+  * Assigned experimental code points
+  * Re-worked HPKE computation
+* Revision draft-celi-wiggers-tls-authkem-02
+  * Split PSK mechanism off into {{?I-D.draft-wiggers-tls-authkem-psk}}
+  * Editing
+* Revision draft-celi-wiggers-tls-authkem-01
+  * Significant Editing
+  * Use HPKE context
+* Revision draft-celi-wiggers-tls-authkem-00
+  * Initial version
+
+### Revision 2
+
 ## Using key exchange instead of signatures for authentication
 
 The elliptic-curve and finite-field-based key exchange and signature algorithms

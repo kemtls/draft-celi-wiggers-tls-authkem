@@ -211,6 +211,21 @@ uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected
 algorithm for key exchange in the NIST post-quantum standardization project
 [NISTPQC].
 
+## Revision history
+**This section should be removed prior to publication of a final version of this
+document.**
+
+* Revision draft-wiggers-tls-authkem-psk-01
+  * Revised abstract
+  * Minor edits
+* Revision draft-wiggers-tls-authkem-psk-00
+  * Split PSK mechanism off from {{?I-D.draft-wiggers-tls-authkem}}
+* Revision draft-celi-wiggers-tls-authkem-01
+  * Significant Editing
+  * Use HPKE context
+* Revision draft-celi-wiggers-tls-authkem-00
+  * Initial version
+
 ## Related work
 
 This proposal draws inspiration from {{?I-D.ietf-tls-semistatic-dh}}, which is
