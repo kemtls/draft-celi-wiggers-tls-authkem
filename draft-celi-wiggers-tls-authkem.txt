@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 13 October 2024                                  Brave Software
+Expires: 17 October 2024                                  Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                           11 April 2024
+                                                           15 April 2024
 
 
                   KEM-based Authentication for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 October 2024.
+   This Internet-Draft will expire on 17 October 2024.
 
 Copyright Notice
 
@@ -73,12 +73,14 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Using key exchange instead of signatures for authentication
-     1.2.  Evaluation of handshake sizes
-     1.3.  Related work
-       1.3.1.  OPTLS
-       1.3.2.  Compressing certificates and certificate chains
-     1.4.  Organization
+     1.1.  Revision history
+       1.1.1.  Revision 2
+     1.2.  Using key exchange instead of signatures for authentication
+     1.3.  Evaluation of handshake sizes
+     1.4.  Related work
+       1.4.1.  OPTLS
+       1.4.2.  Compressing certificates and certificate chains
+     1.5.  Organization
    2.  Conventions and definitions
      2.1.  Terminology
      2.2.  Key Encapsulation Mechanisms
@@ -112,7 +114,8 @@ Table of Contents
 
    *Note:* This is a work-in-progress draft.  We welcome discussion,
    feedback and contributions through the IETF TLS working group mailing
-   list or directly on GitHub.
+   list or directly on GitHub.  Any code points indicated by this draft
+   are for experiments only, and should not be expected to be stable.
 
    This document gives a construction for KEM-based authentication in
    TLS 1.3 [RFC8446].  Authentication happens via asymmetric
@@ -142,7 +145,37 @@ Table of Contents
    algorithm for key exchange in the NIST post-quantum standardization
    project [NISTPQC].
 
-1.1.  Using key exchange instead of signatures for authentication
+1.1.  Revision history
+
+   *This section should be removed prior to publication of a final
+   version of this document.*
+
+   *  Revision draft-celi-wiggers-tls-authkem-03
+
+      -  Assigned experimental code points
+
+      -  Re-worked HPKE computation
+
+   *  Revision draft-celi-wiggers-tls-authkem-02
+
+      -  Split PSK mechanism off into
+         [I-D.draft-wiggers-tls-authkem-psk]
+
+      -  Editing
+
+   *  Revision draft-celi-wiggers-tls-authkem-01
+
+      -  Significant Editing
+
+      -  Use HPKE context
+
+   *  Revision draft-celi-wiggers-tls-authkem-00
+
+      -  Initial version
+
+1.1.1.  Revision 2
+
+1.2.  Using key exchange instead of signatures for authentication
 
    The elliptic-curve and finite-field-based key exchange and signature
    algorithms that are currently widely used are very similar in sizes
@@ -167,7 +200,7 @@ Table of Contents
    implementations.  Finally, KEM operations may be more efficient than
    signing, which might especially affect embedded platforms.
 
-1.2.  Evaluation of handshake sizes
+1.3.  Evaluation of handshake sizes
 
    *Should probably be removed before publishing*
 
@@ -234,11 +267,11 @@ Table of Contents
    WebPKI.  However, we believe that if proposals to reduce transmission
    sizes of the certificate chain in the WebPKI context are implemented,
    the space savings of AuthKEM naturally become relatively larger and
-   more significant.  We discuss this in Section 1.3.2.
+   more significant.  We discuss this in Section 1.4.2.
 
-1.3.  Related work
+1.4.  Related work
 
-1.3.1.  OPTLS
+1.4.1.  OPTLS
 
    This proposal draws inspiration from [I-D.ietf-tls-semistatic-dh],
    which is in turn based on the OPTLS proposal for TLS 1.3 [KW16].
@@ -250,7 +283,7 @@ Table of Contents
    interactive key exchange currently considered for standardization,
    while several KEMs are on the way.
 
-1.3.2.  Compressing certificates and certificate chains
+1.4.2.  Compressing certificates and certificate chains
 
    AuthKEM reduces the amount of data required for authentication in
    TLS.  In recognition of the large increase in handshake size that a
@@ -278,7 +311,7 @@ Table of Contents
    referenced drafts, the reduction in handshake size when replacing
    Dilithium-2 by Kyber-768 becomes significant again.
 
-1.4.  Organization
+1.5.  Organization
 
    After a brief introduction to KEMs, we will introduce the AuthKEM
    authentication mechanism.  For clarity, we discuss unilateral and
@@ -347,19 +380,22 @@ Table of Contents
    export shared secrets appropriate for using with the HKDF in TLS 1.3:
 
    def Encapsulate(pk, context_string):
-     enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem " + context_string)
-     ss = ctx.Export("", HKDF.Length)
+     enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
+     ss = ctx.Export(context_string, HKDF.Length)
      return (enc, ss)
 
    def Decapsulate(enc, sk, context_string):
-     return HPKE.SetupBaseR(enc,
-                            sk,
-                            "tls13 auth-kem " + context_string)
-                .Export("", HKDF.Length)
+     return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
+                .Export(context_string, HKDF.Length)
 
    Keys are generated and encoded for transmission following the
    conventions in [RFC9180].  The values of context_string are defined
    in Section 4.3.2.
+
+   *Open question:* Should we keep using HPKE, or just use "plain" KEMs,
+   as in the original KEMTLS works?  Please see the discussion at Issue
+   #32 (https://github.com/kemtls/draft-celi-wiggers-tls-authkem/
+   issues/32).
 
 3.  Full 1.5-RTT AuthKEM Handshake Protocol
 
@@ -563,7 +599,7 @@ enum {
   dhkem_p256_sha256   => TBD,
   dhkem_p384_sha384   => TBD,
   dhkem_p521_sha512   => TBD,
-  dhkem_x25519_sha256 => TBD,
+  dhkem_x25519_sha256 => 0xFE01,
   dhkem_x448_sha512   => TBD,
   kem_x25519kyber768  => TBD, /*draft-westerbaan-cfrg-hpke-xyber768d00*/
 }
@@ -719,7 +755,7 @@ enum {
    SSc||0 * -> HKDF-Extract = Main Secret
                |
                +--> Derive-Secret(., "c ap traffic",
-               |                  ClientHello...server Finished)
+               |                  ClientHello...client Finished)
                |                  = client_application_traffic_secret_0
                |
                +--> Derive-Secret(., "s ap traffic",
@@ -731,7 +767,7 @@ enum {
                |                  = exporter_master_secret
                |
                +--> Derive-Secret(., "res master",
-                                  ClientHello...client Finished)
+                                  ClientHello...server Finished)
                                   = resumption_master_secret
 
    *: if client authentication was requested, the `SSc` value should
@@ -861,9 +897,9 @@ enum {
 
    *  The academic works proposing AuthKEM (KEMTLS) contains an in-depth
       technical discussion of and a proof of the security of the
-      handshake protocol without client authentication SSW20 [Wig24].
+      handshake protocol without client authentication [SSW20], [Wig24].
 
-   *  The work proposing the variant protocol SSW21 [Wig24] with pre-
+   *  The work proposing the variant protocol [SSW21], [Wig24] with pre-
       distributed public keys (the abbreviated AuthKEM handshake) has a
       proof for both unilaterally and mutually authenticated handshakes.
 

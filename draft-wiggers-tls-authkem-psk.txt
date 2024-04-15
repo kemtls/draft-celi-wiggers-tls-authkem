@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 13 October 2024                                  Brave Software
+Expires: 17 October 2024                                  Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                           11 April 2024
+                                                           15 April 2024
 
 
             KEM-based pre-shared-key handshakes for TLS 1.3
@@ -19,10 +19,15 @@ Expires: 13 October 2024                                  Brave Software
 
 Abstract
 
-   This document gives a construction for a Key Encapsulation Mechanism
-   (KEM)-based authentication mechanism in TLS 1.3.  This proposal
-   authenticates peers via a key exchange protocol, using their long-
-   term (KEM) public keys.
+   This document gives a construction in which (long-term) KEM public
+   keys are used in the place of TLS PSK keys, avoiding concerns that
+   may affect systems that use symmetric-key-based PSK, such as
+   requiring key diversification and protection of symmetric-keys'
+   confidentiality.
+
+   This mechanism is inspired by AuthKEM (and could use AuthKEM
+   certificate public keys for resumption), but can be independently
+   implemented.
 
 About This Document
 
@@ -54,7 +59,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 October 2024.
+   This Internet-Draft will expire on 17 October 2024.
 
 Copyright Notice
 
@@ -73,8 +78,9 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Related work
-     1.2.  Organization
+     1.1.  Revision history
+     1.2.  Related work
+     1.3.  Organization
    2.  Conventions and definitions
      2.1.  Terminology
      2.2.  Key Encapsulation Mechanisms
@@ -132,7 +138,32 @@ Table of Contents
    algorithm for key exchange in the NIST post-quantum standardization
    project [NISTPQC].
 
-1.1.  Related work
+1.1.  Revision history
+
+   *This section should be removed prior to publication of a final
+   version of this document.*
+
+   *  Revision draft-wiggers-tls-authkem-psk-01
+
+      -  Revised abstract
+
+      -  Minor edits
+
+   *  Revision draft-wiggers-tls-authkem-psk-00
+
+      -  Split PSK mechanism off from [I-D.draft-wiggers-tls-authkem]
+
+   *  Revision draft-celi-wiggers-tls-authkem-01
+
+      -  Significant Editing
+
+      -  Use HPKE context
+
+   *  Revision draft-celi-wiggers-tls-authkem-00
+
+      -  Initial version
+
+1.2.  Related work
 
    This proposal draws inspiration from [I-D.ietf-tls-semistatic-dh],
    which is in turn based on the OPTLS proposal for TLS 1.3 [KW16].
@@ -144,7 +175,7 @@ Table of Contents
    interactive key exchange currently considered for standardization,
    while several KEMs are on the way.
 
-1.2.  Organization
+1.3.  Organization
 
    After covering preliminaries, we introduce the abbreviated AuthKEM-
    PSK handshake, and its opportunistic client authentication mechanism.
@@ -211,20 +242,22 @@ Table of Contents
    1.3:
 
    def Encapsulate(pk, context_string):
-     enc, ctx = HPKE.SetupBaseS(pk,
-                                "tls13 auth-kem " + context_string)
-     ss = ctx.Export("", HKDF.Length)
+     enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
+     ss = ctx.Export(context_string, HKDF.Length)
      return (enc, ss)
 
    def Decapsulate(enc, sk, context_string):
-     return HPKE.SetupBaseR(enc,
-                            sk,
-                            "tls13 auth-kem " + context_string)
-                .Export("", HKDF.Length)
+     return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
+                .Export(context_string, HKDF.Length)
 
    Keys are generated and encoded for transmission following the
    conventions in [RFC9180].  The values of context_string are defined
    in Section 4.4.2.
+
+   *Open question:* Should we keep using HPKE, or just use "plain" KEMs,
+   as in the original KEMTLS works?  Please see the discussion at Issue
+   #32 (https://github.com/kemtls/draft-celi-wiggers-tls-authkem/
+   issues/32).
 
 3.  Abbreviated AuthKEM with pre-shared public KEM keys
 
@@ -627,11 +660,13 @@ enum {
 
    *  The academic works proposing AuthKEM (KEMTLS) contains an in-depth
       technical discussion of and a proof of the security of the
-      handshake protocol without client authentication [SSW20].
+      handshake protocol without client authentication ([SSW20],
+      [Wig24]).
 
-   *  The work proposing the variant protocol [SSW21] with pre-
-      distributed public keys (the abbreviated AuthKEM handshake) has a
-      proof for both unilaterally and mutually authenticated handshakes.
+   *  The work proposing the variant protocol ([SSW21], [Wig24]) with
+      pre-distributed public keys (the abbreviated AuthKEM handshake)
+      has a proof for both unilaterally and mutually authenticated
+      handshakes.
 
    *  We have machine-verified proofs of the security of KEMTLS and
       KEMTLS-PDK in Tamarin.  [CHSW22]
@@ -699,11 +734,6 @@ enum {
               IACR ePrint https://ia.cr/2022/1111, August 2022,
               <https://doi.org/10.1007/978-3-031-17143-7_4>.
 
-   [DILITHIUM]
-              Ducas, L., Kiltz, E., Lepoint, T., Lyubashevsky, V.,
-              Schwabe, P., Seiler, G., and D. Stehlé, "CRYSTALS-
-              Dilithium", 2021, <https://pq-crystals.org/dilithium/>.
-
    [I-D.draft-celi-wiggers-tls-authkem]
               Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
               Sullivan, "KEM-based Authentication for TLS 1.3", Work in
@@ -725,6 +755,9 @@ enum {
               Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-02,
               4 May 2023, <https://datatracker.ietf.org/doc/html/draft-
               westerbaan-cfrg-hpke-xyber768d00-02>.
+
+   [I-D.draft-wiggers-tls-authkem]
+              "*** BROKEN REFERENCE ***".
 
    [I-D.ietf-tls-esni]
               Rescorla, E., Oku, K., Sullivan, N., and C. A. Wood, "TLS
@@ -773,6 +806,10 @@ enum {
               DOI 10.1007/978-3-030-88418-5_1, IACR
               ePrint https://ia.cr/2021/779, May 2021,
               <https://doi.org/10.1007/978-3-030-88418-5_1>.
+
+   [Wig24]    Wiggers, T., "Post-Quantum TLS", PhD
+              thesis https://thomwiggers.nl/publication/thesis/, 9
+              January 2024.
 
 Appendix A.  Open points of discussion
 
@@ -837,7 +874,7 @@ A.1.  Alternative implementation based on the pre_shared_key extension
 
 A.2.  Interactions with DTLS
 
-   It is currently open if there need te be made modifications to better
+   It is currently open if there need to be made modifications to better
    support integration with DTLS.  Discussion is at Issue #23
    (https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/23).
 

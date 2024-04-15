@@ -11,9 +11,12 @@
 <meta content="Douglas Stebila" name="author">
 <meta content="Nick Sullivan" name="author">
 <meta content="
-       This document gives a construction for a Key Encapsulation Mechanism (KEM)-based
-authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
-exchange protocol, using their long-term (KEM) public keys. 
+       This document gives a construction in which (long-term) KEM public keys are
+used in the place of TLS PSK keys, avoiding concerns that may affect
+systems that use symmetric-key-based PSK, such as requiring key diversification
+and protection of symmetric-keys' confidentiality. 
+       This mechanism is inspired by AuthKEM (and could use AuthKEM certificate public
+keys for resumption), but can be independently implemented. 
     " name="description">
 <meta content="xml2rfc 3.20.1" name="generator">
 <meta content="Internet-Draft" name="keyword">
@@ -1035,7 +1038,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Wiggers, et al.</td>
-<td class="center">Expires 13 October 2024</td>
+<td class="center">Expires 17 October 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1048,12 +1051,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-wiggers-tls-authkem-psk-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-04-11" class="published">11 April 2024</time>
+<time datetime="2024-04-15" class="published">15 April 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-10-13">13 October 2024</time></dd>
+<dd class="expires"><time datetime="2024-10-17">17 October 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1081,9 +1084,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">KEM-based pre-shared-key handshakes for TLS 1.3</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This document gives a construction for a Key Encapsulation Mechanism (KEM)-based
-authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
-exchange protocol, using their long-term (KEM) public keys.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This document gives a construction in which (long-term) KEM public keys are
+used in the place of TLS PSK keys, avoiding concerns that may affect
+systems that use symmetric-key-based PSK, such as requiring key diversification
+and protection of symmetric-keys' confidentiality.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">This mechanism is inspired by AuthKEM (and could use AuthKEM certificate public
+keys for resumption), but can be independently implemented.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1119,7 +1125,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 13 October 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 17 October 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1149,13 +1155,16 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
         </h2>
 <nav class="toc"><ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
-            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
-                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-related-work" class="internal xref">Related work</a></p>
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-revision-history" class="internal xref">Revision history</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
-                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-organization" class="internal xref">Organization</a></p>
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-related-work" class="internal xref">Related work</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-organization" class="internal xref">Organization</a></p>
 </li>
             </ul>
 </li>
@@ -1284,30 +1293,79 @@ been put forward <span>[<a href="#I-D.draft-westerbaan-cfrg-hpke-xyber768d00" cl
 uses Kyber <span>[<a href="#KYBER" class="cite xref">KYBER</a>]</span> <span>[<a href="#I-D.draft-cfrg-schwabe-kyber" class="cite xref">I-D.draft-cfrg-schwabe-kyber</a>]</span>, the first selected
 algorithm for key exchange in the NIST post-quantum standardization project
 <span>[<a href="#NISTPQC" class="cite xref">NISTPQC</a>]</span>.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<div id="related-work">
+<div id="revision-history">
 <section id="section-1.1">
-        <h3 id="name-related-work">
-<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-related-work" class="section-name selfRef">Related work</a>
+        <h3 id="name-revision-history">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-revision-history" class="section-name selfRef">Revision history</a>
         </h3>
-<p id="section-1.1-1">This proposal draws inspiration from <span>[<a href="#I-D.ietf-tls-semistatic-dh" class="cite xref">I-D.ietf-tls-semistatic-dh</a>]</span>, which is
+<p id="section-1.1-1"><strong>This section should be removed prior to publication of a final version of this
+document.</strong><a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.1">
+            <p id="section-1.1-2.1.1">Revision draft-wiggers-tls-authkem-psk-01<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.1.2.1">
+                <p id="section-1.1-2.1.2.1.1">Revised abstract<a href="#section-1.1-2.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-1.1-2.1.2.2">
+                <p id="section-1.1-2.1.2.2.1">Minor edits<a href="#section-1.1-2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-1.1-2.2">
+            <p id="section-1.1-2.2.1">Revision draft-wiggers-tls-authkem-psk-00<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.2.2.1">
+                <p id="section-1.1-2.2.2.1.1">Split PSK mechanism off from <span>[<a href="#I-D.draft-wiggers-tls-authkem" class="cite xref">I-D.draft-wiggers-tls-authkem</a>]</span><a href="#section-1.1-2.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-1.1-2.3">
+            <p id="section-1.1-2.3.1">Revision draft-celi-wiggers-tls-authkem-01<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.3.2.1">
+                <p id="section-1.1-2.3.2.1.1">Significant Editing<a href="#section-1.1-2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-1.1-2.3.2.2">
+                <p id="section-1.1-2.3.2.2.1">Use HPKE context<a href="#section-1.1-2.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-1.1-2.4">
+            <p id="section-1.1-2.4.1">Revision draft-celi-wiggers-tls-authkem-00<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.4.2.1">
+                <p id="section-1.1-2.4.2.1.1">Initial version<a href="#section-1.1-2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+        </ul>
+</section>
+</div>
+<div id="related-work">
+<section id="section-1.2">
+        <h3 id="name-related-work">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-related-work" class="section-name selfRef">Related work</a>
+        </h3>
+<p id="section-1.2-1">This proposal draws inspiration from <span>[<a href="#I-D.ietf-tls-semistatic-dh" class="cite xref">I-D.ietf-tls-semistatic-dh</a>]</span>, which is
 in turn based on the OPTLS proposal for TLS 1.3 <span>[<a href="#KW16" class="cite xref">KW16</a>]</span>. However, these proposals
 require a non-interactive key exchange: they combine the client's public key
 with the server's long-term key. This imposes an extra requirement: the
 ephemeral and static keys MUST use the same algorithm, which this proposal does
 not require. Additionally, there are no post-quantum proposals for a
 non-interactive key exchange currently considered for standardization, while
-several KEMs are on the way.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+several KEMs are on the way.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="organization">
-<section id="section-1.2">
+<section id="section-1.3">
         <h3 id="name-organization">
-<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-organization" class="section-name selfRef">Organization</a>
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-organization" class="section-name selfRef">Organization</a>
         </h3>
-<p id="section-1.2-1">After covering preliminaries, we introduce the abbreviated AuthKEM-PSK
+<p id="section-1.3-1">After covering preliminaries, we introduce the abbreviated AuthKEM-PSK
 handshake, and its opportunistic client authentication mechanism. In the
 remainder of the draft, we will discuss the necessary implementation mechanics,
-such as code points, extensions, new protocol messages and the new key schedule.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+such as code points, extensions, new protocol messages and the new key schedule.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1406,21 +1464,21 @@ shared secrets appropriate for using with key schedule in TLS 1.3:<a href="#sect
 <div class="alignLeft art-text artwork" id="section-2.2-6">
 <pre>
 def Encapsulate(pk, context_string):
-  enc, ctx = HPKE.SetupBaseS(pk,
-                             "tls13 auth-kem " + context_string)
-  ss = ctx.Export("", HKDF.Length)
+  enc, ctx = HPKE.SetupBaseS(pk, "tls13 auth-kem")
+  ss = ctx.Export(context_string, HKDF.Length)
   return (enc, ss)
 
 def Decapsulate(enc, sk, context_string):
-  return HPKE.SetupBaseR(enc,
-                         sk,
-                         "tls13 auth-kem " + context_string)
-             .Export("", HKDF.Length)
+  return HPKE.SetupBaseR(enc, sk, "tls13 auth-kem")
+             .Export(context_string, HKDF.Length)
 </pre><a href="#section-2.2-6" class="pilcrow">¶</a>
 </div>
 <p id="section-2.2-7">Keys are generated and encoded for transmission following the conventions in
 <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>. The values of <code>context_string</code> are defined in
 <a href="#kem-computations" class="auto internal xref">Section 4.4.2</a>.<a href="#section-2.2-7" class="pilcrow">¶</a></p>
+<p id="section-2.2-8"><strong>Open question:</strong> Should we keep using HPKE, or just use "plain" KEMs, as in
+the original KEMTLS works? Please see the discussion at <a href="https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/32">Issue
+#32</a>.<a href="#section-2.2-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1879,10 +1937,10 @@ status correctly. This is an improvement over TLS 1.3 for client authentication.
         <li class="normal" id="section-5-1.2">
           <p id="section-5-1.2.1">The academic works proposing AuthKEM (KEMTLS) contains an in-depth technical
 discussion of and a proof of the security of the handshake protocol without
-client authentication <span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>.<a href="#section-5-1.2.1" class="pilcrow">¶</a></p>
+client authentication (<span>[<a href="#SSW20" class="cite xref">SSW20</a>]</span>, <span>[<a href="#Wig24" class="cite xref">Wig24</a>]</span>).<a href="#section-5-1.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-5-1.3">
-          <p id="section-5-1.3.1">The work proposing the variant protocol <span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span> with pre-distributed public
+          <p id="section-5-1.3.1">The work proposing the variant protocol (<span>[<a href="#SSW21" class="cite xref">SSW21</a>]</span>, <span>[<a href="#Wig24" class="cite xref">Wig24</a>]</span>) with pre-distributed public
 keys (the abbreviated AuthKEM handshake) has a proof for both unilaterally and
 mutually authenticated handshakes.<a href="#section-5-1.3.1" class="pilcrow">¶</a></p>
 </li>
@@ -1966,10 +2024,6 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
         <dd>
 <span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Hoyland, J.</span>, <span class="refAuthor">Stebila, D.</span>, and <span class="refAuthor">T. Wiggers</span>, <span class="refTitle">"A tale of two models: formal verification of KEMTLS in Tamarin"</span>, <span class="seriesInfo">ESORICS 2022 </span>, <span class="seriesInfo">DOI 10.1007/978-3-031-17143-7_4</span>, <span class="seriesInfo">IACR ePrint https://ia.cr/2022/1111</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://doi.org/10.1007/978-3-031-17143-7_4">https://doi.org/10.1007/978-3-031-17143-7_4</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="DILITHIUM">[DILITHIUM]</dt>
-        <dd>
-<span class="refAuthor">Ducas, L.</span>, <span class="refAuthor">Kiltz, E.</span>, <span class="refAuthor">Lepoint, T.</span>, <span class="refAuthor">Lyubashevsky, V.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Seiler, G.</span>, and <span class="refAuthor">D. Stehlé</span>, <span class="refTitle">"CRYSTALS-Dilithium"</span>, <time datetime="2021" class="refDate">2021</time>, <span>&lt;<a href="https://pq-crystals.org/dilithium/">https://pq-crystals.org/dilithium/</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="I-D.draft-celi-wiggers-tls-authkem">[I-D.draft-celi-wiggers-tls-authkem]</dt>
         <dd>
 <span class="refAuthor">Wiggers, T.</span>, <span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Stebila, D.</span>, and <span class="refAuthor">N. Sullivan</span>, <span class="refTitle">"KEM-based Authentication for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-celi-wiggers-tls-authkem-02</span>, <time datetime="2023-08-18" class="refDate">18 August 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem-02">https://datatracker.ietf.org/doc/html/draft-celi-wiggers-tls-authkem-02</a>&gt;</span>. </dd>
@@ -1981,6 +2035,10 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
 <dt id="I-D.draft-westerbaan-cfrg-hpke-xyber768d00">[I-D.draft-westerbaan-cfrg-hpke-xyber768d00]</dt>
         <dd>
 <span class="refAuthor">Westerbaan, B.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"X25519Kyber768Draft00 hybrid post-quantum KEM for HPKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-02</span>, <time datetime="2023-05-04" class="refDate">4 May 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-02">https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.draft-wiggers-tls-authkem">[I-D.draft-wiggers-tls-authkem]</dt>
+        <dd>
+<span class="refTitle">"*** BROKEN REFERENCE ***"</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-esni">[I-D.ietf-tls-esni]</dt>
         <dd>
@@ -2015,8 +2073,12 @@ server public key. Kyber offers post-quantum anonymity <span>[<a href="#MX22" cl
 <span class="refAuthor">Stebila, D.</span>, <span class="refAuthor">Schwabe, P.</span>, and <span class="refAuthor">T. Wiggers</span>, <span class="refTitle">"Post-Quantum TLS without Handshake Signatures"</span>, <span class="seriesInfo">ACM CCS 2020 </span>, <span class="seriesInfo">DOI 10.1145/3372297.3423350</span>, <span class="seriesInfo">IACR ePrint https://ia.cr/2020/534</span>, <time datetime="2020-11" class="refDate">November 2020</time>, <span>&lt;<a href="https://doi.org/10.1145/3372297.3423350">https://doi.org/10.1145/3372297.3423350</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SSW21">[SSW21]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Stebila, D.</span>, <span class="refAuthor">Schwabe, P.</span>, and <span class="refAuthor">T. Wiggers</span>, <span class="refTitle">"More Efficient KEMTLS with Pre-Shared Keys"</span>, <span class="seriesInfo">ESORICS 2021 </span>, <span class="seriesInfo">DOI 10.1007/978-3-030-88418-5_1</span>, <span class="seriesInfo">IACR ePrint https://ia.cr/2021/779</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://doi.org/10.1007/978-3-030-88418-5_1">https://doi.org/10.1007/978-3-030-88418-5_1</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Wig24">[Wig24]</dt>
+      <dd>
+<span class="refAuthor">Wiggers, T.</span>, <span class="refTitle">"Post-Quantum TLS"</span>, <span class="seriesInfo">PhD thesis https://thomwiggers.nl/publication/thesis/</span>, <time datetime="2024-01-09" class="refDate">9 January 2024</time>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -2100,7 +2162,7 @@ verification fails.<a href="#appendix-A.1-13" class="pilcrow">¶</a></p>
         <h3 id="name-interactions-with-dtls">
 <a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-interactions-with-dtls" class="section-name selfRef">Interactions with DTLS</a>
         </h3>
-<p id="appendix-A.2-1">It is currently open if there need te be made modifications to better support
+<p id="appendix-A.2-1">It is currently open if there need to be made modifications to better support
 integration with DTLS. Discussion is at <a href="https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/23">Issue
 #23</a>.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
 </section>
