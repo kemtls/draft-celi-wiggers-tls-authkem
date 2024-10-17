@@ -156,21 +156,6 @@ informative:
     date: 2022-04-22
     seriesinfo:
       "Ph.D.": thesis
-  KYBER:
-    target: https://pq-crystals.org/kyber/
-    title: CRYSTALS-Kyber
-    author:
-      - ins: R. Avanzi
-      - ins: J. Bos
-      - ins: L. Ducas
-      - ins: E. Kiltz
-      - ins: T. Lepoint
-      - ins: V. Lyubashevsky
-      - ins: J. Schanck
-      - ins: P. Schwabe
-      - ins: G. Seiler
-      - ins: D. Stehlé
-    date: 2021
   FALCON:
     target: https://falcon-sign.info
     title: Falcon
@@ -232,10 +217,10 @@ delegated credentials {{?I-D.ietf-tls-subcerts}}.
 
 In this proposal, we build on {{!RFC9180}}. This standard currently only covers
 Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
-been put forward {{?I-D.westerbaan-cfrg-hpke-xyber768d00}}. This proposal
-uses ML-KEM [FIPS203] {{?I-D.cfrg-schwabe-kyber}}, the first selected
-algorithm for key exchange in the NIST post-quantum standardization project
-[NISTPQC]. {{!I-D.lamps-kyber}} describes how ML-KEM keys can be encoded
+been put forward {{?I-D.westerbaan-cfrg-hpke-xyber768d00}}. This proposal uses
+ML-KEM [FIPS203] {{?I-D.cfrg-schwabe-kyber}}, the first selected algorithm for
+key exchange in the NIST post-quantum standardization project [NISTPQC].
+{{!I-D.ietf-lamps-kyber-certificates}} describes how ML-KEM keys can be encoded
 in X.509 certificates.
 
 ## Revision history

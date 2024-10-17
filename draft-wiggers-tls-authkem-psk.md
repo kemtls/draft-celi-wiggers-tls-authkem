@@ -164,12 +164,6 @@ informative:
       - ins: National Institute of Standards and Technology
     seriesinfo:
       DOI: 10.6028/NIST.FIPS.203
-  FIPS204:
-    title: Module-Lattice-Based Digital Signature Standard
-    author:
-      - ins: National Institute of Standards and Technology
-    seriesinfo:
-      DOI: 10.6028/NIST.FIPS.203
 
 --- abstract
 
