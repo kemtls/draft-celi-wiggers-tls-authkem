@@ -1,2 +1,4 @@
-# Automatically generated CODEOWNERS file.
-draft-celi-wiggers-tls-authkem.md cherenkov@riseup.netpeter@cryptojedi.orgdstebila@uwaterloo.canick@cloudflare.comthom@thomwiggers.nl
+# Automatically generated CODEOWNERS
+# Regenerate with `make update-codeowners`
+draft-celi-wiggers-tls-authkem.md thom@thomwiggers.nl cherenkov@riseup.net peter@cryptojedi.org dstebila@uwaterloo.ca nicholas.sullivan+ietf@gmail.com
+draft-wiggers-tls-authkem-psk.md thom@thomwiggers.nl cherenkov@riseup.net peter@cryptojedi.org dstebila@uwaterloo.ca nicholas.sullivan+ietf@gmail.com
