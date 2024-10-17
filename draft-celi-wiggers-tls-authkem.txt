@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 17 October 2024                                  Brave Software
+Expires: 20 April 2025                                    Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                           15 April 2024
+                                                         17 October 2024
 
 
                   KEM-based Authentication for TLS 1.3
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 October 2024.
+   This Internet-Draft will expire on 20 April 2025.
 
 Copyright Notice
 
@@ -140,15 +140,22 @@ Table of Contents
    In this proposal, we build on [RFC9180].  This standard currently
    only covers Diffie-Hellman based KEMs, but the first post-quantum
    algorithms have already been put forward
-   [I-D.draft-westerbaan-cfrg-hpke-xyber768d00].  This proposal uses
-   Kyber [KYBER] [I-D.draft-cfrg-schwabe-kyber], the first selected
-   algorithm for key exchange in the NIST post-quantum standardization
-   project [NISTPQC].
+   [I-D.westerbaan-cfrg-hpke-xyber768d00].  This proposal uses ML-KEM
+   [FIPS203] [I-D.cfrg-schwabe-kyber], the first selected algorithm for
+   key exchange in the NIST post-quantum standardization project
+   [NISTPQC].  [I-D.ietf-lamps-kyber-certificates] describes how ML-KEM
+   keys can be encoded in X.509 certificates.
 
 1.1.  Revision history
 
    *This section should be removed prior to publication of a final
    version of this document.*
+
+   *  Revision draft-celi-wiggers-tls-authkem-04
+
+      -  Some updates to ML-KEM
+
+      -  Fixed some links
 
    *  Revision draft-celi-wiggers-tls-authkem-03
 
@@ -158,8 +165,7 @@ Table of Contents
 
    *  Revision draft-celi-wiggers-tls-authkem-02
 
-      -  Split PSK mechanism off into
-         [I-D.draft-wiggers-tls-authkem-psk]
+      -  Split PSK mechanism off into [I-D.wiggers-tls-authkem-psk]
 
       -  Editing
 
@@ -188,9 +194,10 @@ Table of Contents
    sizes.
 
    This also leads to increases in code size: For example, implementing
-   highly efficient polynomial multiplication for post-quantum KEM Kyber
-   and signature scheme Dilithium [DILITHIUM] requires significantly
-   different approaches, even though the algorithms are related [K22].
+   highly efficient polynomial multiplication for post-quantum key-
+   encapsulation mechanism ML-KEM and signature scheme ML-DSA [FIPS204]
+   requires significantly different approaches, even though the
+   algorithms are related [K22].
 
    Using the protocol proposed in this draft allows to reduce the amount
    of data exchanged for handshake authentication.  It also allows to
@@ -202,7 +209,7 @@ Table of Contents
 
 1.3.  Evaluation of handshake sizes
 
-   *Should probably be removed before publishing*
+   *Should be removed before publishing*
 
    In the following table, we compare the sizes of TLS 1.3- and AuthKEM-
    based handshakes.  We give the transmission requirements for
@@ -210,13 +217,14 @@ Table of Contents
    chain (intermediate CA certificate public key and signature + root CA
    signature).  For clarity, we are not listing post-quantum/traditional
    hybrid algorithms; we also omit mechanisms such as Certificate
-   Transparency [RFC6962] or OCSP stapling [RFC6960].  We use Kyber-768
-   instead of the smaller Kyber-512 parameter set, as the former is
+   Transparency [RFC6962] or OCSP stapling [RFC6960].  We use ML-KEM-768
+   instead of the smaller ML-KEM-512 parameter set, as the former is
    currently used in experimental deployments.  For signatures, we use
-   Dilithium, the "primary" algorithm selected by NIST for post-quantum
-   signatures, as well as Falcon [FALCON], the algorithm that offers
-   smaller public key and signature sizes, but which NIST indicates can
-   be used if the implementation requirements can be met.
+   Dilithium (standardized as ML-DSA), the "primary" algorithm selected
+   by NIST for post-quantum signatures, as well as Falcon [FALCON], the
+   algorithm that offers smaller public key and signature sizes, but
+   which NIST indicates can be used if the implementation requirements
+   can be met.
 
     +===========+===================+=========+===============+======+
     | Handshake | HS auth algorithm | HS Auth | Certificate   | Sum  |
@@ -258,8 +266,8 @@ Table of Contents
    Falcon implementation against attacks.  Falcon signature verification
    is fast and does not require floating-point arithmetic.  Avoiding
    online usage of Falcon in TLS 1.3 requires two implementations of the
-   signature verification routines, i.e., Dilithium and Falcon, on top
-   of the key exchange algorithm.
+   signature verification routines, i.e., ML-DSA and Falcon, on top of
+   the key exchange algorithm.
 
    In all examples, the size of the certificate chain still dominates
    the TLS handshake, especially if Certificate Transparency SCT
@@ -293,23 +301,23 @@ Table of Contents
    compression mechanism based on compression algorithms, but this is
    not very helpful to reduce the size of high-entropy public keys and
    signatures.  Proposals that offer more significant reductions of
-   sizes of certificate chains, such as
-   [I-D.draft-jackson-tls-cert-abridge], [I-D.ietf-tls-ctls],
-   [I-D.draft-kampanakis-tls-scas-latest], and
-   [I-D.draft-davidben-tls-merkle-tree-certs] all mainly rely on some
-   form of out-of-band distribution of intermediate certificates or
-   other trust anchors in a way that requires a robust update mechanism.
-   This makes these proposals mainly suitable for the WebPKI setting;
-   although this is also the setting that has the largest number of
-   certificates due to the inclusion of SCT statements [RFC6962] and
-   OSCP staples [RFC6960].
+   sizes of certificate chains, such as [I-D.jackson-tls-cert-abridge],
+   [I-D.ietf-tls-ctls], [I-D.kampanakis-tls-scas-latest], and
+   [I-D.davidben-tls-merkle-tree-certs] all mainly rely on some form of
+   out-of-band distribution of intermediate certificates or other trust
+   anchors in a way that requires a robust update mechanism.  This makes
+   these proposals mainly suitable for the WebPKI setting; although this
+   is also the setting that has the largest number of certificates due
+   to the inclusion of SCT statements [RFC6962] and OSCP staples
+   [RFC6960].
 
    AuthKEM complements these approaches in the WebPKI setting.  On its
    own the gains that AuthKEM offers may be modest compared to the large
    sizes of certificate chains.  But when combined with compression or
    certificate suppression mechanisms such as those proposed in the
    referenced drafts, the reduction in handshake size when replacing
-   Dilithium-2 by Kyber-768 becomes significant again.
+   Dilithium-2 by Kyber-768 for handshake authentication becomes
+   significant again.
 
 1.5.  Organization
 
@@ -322,7 +330,7 @@ Table of Contents
    considerations.
 
    A related mechanism for KEM-based PSK-style handshakes is discussed
-   in [I-D.draft-wiggers-tls-authkem-psk].
+   in [I-D.wiggers-tls-authkem-psk].
 
 2.  Conventions and definitions
 
@@ -510,7 +518,7 @@ Table of Contents
    trip.  Clients that know the server's long-term public KEM key MAY
    choose to use the abbreviated AuthKEM handshake and opportunistically
    send the client certificate as a 0-RTT-like message.  This mechanism
-   is discussed in [I-D.draft-wiggers-tls-authkem-psk].
+   is discussed in [I-D.wiggers-tls-authkem-psk].
 
 3.2.  Relevant handshake messages
 
@@ -926,6 +934,15 @@ enum {
 
 6.1.  Normative References
 
+   [I-D.ietf-lamps-kyber-certificates]
+              Turner, S., Kampanakis, P., Massimo, J., and B.
+              Westerbaan, "Internet X.509 Public Key Infrastructure -
+              Algorithm Identifiers for Module-Lattice-Based Key-
+              Encapsulation Mechanism (ML-KEM)", Work in Progress,
+              Internet-Draft, draft-ietf-lamps-kyber-certificates-04, 20
+              September 2024, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-lamps-kyber-certificates-04>.
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -951,65 +968,40 @@ enum {
               IACR ePrint https://ia.cr/2022/1111, August 2022,
               <https://doi.org/10.1007/978-3-031-17143-7_4>.
 
-   [DILITHIUM]
-              Ducas, L., Kiltz, E., Lepoint, T., Lyubashevsky, V.,
-              Schwabe, P., Seiler, G., and D. Stehlé, "CRYSTALS-
-              Dilithium", 2021, <https://pq-crystals.org/dilithium/>.
-
    [FALCON]   Fouque, P., Hoffstein, J., Kirchner, P., Lyubashevsky, V.,
               Pornin, T., Ricosset, T., Seiler, G., Whyte, W., and Z.
               Zhang, "Falcon", 2021, <https://falcon-sign.info>.
 
-   [I-D.draft-cfrg-schwabe-kyber]
+   [FIPS203]  National Institute of Standards and Technology, "Module-
+              Lattice-Based Key-Encapsulation Mechanism Standard",
+              DOI 10.6028/NIST.FIPS.203, n.d.,
+              <https://doi.org/10.6028/NIST.FIPS.203>.
+
+   [FIPS204]  National Institute of Standards and Technology, "Module-
+              Lattice-Based Digital Signature Standard",
+              DOI 10.6028/NIST.FIPS.203, n.d.,
+              <https://doi.org/10.6028/NIST.FIPS.203>.
+
+   [I-D.cfrg-schwabe-kyber]
               Schwabe, P. and B. Westerbaan, "Kyber Post-Quantum KEM",
               Work in Progress, Internet-Draft, draft-cfrg-schwabe-
               kyber-04, 2 January 2024,
               <https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-
               kyber-04>.
 
-   [I-D.draft-davidben-tls-merkle-tree-certs]
+   [I-D.davidben-tls-merkle-tree-certs]
               Benjamin, D., O'Brien, D., and B. Westerbaan, "Merkle Tree
               Certificates for TLS", Work in Progress, Internet-Draft,
-              draft-davidben-tls-merkle-tree-certs-02, 4 March 2024,
+              draft-davidben-tls-merkle-tree-certs-03, 5 September 2024,
               <https://datatracker.ietf.org/doc/html/draft-davidben-tls-
-              merkle-tree-certs-02>.
-
-   [I-D.draft-jackson-tls-cert-abridge]
-              Jackson, D., "Abridged Compression for WebPKI
-              Certificates", Work in Progress, Internet-Draft, draft-
-              jackson-tls-cert-abridge-00, 6 July 2023,
-              <https://datatracker.ietf.org/doc/html/draft-jackson-tls-
-              cert-abridge-00>.
-
-   [I-D.draft-kampanakis-tls-scas-latest]
-              Kampanakis, P., Bytheway, C., Westerbaan, B., and M.
-              Thomson, "Suppressing CA Certificates in TLS 1.3", Work in
-              Progress, Internet-Draft, draft-kampanakis-tls-scas-
-              latest-03, 5 January 2023,
-              <https://datatracker.ietf.org/doc/html/draft-kampanakis-
-              tls-scas-latest-03>.
-
-   [I-D.draft-westerbaan-cfrg-hpke-xyber768d00]
-              Westerbaan, B. and C. A. Wood, "X25519Kyber768Draft00
-              hybrid post-quantum KEM for HPKE", Work in Progress,
-              Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-02,
-              4 May 2023, <https://datatracker.ietf.org/doc/html/draft-
-              westerbaan-cfrg-hpke-xyber768d00-02>.
-
-   [I-D.draft-wiggers-tls-authkem-psk]
-              Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
-              Sullivan, "KEM-based pre-shared-key handshakes for TLS
-              1.3", Work in Progress, Internet-Draft, draft-wiggers-tls-
-              authkem-psk-00, 18 August 2023,
-              <https://datatracker.ietf.org/doc/html/draft-wiggers-tls-
-              authkem-psk-00>.
+              merkle-tree-certs-03>.
 
    [I-D.ietf-tls-ctls]
               Rescorla, E., Barnes, R., Tschofenig, H., and B. M.
               Schwartz, "Compact TLS 1.3", Work in Progress, Internet-
-              Draft, draft-ietf-tls-ctls-09, 23 October 2023,
+              Draft, draft-ietf-tls-ctls-10, 17 April 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
-              ctls-09>.
+              ctls-10>.
 
    [I-D.ietf-tls-semistatic-dh]
               Rescorla, E., Sullivan, N., and C. A. Wood, "Semi-Static
@@ -1025,6 +1017,36 @@ enum {
               June 2022, <https://datatracker.ietf.org/doc/html/draft-
               ietf-tls-subcerts-15>.
 
+   [I-D.jackson-tls-cert-abridge]
+              Jackson, D., "Abridged Compression for WebPKI
+              Certificates", Work in Progress, Internet-Draft, draft-
+              jackson-tls-cert-abridge-00, 6 July 2023,
+              <https://datatracker.ietf.org/doc/html/draft-jackson-tls-
+              cert-abridge-00>.
+
+   [I-D.kampanakis-tls-scas-latest]
+              Kampanakis, P., Bytheway, C., Westerbaan, B., and M.
+              Thomson, "Suppressing CA Certificates in TLS 1.3", Work in
+              Progress, Internet-Draft, draft-kampanakis-tls-scas-
+              latest-03, 5 January 2023,
+              <https://datatracker.ietf.org/doc/html/draft-kampanakis-
+              tls-scas-latest-03>.
+
+   [I-D.westerbaan-cfrg-hpke-xyber768d00]
+              Westerbaan, B. and C. A. Wood, "X25519Kyber768Draft00
+              hybrid post-quantum KEM for HPKE", Work in Progress,
+              Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-03,
+              14 May 2024, <https://datatracker.ietf.org/doc/html/draft-
+              westerbaan-cfrg-hpke-xyber768d00-03>.
+
+   [I-D.wiggers-tls-authkem-psk]
+              Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
+              Sullivan, "KEM-based pre-shared-key handshakes for TLS
+              1.3", Work in Progress, Internet-Draft, draft-wiggers-tls-
+              authkem-psk-01, 15 April 2024,
+              <https://datatracker.ietf.org/doc/html/draft-wiggers-tls-
+              authkem-psk-01>.
+
    [K22]      Kannwischer, M. J., "Polynomial Multiplication for Post-
               Quantum Cryptography", Ph.D. thesis, 22 April 2022,
               <https://kannwischer.eu/thesis/>.
@@ -1032,11 +1054,6 @@ enum {
    [KW16]     Krawczyk, H. and H. Wee, "The OPTLS Protocol and TLS 1.3",
               Proceedings of Euro S&P 2016 , 2016,
               <https://ia.cr/2015/978>.
-
-   [KYBER]    Avanzi, R., Bos, J., Ducas, L., Kiltz, E., Lepoint, T.,
-              Lyubashevsky, V., Schanck, J., Schwabe, P., Seiler, G.,
-              and D. Stehlé, "CRYSTALS-Kyber", 2021,
-              <https://pq-crystals.org/kyber/>.
 
    [NISTPQC]  NIST, "Post-Quantum Cryptography Standardization", 2020.
 

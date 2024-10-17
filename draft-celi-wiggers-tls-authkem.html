@@ -15,23 +15,22 @@
 authentication mechanism in TLS 1.3. This proposal authenticates peers via a key
 exchange protocol, using their long-term (KEM) public keys. 
     " name="description">
-<meta content="xml2rfc 3.20.1" name="generator">
+<meta content="xml2rfc 3.23.2" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-celi-wiggers-tls-authkem-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.20.1
-    Python 3.11.8
+  xml2rfc 3.23.2
+    Python 3.12.7
     ConfigArgParse 1.7
-    google-i18n-address 3.1.0
+    google-i18n-address 3.1.1
     intervaltree 3.1.0
-    Jinja2 3.1.2
-    lxml 4.9.3
-    platformdirs 4.2.0
+    Jinja2 3.1.4
+    lxml 4.9.4
+    platformdirs 4.3.6
     pycountry 22.3.5
     PyYAML 6.0.1
-    requests 2.31.0
-    setuptools 68.2.2
-    six 1.16.0
+    requests 2.32.3
+    setuptools 70.3.0
     wcwidth 0.2.13
 -->
 <link href="draft-celi-wiggers-tls-authkem.xml" rel="alternate" type="application/rfc+xml">
@@ -1031,11 +1030,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">AuthKEM</td>
-<td class="right">April 2024</td>
+<td class="right">October 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Wiggers, et al.</td>
-<td class="center">Expires 17 October 2024</td>
+<td class="center">Expires 20 April 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1048,12 +1047,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-celi-wiggers-tls-authkem-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-04-15" class="published">15 April 2024</time>
+<time datetime="2024-10-17" class="published">17 October 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-10-17">17 October 2024</time></dd>
+<dd class="expires"><time datetime="2025-04-20">20 April 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1119,7 +1118,7 @@ exchange protocol, using their long-term (KEM) public keys.<a href="#section-abs
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 17 October 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 April 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1308,10 +1307,11 @@ specified for instance in <span>[<a href="#RFC8410" class="cite xref">RFC8410</a
 delegated credentials <span>[<a href="#I-D.ietf-tls-subcerts" class="cite xref">I-D.ietf-tls-subcerts</a>]</span>.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">In this proposal, we build on <span>[<a href="#RFC9180" class="cite xref">RFC9180</a>]</span>. This standard currently only covers
 Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
-been put forward <span>[<a href="#I-D.draft-westerbaan-cfrg-hpke-xyber768d00" class="cite xref">I-D.draft-westerbaan-cfrg-hpke-xyber768d00</a>]</span>. This proposal
-uses Kyber <span>[<a href="#KYBER" class="cite xref">KYBER</a>]</span> <span>[<a href="#I-D.draft-cfrg-schwabe-kyber" class="cite xref">I-D.draft-cfrg-schwabe-kyber</a>]</span>, the first selected
-algorithm for key exchange in the NIST post-quantum standardization project
-<span>[<a href="#NISTPQC" class="cite xref">NISTPQC</a>]</span>.<a href="#section-1-5" class="pilcrow">¶</a></p>
+been put forward <span>[<a href="#I-D.westerbaan-cfrg-hpke-xyber768d00" class="cite xref">I-D.westerbaan-cfrg-hpke-xyber768d00</a>]</span>. This proposal uses
+ML-KEM <span>[<a href="#FIPS203" class="cite xref">FIPS203</a>]</span> <span>[<a href="#I-D.cfrg-schwabe-kyber" class="cite xref">I-D.cfrg-schwabe-kyber</a>]</span>, the first selected algorithm for
+key exchange in the NIST post-quantum standardization project <span>[<a href="#NISTPQC" class="cite xref">NISTPQC</a>]</span>.
+<span>[<a href="#I-D.ietf-lamps-kyber-certificates" class="cite xref">I-D.ietf-lamps-kyber-certificates</a>]</span> describes how ML-KEM keys can be encoded
+in X.509 certificates.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <div id="revision-history">
 <section id="section-1.1">
         <h3 id="name-revision-history">
@@ -1321,43 +1321,54 @@ algorithm for key exchange in the NIST post-quantum standardization project
 document.</strong><a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.1">
-            <p id="section-1.1-2.1.1">Revision draft-celi-wiggers-tls-authkem-03<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.1.1">Revision draft-celi-wiggers-tls-authkem-04<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.1.2.1">
-                <p id="section-1.1-2.1.2.1.1">Assigned experimental code points<a href="#section-1.1-2.1.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.1.2.1.1">Some updates to ML-KEM<a href="#section-1.1-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-1.1-2.1.2.2">
-                <p id="section-1.1-2.1.2.2.1">Re-worked HPKE computation<a href="#section-1.1-2.1.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.1.2.2.1">Fixed some links<a href="#section-1.1-2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
           <li class="normal" id="section-1.1-2.2">
-            <p id="section-1.1-2.2.1">Revision draft-celi-wiggers-tls-authkem-02<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.2.1">Revision draft-celi-wiggers-tls-authkem-03<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.2.2.1">
-                <p id="section-1.1-2.2.2.1.1">Split PSK mechanism off into <span>[<a href="#I-D.draft-wiggers-tls-authkem-psk" class="cite xref">I-D.draft-wiggers-tls-authkem-psk</a>]</span><a href="#section-1.1-2.2.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.2.2.1.1">Assigned experimental code points<a href="#section-1.1-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-1.1-2.2.2.2">
-                <p id="section-1.1-2.2.2.2.1">Editing<a href="#section-1.1-2.2.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.2.2.2.1">Re-worked HPKE computation<a href="#section-1.1-2.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
           <li class="normal" id="section-1.1-2.3">
-            <p id="section-1.1-2.3.1">Revision draft-celi-wiggers-tls-authkem-01<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.3.1">Revision draft-celi-wiggers-tls-authkem-02<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.3.2.1">
-                <p id="section-1.1-2.3.2.1.1">Significant Editing<a href="#section-1.1-2.3.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.3.2.1.1">Split PSK mechanism off into <span>[<a href="#I-D.wiggers-tls-authkem-psk" class="cite xref">I-D.wiggers-tls-authkem-psk</a>]</span><a href="#section-1.1-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-1.1-2.3.2.2">
-                <p id="section-1.1-2.3.2.2.1">Use HPKE context<a href="#section-1.1-2.3.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.3.2.2.1">Editing<a href="#section-1.1-2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
           <li class="normal" id="section-1.1-2.4">
-            <p id="section-1.1-2.4.1">Revision draft-celi-wiggers-tls-authkem-00<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.4.1">Revision draft-celi-wiggers-tls-authkem-01<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.4.2.1">
-                <p id="section-1.1-2.4.2.1.1">Initial version<a href="#section-1.1-2.4.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-1.1-2.4.2.1.1">Significant Editing<a href="#section-1.1-2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-1.1-2.4.2.2">
+                <p id="section-1.1-2.4.2.2.1">Use HPKE context<a href="#section-1.1-2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+</li>
+          <li class="normal" id="section-1.1-2.5">
+            <p id="section-1.1-2.5.1">Revision draft-celi-wiggers-tls-authkem-00<a href="#section-1.1-2.5.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.5.2.1">
+                <p id="section-1.1-2.5.2.1.1">Initial version<a href="#section-1.1-2.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 </li>
@@ -1384,9 +1395,9 @@ RSA encryption backwards.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
 signature algorithms have significant differences in implementation, performance
 characteristics, and key and signature sizes.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 <p id="section-1.2-3">This also leads to increases in code size: For example, implementing highly
-efficient polynomial multiplication for post-quantum KEM Kyber and signature
-scheme Dilithium <span>[<a href="#DILITHIUM" class="cite xref">DILITHIUM</a>]</span> requires significantly different approaches, even
-though the algorithms are related <span>[<a href="#K22" class="cite xref">K22</a>]</span>.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
+efficient polynomial multiplication for post-quantum key-encapsulation mechanism
+ML-KEM and signature scheme ML-DSA <span>[<a href="#FIPS204" class="cite xref">FIPS204</a>]</span> requires significantly
+different approaches, even though the algorithms are related <span>[<a href="#K22" class="cite xref">K22</a>]</span>.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
 <p id="section-1.2-4">Using the protocol proposed in this draft allows to reduce the amount of data
 exchanged for handshake authentication. It also allows to re-use the
 implementation that is used for ephemeral key exchange for authentication, as
@@ -1401,18 +1412,19 @@ platforms.<a href="#section-1.2-4" class="pilcrow">¶</a></p>
         <h3 id="name-evaluation-of-handshake-siz">
 <a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-evaluation-of-handshake-siz" class="section-name selfRef">Evaluation of handshake sizes</a>
         </h3>
-<p id="section-1.3-1"><strong>Should probably be removed before publishing</strong><a href="#section-1.3-1" class="pilcrow">¶</a></p>
+<p id="section-1.3-1"><strong>Should be removed before publishing</strong><a href="#section-1.3-1" class="pilcrow">¶</a></p>
 <p id="section-1.3-2">In the following table, we compare the sizes of TLS 1.3- and AuthKEM-based
 handshakes. We give the transmission requirements for handshake authentication
 (public key + signature), and certificate chain (intermediate CA certificate
 public key and signature + root CA signature). For clarity, we are not listing
 post-quantum/traditional hybrid algorithms; we also omit mechanisms such as
 Certificate Transparency <span>[<a href="#RFC6962" class="cite xref">RFC6962</a>]</span> or OCSP stapling <span>[<a href="#RFC6960" class="cite xref">RFC6960</a>]</span>. We use
-Kyber-768 instead of the smaller Kyber-512 parameter set, as the former is
-currently used in experimental deployments. For signatures, we use Dilithium,
-the "primary" algorithm selected by NIST for post-quantum signatures, as well as
-Falcon <span>[<a href="#FALCON" class="cite xref">FALCON</a>]</span>, the algorithm that offers smaller public key and signature sizes, but
-which NIST indicates can be used if the implementation requirements can be met.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
+ML-KEM-768 instead of the smaller ML-KEM-512 parameter set, as the former is
+currently used in experimental deployments. For signatures, we use Dilithium
+(standardized as ML-DSA), the "primary" algorithm selected by NIST for
+post-quantum signatures, as well as Falcon <span>[<a href="#FALCON" class="cite xref">FALCON</a>]</span>, the algorithm that offers
+smaller public key and signature sizes, but which NIST indicates can be used if
+the implementation requirements can be met.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
 <span id="name-size-comparison-of-public-k"></span><table class="center" id="table-1">
           <caption>
 <a href="#table-1" class="selfRef">Table 1</a>:
@@ -1481,10 +1493,10 @@ handshake signatures may not be wise.<a href="#section-1.3-4" class="pilcrow">¶
 <p id="section-1.3-5">Using AuthKEM with Falcon-512 in the certificate chain remains an attractive
 option, however: the certificate issuance process, because it is mostly offline,
 could perhaps be set up in a way to protect the Falcon implementation against
-attacks. Falcon signature verification is fast and does not require floating-point
-arithmetic. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
-of the signature verification routines, i.e., Dilithium and Falcon, on top of
-the key exchange algorithm.<a href="#section-1.3-5" class="pilcrow">¶</a></p>
+attacks. Falcon signature verification is fast and does not require
+floating-point arithmetic. Avoiding online usage of Falcon in TLS 1.3 requires
+two implementations of the signature verification routines, i.e., ML-DSA and
+Falcon, on top of the key exchange algorithm.<a href="#section-1.3-5" class="pilcrow">¶</a></p>
 <p id="section-1.3-6">In all examples, the size of the certificate chain still dominates the TLS
 handshake, especially if Certificate Transparency SCT statements are included,
 which is relevant in the context of the WebPKI. However, we believe that if
@@ -1526,9 +1538,9 @@ that aim to reduce the size of certificates in the TLS handshake. <span>[<a href
 proposes a certificate compression mechanism based on compression algorithms,
 but this is not very helpful to reduce the size of high-entropy public keys and
 signatures. Proposals that offer more significant reductions of sizes of
-certificate chains, such as <span>[<a href="#I-D.draft-jackson-tls-cert-abridge" class="cite xref">I-D.draft-jackson-tls-cert-abridge</a>]</span>,
-<span>[<a href="#I-D.ietf-tls-ctls" class="cite xref">I-D.ietf-tls-ctls</a>]</span>, <span>[<a href="#I-D.draft-kampanakis-tls-scas-latest" class="cite xref">I-D.draft-kampanakis-tls-scas-latest</a>]</span>, and
-<span>[<a href="#I-D.draft-davidben-tls-merkle-tree-certs" class="cite xref">I-D.draft-davidben-tls-merkle-tree-certs</a>]</span> all mainly rely on some form of
+certificate chains, such as <span>[<a href="#I-D.jackson-tls-cert-abridge" class="cite xref">I-D.jackson-tls-cert-abridge</a>]</span>,
+<span>[<a href="#I-D.ietf-tls-ctls" class="cite xref">I-D.ietf-tls-ctls</a>]</span>, <span>[<a href="#I-D.kampanakis-tls-scas-latest" class="cite xref">I-D.kampanakis-tls-scas-latest</a>]</span>, and
+<span>[<a href="#I-D.davidben-tls-merkle-tree-certs" class="cite xref">I-D.davidben-tls-merkle-tree-certs</a>]</span> all mainly rely on some form of
 out-of-band distribution of intermediate certificates or other trust anchors in
 a way that requires a robust update mechanism. This makes these proposals mainly
 suitable for the WebPKI setting; although this is also the setting that has the
@@ -1538,7 +1550,8 @@ largest number of certificates due to the inclusion of SCT statements
 that AuthKEM offers may be modest compared to the large sizes of certificate
 chains. But when combined with compression or certificate suppression mechanisms
 such as those proposed in the referenced drafts, the reduction in handshake size
-when replacing Dilithium-2 by Kyber-768 becomes significant again.<a href="#section-1.4.2-2" class="pilcrow">¶</a></p>
+when replacing Dilithium-2 by Kyber-768 for handshake authentication becomes
+significant again.<a href="#section-1.4.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1555,7 +1568,7 @@ implementation mechanics, such as code points, extensions, new protocol messages
 and the new key schedule. The draft concludes with ah extensive discussion of
 relevant security considerations.<a href="#section-1.5-1" class="pilcrow">¶</a></p>
 <p id="section-1.5-2">A related mechanism for KEM-based PSK-style handshakes is discussed in
-<span>[<a href="#I-D.draft-wiggers-tls-authkem-psk" class="cite xref">I-D.draft-wiggers-tls-authkem-psk</a>]</span>.<a href="#section-1.5-2" class="pilcrow">¶</a></p>
+<span>[<a href="#I-D.wiggers-tls-authkem-psk" class="cite xref">I-D.wiggers-tls-authkem-psk</a>]</span>.<a href="#section-1.5-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1786,7 +1799,7 @@ client MUST NOT assume it has been authenticated.<a href="#section-3.1-5" class=
 Clients that know the server's long-term public KEM key MAY choose to use the
 abbreviated AuthKEM handshake and opportunistically send the client certificate
 as a 0-RTT-like message. This mechanism is discussed in
-<span>[<a href="#I-D.draft-wiggers-tls-authkem-psk" class="cite xref">I-D.draft-wiggers-tls-authkem-psk</a>]</span>.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<span>[<a href="#I-D.wiggers-tls-authkem-psk" class="cite xref">I-D.wiggers-tls-authkem-psk</a>]</span>.<a href="#section-3.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="relevant-handshake-messages">
@@ -2259,6 +2272,7 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
 </div>
 </section>
 </div>
+<div id="sec-combined-references">
 <section id="section-6">
       <h2 id="name-references">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-references" class="section-name selfRef">References</a>
@@ -2269,6 +2283,10 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
+<dt id="I-D.ietf-lamps-kyber-certificates">[I-D.ietf-lamps-kyber-certificates]</dt>
+        <dd>
+<span class="refAuthor">Turner, S.</span>, <span class="refAuthor">Kampanakis, P.</span>, <span class="refAuthor">Massimo, J.</span>, and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"Internet X.509 Public Key Infrastructure - Algorithm Identifiers for Module-Lattice-Based Key-Encapsulation Mechanism (ML-KEM)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-lamps-kyber-certificates-04</span>, <time datetime="2024-09-20" class="refDate">20 September 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-lamps-kyber-certificates-04">https://datatracker.ietf.org/doc/html/draft-ietf-lamps-kyber-certificates-04</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
@@ -2298,41 +2316,29 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
         <dd>
 <span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Hoyland, J.</span>, <span class="refAuthor">Stebila, D.</span>, and <span class="refAuthor">T. Wiggers</span>, <span class="refTitle">"A tale of two models: formal verification of KEMTLS in Tamarin"</span>, <span class="seriesInfo">ESORICS 2022 </span>, <span class="seriesInfo">DOI 10.1007/978-3-031-17143-7_4</span>, <span class="seriesInfo">IACR ePrint https://ia.cr/2022/1111</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://doi.org/10.1007/978-3-031-17143-7_4">https://doi.org/10.1007/978-3-031-17143-7_4</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="DILITHIUM">[DILITHIUM]</dt>
-        <dd>
-<span class="refAuthor">Ducas, L.</span>, <span class="refAuthor">Kiltz, E.</span>, <span class="refAuthor">Lepoint, T.</span>, <span class="refAuthor">Lyubashevsky, V.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Seiler, G.</span>, and <span class="refAuthor">D. Stehlé</span>, <span class="refTitle">"CRYSTALS-Dilithium"</span>, <time datetime="2021" class="refDate">2021</time>, <span>&lt;<a href="https://pq-crystals.org/dilithium/">https://pq-crystals.org/dilithium/</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="FALCON">[FALCON]</dt>
         <dd>
 <span class="refAuthor">Fouque, P.</span>, <span class="refAuthor">Hoffstein, J.</span>, <span class="refAuthor">Kirchner, P.</span>, <span class="refAuthor">Lyubashevsky, V.</span>, <span class="refAuthor">Pornin, T.</span>, <span class="refAuthor">Ricosset, T.</span>, <span class="refAuthor">Seiler, G.</span>, <span class="refAuthor">Whyte, W.</span>, and <span class="refAuthor">Z. Zhang</span>, <span class="refTitle">"Falcon"</span>, <time datetime="2021" class="refDate">2021</time>, <span>&lt;<a href="https://falcon-sign.info">https://falcon-sign.info</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="I-D.draft-cfrg-schwabe-kyber">[I-D.draft-cfrg-schwabe-kyber]</dt>
+<dt id="FIPS203">[FIPS203]</dt>
+        <dd>
+<span class="refAuthor">National Institute of Standards and Technology</span>, <span class="refTitle">"Module-Lattice-Based Key-Encapsulation Mechanism Standard"</span>, <span class="seriesInfo">DOI 10.6028/NIST.FIPS.203</span>, <span>n.d.</span>, <span>&lt;<a href="https://doi.org/10.6028/NIST.FIPS.203">https://doi.org/10.6028/NIST.FIPS.203</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="FIPS204">[FIPS204]</dt>
+        <dd>
+<span class="refAuthor">National Institute of Standards and Technology</span>, <span class="refTitle">"Module-Lattice-Based Digital Signature Standard"</span>, <span class="seriesInfo">DOI 10.6028/NIST.FIPS.203</span>, <span>n.d.</span>, <span>&lt;<a href="https://doi.org/10.6028/NIST.FIPS.203">https://doi.org/10.6028/NIST.FIPS.203</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.cfrg-schwabe-kyber">[I-D.cfrg-schwabe-kyber]</dt>
         <dd>
 <span class="refAuthor">Schwabe, P.</span> and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"Kyber Post-Quantum KEM"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-cfrg-schwabe-kyber-04</span>, <time datetime="2024-01-02" class="refDate">2 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-04">https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-04</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="I-D.draft-davidben-tls-merkle-tree-certs">[I-D.draft-davidben-tls-merkle-tree-certs]</dt>
+<dt id="I-D.davidben-tls-merkle-tree-certs">[I-D.davidben-tls-merkle-tree-certs]</dt>
         <dd>
-<span class="refAuthor">Benjamin, D.</span>, <span class="refAuthor">O'Brien, D.</span>, and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"Merkle Tree Certificates for TLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-davidben-tls-merkle-tree-certs-02</span>, <time datetime="2024-03-04" class="refDate">4 March 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-davidben-tls-merkle-tree-certs-02">https://datatracker.ietf.org/doc/html/draft-davidben-tls-merkle-tree-certs-02</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="I-D.draft-jackson-tls-cert-abridge">[I-D.draft-jackson-tls-cert-abridge]</dt>
-        <dd>
-<span class="refAuthor">Jackson, D.</span>, <span class="refTitle">"Abridged Compression for WebPKI Certificates"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-jackson-tls-cert-abridge-00</span>, <time datetime="2023-07-06" class="refDate">6 July 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-jackson-tls-cert-abridge-00">https://datatracker.ietf.org/doc/html/draft-jackson-tls-cert-abridge-00</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="I-D.draft-kampanakis-tls-scas-latest">[I-D.draft-kampanakis-tls-scas-latest]</dt>
-        <dd>
-<span class="refAuthor">Kampanakis, P.</span>, <span class="refAuthor">Bytheway, C.</span>, <span class="refAuthor">Westerbaan, B.</span>, and <span class="refAuthor">M. Thomson</span>, <span class="refTitle">"Suppressing CA Certificates in TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-kampanakis-tls-scas-latest-03</span>, <time datetime="2023-01-05" class="refDate">5 January 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-kampanakis-tls-scas-latest-03">https://datatracker.ietf.org/doc/html/draft-kampanakis-tls-scas-latest-03</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="I-D.draft-westerbaan-cfrg-hpke-xyber768d00">[I-D.draft-westerbaan-cfrg-hpke-xyber768d00]</dt>
-        <dd>
-<span class="refAuthor">Westerbaan, B.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"X25519Kyber768Draft00 hybrid post-quantum KEM for HPKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-02</span>, <time datetime="2023-05-04" class="refDate">4 May 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-02">https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-02</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="I-D.draft-wiggers-tls-authkem-psk">[I-D.draft-wiggers-tls-authkem-psk]</dt>
-        <dd>
-<span class="refAuthor">Wiggers, T.</span>, <span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Stebila, D.</span>, and <span class="refAuthor">N. Sullivan</span>, <span class="refTitle">"KEM-based pre-shared-key handshakes for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-wiggers-tls-authkem-psk-00</span>, <time datetime="2023-08-18" class="refDate">18 August 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-wiggers-tls-authkem-psk-00">https://datatracker.ietf.org/doc/html/draft-wiggers-tls-authkem-psk-00</a>&gt;</span>. </dd>
+<span class="refAuthor">Benjamin, D.</span>, <span class="refAuthor">O'Brien, D.</span>, and <span class="refAuthor">B. Westerbaan</span>, <span class="refTitle">"Merkle Tree Certificates for TLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-davidben-tls-merkle-tree-certs-03</span>, <time datetime="2024-09-05" class="refDate">5 September 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-davidben-tls-merkle-tree-certs-03">https://datatracker.ietf.org/doc/html/draft-davidben-tls-merkle-tree-certs-03</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-ctls">[I-D.ietf-tls-ctls]</dt>
         <dd>
-<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Tschofenig, H.</span>, and <span class="refAuthor">B. M. Schwartz</span>, <span class="refTitle">"Compact TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-ctls-09</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-ctls-09">https://datatracker.ietf.org/doc/html/draft-ietf-tls-ctls-09</a>&gt;</span>. </dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Tschofenig, H.</span>, and <span class="refAuthor">B. M. Schwartz</span>, <span class="refTitle">"Compact TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-ctls-10</span>, <time datetime="2024-04-17" class="refDate">17 April 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-ctls-10">https://datatracker.ietf.org/doc/html/draft-ietf-tls-ctls-10</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-tls-semistatic-dh">[I-D.ietf-tls-semistatic-dh]</dt>
         <dd>
@@ -2342,6 +2348,22 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
         <dd>
 <span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Iyengar, S.</span>, <span class="refAuthor">Sullivan, N.</span>, and <span class="refAuthor">E. Rescorla</span>, <span class="refTitle">"Delegated Credentials for TLS and DTLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-subcerts-15</span>, <time datetime="2022-06-30" class="refDate">30 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15">https://datatracker.ietf.org/doc/html/draft-ietf-tls-subcerts-15</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="I-D.jackson-tls-cert-abridge">[I-D.jackson-tls-cert-abridge]</dt>
+        <dd>
+<span class="refAuthor">Jackson, D.</span>, <span class="refTitle">"Abridged Compression for WebPKI Certificates"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-jackson-tls-cert-abridge-00</span>, <time datetime="2023-07-06" class="refDate">6 July 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-jackson-tls-cert-abridge-00">https://datatracker.ietf.org/doc/html/draft-jackson-tls-cert-abridge-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.kampanakis-tls-scas-latest">[I-D.kampanakis-tls-scas-latest]</dt>
+        <dd>
+<span class="refAuthor">Kampanakis, P.</span>, <span class="refAuthor">Bytheway, C.</span>, <span class="refAuthor">Westerbaan, B.</span>, and <span class="refAuthor">M. Thomson</span>, <span class="refTitle">"Suppressing CA Certificates in TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-kampanakis-tls-scas-latest-03</span>, <time datetime="2023-01-05" class="refDate">5 January 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-kampanakis-tls-scas-latest-03">https://datatracker.ietf.org/doc/html/draft-kampanakis-tls-scas-latest-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.westerbaan-cfrg-hpke-xyber768d00">[I-D.westerbaan-cfrg-hpke-xyber768d00]</dt>
+        <dd>
+<span class="refAuthor">Westerbaan, B.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"X25519Kyber768Draft00 hybrid post-quantum KEM for HPKE"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-westerbaan-cfrg-hpke-xyber768d00-03</span>, <time datetime="2024-05-14" class="refDate">14 May 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-03">https://datatracker.ietf.org/doc/html/draft-westerbaan-cfrg-hpke-xyber768d00-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.wiggers-tls-authkem-psk">[I-D.wiggers-tls-authkem-psk]</dt>
+        <dd>
+<span class="refAuthor">Wiggers, T.</span>, <span class="refAuthor">Celi, S.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Stebila, D.</span>, and <span class="refAuthor">N. Sullivan</span>, <span class="refTitle">"KEM-based pre-shared-key handshakes for TLS 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-wiggers-tls-authkem-psk-01</span>, <time datetime="2024-04-15" class="refDate">15 April 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-wiggers-tls-authkem-psk-01">https://datatracker.ietf.org/doc/html/draft-wiggers-tls-authkem-psk-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="K22">[K22]</dt>
         <dd>
 <span class="refAuthor">Kannwischer, M. J.</span>, <span class="refTitle">"Polynomial Multiplication for Post-Quantum Cryptography"</span>, <span class="seriesInfo">Ph.D. thesis</span>, <time datetime="2022-04-22" class="refDate">22 April 2022</time>, <span>&lt;<a href="https://kannwischer.eu/thesis/">https://kannwischer.eu/thesis/</a>&gt;</span>. </dd>
@@ -2349,10 +2371,6 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
 <dt id="KW16">[KW16]</dt>
         <dd>
 <span class="refAuthor">Krawczyk, H.</span> and <span class="refAuthor">H. Wee</span>, <span class="refTitle">"The OPTLS Protocol and TLS 1.3"</span>, <span class="seriesInfo">Proceedings of Euro S&amp;P 2016 </span>, <time datetime="2016" class="refDate">2016</time>, <span>&lt;<a href="https://ia.cr/2015/978">https://ia.cr/2015/978</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="KYBER">[KYBER]</dt>
-        <dd>
-<span class="refAuthor">Avanzi, R.</span>, <span class="refAuthor">Bos, J.</span>, <span class="refAuthor">Ducas, L.</span>, <span class="refAuthor">Kiltz, E.</span>, <span class="refAuthor">Lepoint, T.</span>, <span class="refAuthor">Lyubashevsky, V.</span>, <span class="refAuthor">Schanck, J.</span>, <span class="refAuthor">Schwabe, P.</span>, <span class="refAuthor">Seiler, G.</span>, and <span class="refAuthor">D. Stehlé</span>, <span class="refTitle">"CRYSTALS-Kyber"</span>, <time datetime="2021" class="refDate">2021</time>, <span>&lt;<a href="https://pq-crystals.org/kyber/">https://pq-crystals.org/kyber/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="NISTPQC">[NISTPQC]</dt>
         <dd>
@@ -2394,6 +2412,7 @@ view of the authentication status, unlike <span>[<a href="#RFC8446" class="cite 
 </section>
 </div>
 </section>
+</div>
 <div id="open-points-of-discussion">
 <section id="appendix-A">
       <h2 id="name-open-points-of-discussion">
