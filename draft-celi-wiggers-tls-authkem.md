@@ -171,18 +171,6 @@ informative:
       - ins: G. Seiler
       - ins: D. Stehlé
     date: 2021
-  DILITHIUM:
-    target: https://pq-crystals.org/dilithium/
-    title: CRYSTALS-Dilithium
-    author:
-      - ins: L. Ducas
-      - ins: E. Kiltz
-      - ins: T. Lepoint
-      - ins: V. Lyubashevsky
-      - ins: P. Schwabe
-      - ins: G. Seiler
-      - ins: D. Stehlé
-    date: 2021
   FALCON:
     target: https://falcon-sign.info
     title: Falcon
@@ -197,6 +185,18 @@ informative:
       - ins: W. Whyte
       - ins: Z. Zhang
     date: 2021
+  FIPS203:
+    title: Module-Lattice-Based Key-Encapsulation Mechanism Standard
+    author:
+      - ins: National Institute of Standards and Technology
+    seriesinfo:
+      DOI: 10.6028/NIST.FIPS.203
+  FIPS204:
+    title: Module-Lattice-Based Digital Signature Standard
+    author:
+      - ins: National Institute of Standards and Technology
+    seriesinfo:
+      DOI: 10.6028/NIST.FIPS.203
 
 --- abstract
 
@@ -232,20 +232,24 @@ delegated credentials {{?I-D.ietf-tls-subcerts}}.
 
 In this proposal, we build on {{!RFC9180}}. This standard currently only covers
 Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
-been put forward {{?I-D.draft-westerbaan-cfrg-hpke-xyber768d00}}. This proposal
-uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected
+been put forward {{?I-D.westerbaan-cfrg-hpke-xyber768d00}}. This proposal
+uses ML-KEM [FIPS203] {{?I-D.cfrg-schwabe-kyber}}, the first selected
 algorithm for key exchange in the NIST post-quantum standardization project
-[NISTPQC].
+[NISTPQC]. {{!I-D.lamps-kyber}} describes how ML-KEM keys can be encoded
+in X.509 certificates.
 
 ## Revision history
 **This section should be removed prior to publication of a final version of this
 document.**
 
+* Revision draft-celi-wiggers-tls-authkem-04
+  * Some updates to ML-KEM
+  * Fixed some links
 * Revision draft-celi-wiggers-tls-authkem-03
   * Assigned experimental code points
   * Re-worked HPKE computation
 * Revision draft-celi-wiggers-tls-authkem-02
-  * Split PSK mechanism off into {{?I-D.draft-wiggers-tls-authkem-psk}}
+  * Split PSK mechanism off into {{?I-D.wiggers-tls-authkem-psk}}
   * Editing
 * Revision draft-celi-wiggers-tls-authkem-01
   * Significant Editing
@@ -267,9 +271,9 @@ signature algorithms have significant differences in implementation, performance
 characteristics, and key and signature sizes.
 
 This also leads to increases in code size: For example, implementing highly
-efficient polynomial multiplication for post-quantum KEM Kyber and signature
-scheme Dilithium [DILITHIUM] requires significantly different approaches, even
-though the algorithms are related [K22].
+efficient polynomial multiplication for post-quantum key-encapsulation mechanism
+ML-KEM and signature scheme ML-DSA [FIPS204] requires significantly
+different approaches, even though the algorithms are related [K22].
 
 Using the protocol proposed in this draft allows to reduce the amount of data
 exchanged for handshake authentication. It also allows to re-use the
@@ -280,7 +284,7 @@ be more efficient than signing, which might especially affect embedded
 platforms.
 
 ## Evaluation of handshake sizes
-**Should probably be removed before publishing**
+**Should be removed before publishing**
 
 In the following table, we compare the sizes of TLS 1.3- and AuthKEM-based
 handshakes. We give the transmission requirements for handshake authentication
@@ -288,11 +292,12 @@ handshakes. We give the transmission requirements for handshake authentication
 public key and signature + root CA signature). For clarity, we are not listing
 post-quantum/traditional hybrid algorithms; we also omit mechanisms such as
 Certificate Transparency {{?RFC6962}} or OCSP stapling {{?RFC6960}}. We use
-Kyber-768 instead of the smaller Kyber-512 parameter set, as the former is
-currently used in experimental deployments. For signatures, we use Dilithium,
-the "primary" algorithm selected by NIST for post-quantum signatures, as well as
-Falcon [FALCON], the algorithm that offers smaller public key and signature sizes, but
-which NIST indicates can be used if the implementation requirements can be met.
+ML-KEM-768 instead of the smaller ML-KEM-512 parameter set, as the former is
+currently used in experimental deployments. For signatures, we use Dilithium
+(standardized as ML-DSA), the "primary" algorithm selected by NIST for
+post-quantum signatures, as well as Falcon [FALCON], the algorithm that offers
+smaller public key and signature sizes, but which NIST indicates can be used if
+the implementation requirements can be met.
 
 | Handshake | HS auth algorithm | HS Auth bytes | Certificate chain bytes | Sum  |
 | TLS 1.3   | RSA-2048          | 528           | 784  (RSA-2048)         | 1312 |
@@ -313,10 +318,10 @@ handshake signatures may not be wise.
 Using AuthKEM with Falcon-512 in the certificate chain remains an attractive
 option, however: the certificate issuance process, because it is mostly offline,
 could perhaps be set up in a way to protect the Falcon implementation against
-attacks. Falcon signature verification is fast and does not require floating-point
-arithmetic. Avoiding online usage of Falcon in TLS 1.3 requires two implementations
-of the signature verification routines, i.e., Dilithium and Falcon, on top of
-the key exchange algorithm.
+attacks. Falcon signature verification is fast and does not require
+floating-point arithmetic. Avoiding online usage of Falcon in TLS 1.3 requires
+two implementations of the signature verification routines, i.e., ML-DSA and
+Falcon, on top of the key exchange algorithm.
 
 In all examples, the size of the certificate chain still dominates the TLS
 handshake, especially if Certificate Transparency SCT statements are included,
@@ -347,9 +352,9 @@ that aim to reduce the size of certificates in the TLS handshake. {{?RFC8879}}
 proposes a certificate compression mechanism based on compression algorithms,
 but this is not very helpful to reduce the size of high-entropy public keys and
 signatures. Proposals that offer more significant reductions of sizes of
-certificate chains, such as {{?I-D.draft-jackson-tls-cert-abridge}},
-{{?I-D.ietf-tls-ctls}}, {{?I-D.draft-kampanakis-tls-scas-latest}}, and
-{{?I-D.draft-davidben-tls-merkle-tree-certs}} all mainly rely on some form of
+certificate chains, such as {{?I-D.jackson-tls-cert-abridge}},
+{{?I-D.ietf-tls-ctls}}, {{?I-D.kampanakis-tls-scas-latest}}, and
+{{?I-D.davidben-tls-merkle-tree-certs}} all mainly rely on some form of
 out-of-band distribution of intermediate certificates or other trust anchors in
 a way that requires a robust update mechanism. This makes these proposals mainly
 suitable for the WebPKI setting; although this is also the setting that has the
@@ -360,7 +365,8 @@ AuthKEM complements these approaches in the WebPKI setting. On its own the gains
 that AuthKEM offers may be modest compared to the large sizes of certificate
 chains. But when combined with compression or certificate suppression mechanisms
 such as those proposed in the referenced drafts, the reduction in handshake size
-when replacing Dilithium-2 by Kyber-768 becomes significant again.
+when replacing Dilithium-2 by Kyber-768 for handshake authentication becomes
+significant again.
 
 ## Organization
 
@@ -372,7 +378,7 @@ and the new key schedule. The draft concludes with ah extensive discussion of
 relevant security considerations.
 
 A related mechanism for KEM-based PSK-style handshakes is discussed in
-{{?I-D.draft-wiggers-tls-authkem-psk}}.
+{{?I-D.wiggers-tls-authkem-psk}}.
 
 # Conventions and definitions
 
@@ -562,7 +568,7 @@ Unfortunately, AuthKEM client authentication requires an extra round-trip.
 Clients that know the server's long-term public KEM key MAY choose to use the
 abbreviated AuthKEM handshake and opportunistically send the client certificate
 as a 0-RTT-like message. This mechanism is discussed in
-{{?I-D.draft-wiggers-tls-authkem-psk}}.
+{{?I-D.wiggers-tls-authkem-psk}}.
 
 ## Relevant handshake messages
 
@@ -998,3 +1004,5 @@ Grant No. 805031 (EPOQUE).
 
 Part of this work was supported by the NLNet NGI Assure theme fund project
 ["Standardizing KEMTLS"](https://nlnet.nl/project/KEMTLS/)
+
+<!--  vim: set ft=markdown ts=4 sw=2 tw=0 et : -->

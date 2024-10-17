@@ -158,21 +158,18 @@ informative:
     seriesinfo:
       "PKC": 2023
       "IACR ePrint": https://ia.cr/2022/1696
-  KYBER:
-    target: https://pq-crystals.org/kyber/
-    title: CRYSTALS-Kyber
+  FIPS203:
+    title: Module-Lattice-Based Key-Encapsulation Mechanism Standard
     author:
-      - ins: R. Avanzi
-      - ins: J. Bos
-      - ins: L. Ducas
-      - ins: E. Kiltz
-      - ins: T. Lepoint
-      - ins: V. Lyubashevsky
-      - ins: J. Schanck
-      - ins: P. Schwabe
-      - ins: G. Seiler
-      - ins: D. Stehlé
-    date: 2021
+      - ins: National Institute of Standards and Technology
+    seriesinfo:
+      DOI: 10.6028/NIST.FIPS.203
+  FIPS204:
+    title: Module-Lattice-Based Digital Signature Standard
+    author:
+      - ins: National Institute of Standards and Technology
+    seriesinfo:
+      DOI: 10.6028/NIST.FIPS.203
 
 --- abstract
 
@@ -194,7 +191,7 @@ GitHub.
 
 This document gives a construction for KEM-based, PSK-style abbreviated TLS 1.3
 {{!RFC8446}} handshakes. It is similar in spirit to
-{{?I-D.draft-celi-wiggers-tls-authkem}}, but can be independently implemented.
+{{?I-D.celi-wiggers-tls-authkem}}, but can be independently implemented.
 
 The abbreviated handshake is appropriate for endpoints that have KEM public
 keys, and where the client has the server's public key before initiation of the
@@ -206,8 +203,8 @@ be provided with the public key as a matter of configuration.
 
 In this proposal, we build on {{!RFC9180}}. This standard currently only covers
 Diffie-Hellman based KEMs, but the first post-quantum algorithms have already
-been put forward {{?I-D.draft-westerbaan-cfrg-hpke-xyber768d00}}. This proposal
-uses Kyber [KYBER] {{?I-D.draft-cfrg-schwabe-kyber}}, the first selected
+been put forward {{?I-D.westerbaan-cfrg-hpke-xyber768d00}}. This proposal
+uses ML-KEM [FIPS203] {{?I-D.cfrg-schwabe-kyber}}, the first selected
 algorithm for key exchange in the NIST post-quantum standardization project
 [NISTPQC].
 
@@ -215,11 +212,14 @@ algorithm for key exchange in the NIST post-quantum standardization project
 **This section should be removed prior to publication of a final version of this
 document.**
 
+* Revision draft-wiggers-tls-authkem-psk-02
+  * Fixing a few links
+  * Update to ML-KEM/FIPS203
 * Revision draft-wiggers-tls-authkem-psk-01
   * Revised abstract
   * Minor edits
 * Revision draft-wiggers-tls-authkem-psk-00
-  * Split PSK mechanism off from {{?I-D.draft-wiggers-tls-authkem}}
+  * Split PSK mechanism off from {{?I-D.celi-wiggers-tls-authkem}}
 * Revision draft-celi-wiggers-tls-authkem-01
   * Significant Editing
   * Use HPKE context
@@ -285,7 +285,7 @@ As this proposal relies heavily on KEMs, which are not originally used by TLS,
 we will provide a brief overview of this primitive. Other cryptographic
 operations will be discussed later.
 
-This definition matches the one from {{?I-D.draft-celi-wiggers-tls-authkem}}.
+This definition matches the one from {{?I-D.celi-wiggers-tls-authkem}}.
 
 A Key Encapsulation Mechanism (KEM) is a cryptographic primitive that defines
 the methods ``Encapsulate`` and ``Decapsulate``. In this draft, we extend these
@@ -442,7 +442,7 @@ enum {
 }
 ~~~
 
-This matches the definition in {{?I-D.draft-celi-wiggers-tls-authkem}}.
+This matches the definition in {{?I-D.celi-wiggers-tls-authkem}}.
 
 **Please give feedback on which KEMs should be included**
 
@@ -548,7 +548,7 @@ of a connection, as in TLS 1.3. It uses the same messages, except
 for the addition of a `KEMEncapsulation` message and does not use
 the `CertificateVerify` one.
 
-Note that these definitions mirror {{?I-D.draft-celi-wiggers-tls-authkem}}.
+Note that these definitions mirror {{?I-D.celi-wiggers-tls-authkem}}.
 
 ~~~
 enum {
@@ -660,7 +660,7 @@ used.
 ### Computations of KEM shared secrets {#kem-computations}
 
 
-As in {{?I-D.draft-celi-wiggers-tls-authkem}}, operations to compute `SSs` or
+As in {{?I-D.celi-wiggers-tls-authkem}}, operations to compute `SSs` or
 `SSc` from the client are:
 
 ~~~
@@ -713,7 +713,7 @@ server/client_verify_data =
    includes the other party's Finished message.
 ~~~
 
-These computations match {{?I-D.draft-celi-wiggers-tls-authkem}}.
+These computations match {{?I-D.celi-wiggers-tls-authkem}}.
 
 See [](#sec-authkem-pdk-negotiation) for special considerations for the
 abbreviated AuthKEM handshake.
@@ -763,7 +763,7 @@ has. {{?I-D.ietf-tls-esni}} may help alleviate this.
 
 An alternative approach could be the use of trial decryption. If the KEM used
 has anonymity, the ciphertext that the client sends is not linkable to the
-server public key. Kyber offers post-quantum anonymity [MX22].
+server public key. ML-KEM offers post-quantum anonymity [MX22].
 
 
 --- back
