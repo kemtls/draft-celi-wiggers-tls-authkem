@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-08-20T01:09:07.883337+00:00",
+  "timestamp": "2024-10-20T01:45:41.419105+00:00",
   "repo": "kemtls/draft-celi-wiggers-tls-authkem",
   "labels": [
     {
@@ -524,14 +524,122 @@
       "id": "I_kwDOFsZZcM5upgbA",
       "title": "Fix the AuthKEM-PSK abstract",
       "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/28",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "thomwiggers",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2023-08-18T09:23:01Z",
-      "updatedAt": "2023-08-18T09:23:01Z",
+      "updatedAt": "2024-04-15T09:31:30Z",
+      "closedAt": "2024-04-15T09:31:30Z",
+      "comments": []
+    },
+    {
+      "number": 29,
+      "id": "I_kwDOFsZZcM52DuF3",
+      "title": "Document PKI considerations",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/29",
+      "state": "OPEN",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "- CSRs still rely on issuing (and ACME relies on CSR)",
+      "createdAt": "2023-11-07T07:03:57Z",
+      "updatedAt": "2023-12-14T10:08:22Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "MEMBER",
+          "body": "https://datatracker.ietf.org/doc/draft-giron-acme-pqcnegotiation/",
+          "createdAt": "2023-12-14T10:08:20Z",
+          "updatedAt": "2023-12-14T10:08:20Z"
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "id": "I_kwDOFsZZcM6Ajkof",
+      "title": "AuthKEM traffic key computations mismatch",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/30",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "```\r\n       [...]\r\nSSc||0 * -> HKDF-Extract = Main Secret\r\n            |\r\n            +--> Derive-Secret(., \"c ap traffic\",\r\n            |                  ClientHello...server Finished)\r\n            |                  = client_application_traffic_secret_0\r\n            |\r\n            +--> Derive-Secret(., \"s ap traffic\",\r\n            |                  ClientHello...server Finished)\r\n            |                  = server_application_traffic_secret_0\r\n[...]\r\n```\r\n\r\nThe traffic keys are here shown to be derived from `server Finished`. This is not possible: we've not received/sent server's Finished yet when we already need to derive the client application traffic keys. The KEMTLS paper and analyses uses that these keys are derived from the *complete* transcript (unlike in TLS 1.3). Changing it to be derived from just client finished, I don't like so much.",
+      "createdAt": "2024-02-27T14:56:46Z",
+      "updatedAt": "2024-04-11T14:47:14Z",
+      "closedAt": "2024-04-11T14:47:14Z",
+      "comments": [
+        {
+          "author": "dstebila",
+          "authorAssociation": "COLLABORATOR",
+          "body": "What's your concern about going up to just client finished?  There aren't any other messages between server finished and client finished, are there?",
+          "createdAt": "2024-02-27T17:25:06Z",
+          "updatedAt": "2024-02-27T17:25:06Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "MEMBER",
+          "body": "I like the idea that the authentication status of the server is part of the key, which otherwise it would not be. It's also what we've analysed in Tamarin etcetera. I mainly don't see a good reason why to not include Server Finished",
+          "createdAt": "2024-02-27T19:04:21Z",
+          "updatedAt": "2024-02-27T19:04:21Z"
+        },
+        {
+          "author": "dstebila",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I'm a bit confused. Back in the original KEMTLS paper we had the CATS derived from CH...CF and the SATS derived from CH...SF -- because those were the maximum extents of the transcript available at each point the value was derived.  Is that no longer the case?",
+          "createdAt": "2024-02-28T01:10:46Z",
+          "updatedAt": "2024-02-28T01:10:46Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "MEMBER",
+          "body": "Yes, as quoted above, the AuthKEM draft currently states that they're derived from CH..SF which is what TLS 1.3 does",
+          "createdAt": "2024-02-28T07:35:18Z",
+          "updatedAt": "2024-02-28T07:35:18Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "MEMBER",
+          "body": "I think this is simply copy and paste error",
+          "createdAt": "2024-02-28T07:35:27Z",
+          "updatedAt": "2024-02-28T07:35:27Z"
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "id": "I_kwDOFsZZcM6ArpCF",
+      "title": "Restructure KEM API info input",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/31",
+      "state": "CLOSED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "The KEM API we use in AuthKEM makes use of HPKE's key derivation, which allows label inputs.\r\n\r\nWe currently concatenate the context info to the setup label, but we should instead put it into the export function. this avoids string concat.",
+      "createdAt": "2024-02-28T13:02:46Z",
+      "updatedAt": "2024-04-11T14:47:26Z",
+      "closedAt": "2024-04-11T14:47:25Z",
+      "comments": []
+    },
+    {
+      "number": 32,
+      "id": "I_kwDOFsZZcM6FGK9x",
+      "title": "Should we keep using HPKE?",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/issues/32",
+      "state": "OPEN",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "- HPKE is used in ECH\r\n- But TLS key exchange uses \"plain\" KEMs so HPKE is extra effort.\r\n- LAMPS is putting \"plain\" KEM public keys in certificates; we'd have to import those into HPKE (which is certainly possible)\r\n- On the plus side, HPKE has nice context separation that we are currently using in the draft.",
+      "createdAt": "2024-04-09T09:18:05Z",
+      "updatedAt": "2024-04-09T09:18:05Z",
       "closedAt": null,
       "comments": []
     }
@@ -1217,6 +1325,188 @@
       "mergedBy": "thomwiggers",
       "mergeCommit": {
         "oid": "e1d841d00e833c86c860a206fbfddfc0a427db95"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 33,
+      "id": "PR_kwDOFsZZcM5sG4ZC",
+      "title": "Re-do HPKE context inputs (closes #31)",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/pull/33",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-04-09T09:25:59Z",
+      "updatedAt": "2024-04-11T14:47:25Z",
+      "baseRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "main",
+      "baseRefOid": "18775b7aa6e89b55ddf957cd4c6416975c3b3808",
+      "headRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "headRefName": "update-hpke-computation",
+      "headRefOid": "5b4624ec7037027c37bb15d45421818a03370a34",
+      "closedAt": "2024-04-11T14:47:24Z",
+      "mergedAt": "2024-04-11T14:47:24Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "cd41695a0173adca218d4c7ebdeffa3b88ff5763"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 34,
+      "id": "PR_kwDOFsZZcM5sG6FJ",
+      "title": "Fix computation of traffic keys",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/pull/34",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #30",
+      "createdAt": "2024-04-09T09:30:16Z",
+      "updatedAt": "2024-04-11T14:47:13Z",
+      "baseRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "main",
+      "baseRefOid": "18775b7aa6e89b55ddf957cd4c6416975c3b3808",
+      "headRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "headRefName": "fix-traffic-keys",
+      "headRefOid": "24e6dfe3b73d1ac30893236151bad15c42ede4f7",
+      "closedAt": "2024-04-11T14:47:13Z",
+      "mergedAt": "2024-04-11T14:47:13Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "5a365673d7b69f9ab4d675a4c4562c9a031deb3c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 35,
+      "id": "PR_kwDOFsZZcM5sG9LG",
+      "title": "Fix abstract for PSK draft",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/pull/35",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-04-09T09:38:05Z",
+      "updatedAt": "2024-04-11T14:47:00Z",
+      "baseRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "main",
+      "baseRefOid": "18775b7aa6e89b55ddf957cd4c6416975c3b3808",
+      "headRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "headRefName": "fix-psk-abstract",
+      "headRefOid": "a428d8845bed34dfaf177246243099b87b5aa592",
+      "closedAt": "2024-04-11T14:47:00Z",
+      "mergedAt": "2024-04-11T14:47:00Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "32aa25ffad109d2d40684569f2be40b88bb3a5f5"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 36,
+      "id": "PR_kwDOFsZZcM5sH53Q",
+      "title": "add code point used by experiment",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/pull/36",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-04-09T12:12:20Z",
+      "updatedAt": "2024-04-11T14:46:40Z",
+      "baseRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "main",
+      "baseRefOid": "18775b7aa6e89b55ddf957cd4c6416975c3b3808",
+      "headRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "headRefName": "experiment-code-point",
+      "headRefOid": "e72e14b937c51888c65f3213817db8416b4be830",
+      "closedAt": "2024-04-11T14:46:40Z",
+      "mergedAt": "2024-04-11T14:46:40Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "4c5078749c80f1f9d519dcfefa573a1ee489ae2f"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 37,
+      "id": "PR_kwDOFsZZcM5sN4hx",
+      "title": "Acknowledge NLNet funding",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/pull/37",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-04-10T08:29:23Z",
+      "updatedAt": "2024-04-11T14:46:25Z",
+      "baseRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "main",
+      "baseRefOid": "18775b7aa6e89b55ddf957cd4c6416975c3b3808",
+      "headRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "headRefName": "ack-nlnet",
+      "headRefOid": "094fb4a6fec0fb4a8d3ebdbf9bb731d618e98724",
+      "closedAt": "2024-04-11T14:46:24Z",
+      "mergedAt": "2024-04-11T14:46:24Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "0dcc3c2ecef54f38418ef2af43a9298666b35a5f"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOFsZZcM52wSHR",
+          "commit": {
+            "abbreviatedOid": "094fb4a"
+          },
+          "author": "dstebila",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-04-10T18:04:25Z",
+          "updatedAt": "2024-04-10T18:04:25Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "id": "PR_kwDOFsZZcM5sX0VT",
+      "title": "Add changelogs",
+      "url": "https://github.com/kemtls/draft-celi-wiggers-tls-authkem/pull/38",
+      "state": "MERGED",
+      "author": "thomwiggers",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-04-11T14:57:45Z",
+      "updatedAt": "2024-04-15T09:23:40Z",
+      "baseRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "baseRefName": "main",
+      "baseRefOid": "cd41695a0173adca218d4c7ebdeffa3b88ff5763",
+      "headRepository": "kemtls/draft-celi-wiggers-tls-authkem",
+      "headRefName": "changelogs",
+      "headRefOid": "169de03d2d0b747cd4e3ee33fded8e0fda8d7710",
+      "closedAt": "2024-04-15T09:23:39Z",
+      "mergedAt": "2024-04-15T09:23:39Z",
+      "mergedBy": "thomwiggers",
+      "mergeCommit": {
+        "oid": "623ff138c939bdd5379f1e00f60f48431a9b1155"
       },
       "comments": [],
       "reviews": []
