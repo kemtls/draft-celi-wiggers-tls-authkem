@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-03-30T01:53:08.136671+00:00",
+  "timestamp": "2025-04-15T01:50:26.517520+00:00",
   "repo": "kemtls/draft-celi-wiggers-tls-authkem",
   "labels": [
     {
@@ -547,7 +547,7 @@
       "labels": [],
       "body": "- CSRs still rely on issuing (and ACME relies on CSR)",
       "createdAt": "2023-11-07T07:03:57Z",
-      "updatedAt": "2023-12-14T10:08:22Z",
+      "updatedAt": "2025-04-14T10:05:11Z",
       "closedAt": null,
       "comments": [
         {
@@ -556,6 +556,20 @@
           "body": "https://datatracker.ietf.org/doc/draft-giron-acme-pqcnegotiation/",
           "createdAt": "2023-12-14T10:08:20Z",
           "updatedAt": "2023-12-14T10:08:20Z"
+        },
+        {
+          "author": "ralienpp",
+          "authorAssociation": "NONE",
+          "body": "RFC 4210bis has provisions for issuing KEM certificates, it will be published soon: https://lamps-wg.github.io/cmp-updates/draft-ietf-lamps-rfc4210bis.html\n\nWe also have implementations in CMP clients and RAs (registration authorities) where this logic is available, for example:\n- https://github.com/siemens/cmp-ra-component/ (library for creating RAs and CAs)\n- https://github.com/siemens/gencmpclient (CMP client)\n- OpenSSL's CMP client also has the feature now.\n\nYour doctoral thesis covers this matter briefly, referring to CMP's ability to send back an encrypted certificate and using an interactive process. Between then and now CMP was updated and there is some new KEM-specific logic (see \"direct proof of possession\" in section 4.3.4). It also covers an issue you raised in the thesis (regarding transparency logs), that the CA must not add the certificate to the log until the client confirms the transaction (i.e., they've decapsulated successfully, got the cert and replied to the CA).",
+          "createdAt": "2025-04-14T09:59:32Z",
+          "updatedAt": "2025-04-14T09:59:32Z"
+        },
+        {
+          "author": "thomwiggers",
+          "authorAssociation": "MEMBER",
+          "body": "Thanks for the update! \n\nRe: the stuff in my thesis: I provided some comments on those CMP specs while they were still in LAMPS :)",
+          "createdAt": "2025-04-14T10:05:10Z",
+          "updatedAt": "2025-04-14T10:05:10Z"
         }
       ]
     },
