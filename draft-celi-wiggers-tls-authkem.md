@@ -57,8 +57,6 @@ venue:
   github: kemtls/draft-celi-wiggers-tls-authkem
 
 normative:
-  RFC8446:
-  RFC9180:
 
 informative:
   RFC5869:
@@ -227,6 +225,8 @@ in X.509 certificates.
 **This section should be removed prior to publication of a final version of this
 document.**
 
+* Revision draft-celi-wiggers-tls-authkem-05
+  * Bumped version
 * Revision draft-celi-wiggers-tls-authkem-04
   * Some updates to ML-KEM
   * Fixed some links

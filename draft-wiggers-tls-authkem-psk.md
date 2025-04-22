@@ -57,8 +57,6 @@ venue:
   github: kemtls/draft-celi-wiggers-tls-authkem
 
 normative:
-  RFC8446:
-  RFC9180:
 
 informative:
 #  RFC5280:
@@ -206,6 +204,8 @@ algorithm for key exchange in the NIST post-quantum standardization project
 **This section should be removed prior to publication of a final version of this
 document.**
 
+* Revision draft-wiggers-tls-authkem-psk-03
+  * Bumped version
 * Revision draft-wiggers-tls-authkem-psk-02
   * Fixing a few links
   * Update to ML-KEM/FIPS203
