@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 20 April 2025                                    Brave Software
+Expires: 24 October 2025                                  Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                         17 October 2024
+                                                           22 April 2025
 
 
                   KEM-based Authentication for TLS 1.3
@@ -54,11 +54,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 April 2025.
+   This Internet-Draft will expire on 24 October 2025.
 
 Copyright Notice
 
-   Copyright (c) 2024 IETF Trust and the persons identified as the
+   Copyright (c) 2025 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -150,6 +150,10 @@ Table of Contents
 
    *This section should be removed prior to publication of a final
    version of this document.*
+
+   *  Revision draft-celi-wiggers-tls-authkem-05
+
+      -  Bumped version
 
    *  Revision draft-celi-wiggers-tls-authkem-04
 
@@ -937,11 +941,11 @@ enum {
    [I-D.ietf-lamps-kyber-certificates]
               Turner, S., Kampanakis, P., Massimo, J., and B.
               Westerbaan, "Internet X.509 Public Key Infrastructure -
-              Algorithm Identifiers for Module-Lattice-Based Key-
+              Algorithm Identifiers for the Module-Lattice-Based Key-
               Encapsulation Mechanism (ML-KEM)", Work in Progress,
-              Internet-Draft, draft-ietf-lamps-kyber-certificates-04, 20
-              September 2024, <https://datatracker.ietf.org/doc/html/
-              draft-ietf-lamps-kyber-certificates-04>.
+              Internet-Draft, draft-ietf-lamps-kyber-certificates-10, 16
+              April 2025, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-lamps-kyber-certificates-10>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -992,9 +996,9 @@ enum {
    [I-D.davidben-tls-merkle-tree-certs]
               Benjamin, D., O'Brien, D., and B. Westerbaan, "Merkle Tree
               Certificates for TLS", Work in Progress, Internet-Draft,
-              draft-davidben-tls-merkle-tree-certs-03, 5 September 2024,
+              draft-davidben-tls-merkle-tree-certs-04, 3 March 2025,
               <https://datatracker.ietf.org/doc/html/draft-davidben-tls-
-              merkle-tree-certs-03>.
+              merkle-tree-certs-04>.
 
    [I-D.ietf-tls-ctls]
               Rescorla, E., Barnes, R., Tschofenig, H., and B. M.
@@ -1043,9 +1047,9 @@ enum {
               Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
               Sullivan, "KEM-based pre-shared-key handshakes for TLS
               1.3", Work in Progress, Internet-Draft, draft-wiggers-tls-
-              authkem-psk-01, 15 April 2024,
+              authkem-psk-02, 17 October 2024,
               <https://datatracker.ietf.org/doc/html/draft-wiggers-tls-
-              authkem-psk-01>.
+              authkem-psk-02>.
 
    [K22]      Kannwischer, M. J., "Polynomial Multiplication for Post-
               Quantum Cryptography", Ph.D. thesis, 22 April 2022,
