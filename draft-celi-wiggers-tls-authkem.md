@@ -225,7 +225,7 @@ in X.509 certificates.
 **This section should be removed prior to publication of a final version of this
 document.**
 
-* Revision draft-celi-wiggers-tls-authkem-05, -06, -07
+* Revision draft-celi-wiggers-tls-authkem-05, -06, -07, -08
   * Bumped version
 * Revision draft-celi-wiggers-tls-authkem-04
   * Some updates to ML-KEM
