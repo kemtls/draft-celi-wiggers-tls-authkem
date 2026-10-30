@@ -5,13 +5,13 @@
 TLS Working Group                                             T. Wiggers
 Internet-Draft                                                  PQShield
 Intended status: Informational                                   S. Celi
-Expires: 24 October 2025                                  Brave Software
+Expires: 3 May 2027                                       Brave Software
                                                               P. Schwabe
                                            Radboud University and MPI-SP
                                                               D. Stebila
                                                   University of Waterloo
                                                              N. Sullivan
-                                                           22 April 2025
+                                                         30 October 2026
 
 
             KEM-based pre-shared-key handshakes for TLS 1.3
@@ -59,11 +59,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 October 2025.
+   This Internet-Draft will expire on 3 May 2027.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -142,7 +142,7 @@ Table of Contents
    *This section should be removed prior to publication of a final
    version of this document.*
 
-   *  Revision draft-wiggers-tls-authkem-psk-03
+   *  Revision draft-wiggers-tls-authkem-psk-03, -04, -05, -06
 
       -  Bumped version
 
@@ -750,9 +750,8 @@ enum {
               Wiggers, T., Celi, S., Schwabe, P., Stebila, D., and N.
               Sullivan, "KEM-based Authentication for TLS 1.3", Work in
               Progress, Internet-Draft, draft-celi-wiggers-tls-authkem-
-              04, 17 October 2024,
-              <https://datatracker.ietf.org/doc/html/draft-celi-wiggers-
-              tls-authkem-04>.
+              07, 4 May 2026, <https://datatracker.ietf.org/doc/html/
+              draft-celi-wiggers-tls-authkem-07>.
 
    [I-D.cfrg-schwabe-kyber]
               Schwabe, P. and B. Westerbaan, "Kyber Post-Quantum KEM",
@@ -764,9 +763,9 @@ enum {
    [I-D.ietf-tls-esni]
               Rescorla, E., Oku, K., Sullivan, N., and C. A. Wood, "TLS
               Encrypted Client Hello", Work in Progress, Internet-Draft,
-              draft-ietf-tls-esni-24, 20 March 2025,
+              draft-ietf-tls-esni-25, 14 June 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
-              esni-24>.
+              esni-25>.
 
    [I-D.ietf-tls-semistatic-dh]
               Rescorla, E., Sullivan, N., and C. A. Wood, "Semi-Static
